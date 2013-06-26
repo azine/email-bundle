@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=5.3.2",
-        "symfony/swiftmailer-bundle": "2.2.*"
+        "friendsofsymfony/user-bundle": "2.0.x-dev"
     },
     "require-dev": {
         "symfony/framework-bundle": ">=2.1"
