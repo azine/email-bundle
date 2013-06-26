@@ -1,0 +1,27 @@
+{
+    "name": "azine/geoblocking-bundle",
+    "type": "symfony-bundle",
+    "description": "Bundle to send emails (notification about events on your web-app or newsletters) to your users ",
+    "keywords": ["email", "newsletter", "notification", "updates"],
+    "homepage": "https://github.com/azine/email-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Azine IT Services AG",
+            "email": "github@azine-it.ch"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "friendsofsymfony/user-bundle": "2.0.x-dev",
+        "symfony/swiftmailer-bundle": "2.2.*",
+    },
+    "require-dev": {
+        "symfony/framework-bundle": ">=2.1"
+    },
+    "autoload": {
+        "psr-0": { "Azine\\EmailBundle": "" }
+    },
+    "minimum-stability": "dev",
+    "target-dir": "Azine/EmailBundle"
+}

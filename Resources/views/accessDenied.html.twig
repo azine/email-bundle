@@ -1,0 +1,13 @@
+{% if loginRoute is defined %}
+<p>
+	{{ 'access.denied.for.anon.user.message' | trans }}
+</p>
+<p>
+	{{ 'access.denied.login.message.%loginUrl%' | trans ({'%loginUrl%' : path(loginRoute)}) | raw }}
+</p>
+{% else %}
+<p>
+	{{ 'access.denied.message' | trans }}
+</p>
+{% endif %}
+locale: {{ app.request.locale }}

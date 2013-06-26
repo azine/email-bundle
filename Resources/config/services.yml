@@ -1,0 +1,12 @@
+parameters:
+#    azine_geo_blocking.example.class: Azine\GeoBlockingBundle\Example        
+
+services:
+    azine_geo_blocking.kernel.request.listener:
+            class: Azine\GeoBlockingBundle\EventListener\GeoBlockingKernelRequestListener
+            tags:
+                - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+            arguments: [ @router, @service_container ]  
+    azine_geo_blocking.lookup.adapter:  
+            class: Azine\GeoBlockingBundle\Adapter\DefaultLookupAdapter      
+            
