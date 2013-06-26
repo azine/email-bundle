@@ -1,9 +1,9 @@
 <?php
 
-namespace Azine\GeoBlockingBundle;
+namespace Azine\EmailBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class AzineGeoBlockingBundle extends Bundle
+class AzineEmailBundle extends Bundle
 {
 }

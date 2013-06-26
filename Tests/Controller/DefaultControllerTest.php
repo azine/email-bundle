@@ -1,6 +1,6 @@
 <?php
 
-namespace Azine\GeoBlockingBundle\Tests\Controller;
+namespace Azine\EmailBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
