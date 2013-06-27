@@ -1,0 +1,75 @@
+{% autoescape false %}
+<!DOCTYPE HTML 4.01 Transitional>
+<html>
+	<head>
+		<title>{% block title %}{% endblock %}</title>
+		<meta name="description" content="{% block description %}{% endblock %}" >
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	</head>
+	<body style=" color: black; margin:0; font: normal 12px/18px Arial, Helvetica, sans-serif; background-color: #fdfbfa;">
+		<table width="640" border="0" align="center" cellpadding="0" cellspacing="0" style="font: normal 12px/18px Arial, Helvetica, sans-serif;">
+			<tr>
+				<td>&nbsp;</td>
+				<td bgcolor="#f2f1f0">&nbsp;</td>
+				<td>&nbsp;</td>
+				</tr>
+			<tr>
+				<td width="10">&nbsp;</td>
+				<td width="620" bgcolor="#f2f1f0" style="padding: 0px 20px;">
+			    	<a href="http://azine.me" target="_blank" style="color: green; font-size: 72px; font-weight: bold; text-decoration: none;">
+			    		<img src="{{ logo_png }}" alt="azine.me" />
+			    	</a>
+			    </td>
+				<td width="10">&nbsp;</td>
+			</tr>
+	  	</table>
+	  	{{ topShadow }}
+	 	{{ leftShadow}}
+		    	<td width="620" bgcolor="white"  style="padding:10px 20px 20px 20px; border-top: 1px solid #EEEEEE;">
+	    		<a name="top" ></a>
+	  			{% block content %}
+					<span {{ salutationStyle }}>{{ '_az.email.hello.%username%' | trans({'%username%' : username }) }}</span>
+					<p>
+						{{ '_az.email.newsletter.header.text.with.a.%linkOpenTag%.%linkText%.closeTag' | trans({'%linkText%' : 'a link text', '%linkOpenTag%' : '<a href="'~aLink~'}}" style="color:#9fb400; font-size:15px; font-weight: bold;">'}) | raw | nl2br }}
+					</p>
+					<p>
+						{{ '_az.email.best.regards.and.see.you.soon' | trans }}
+						<br/>
+						<span style="color:#024d84;">{{ '_az.email.signature.azine.me.team' | trans }}</span>
+					</p>
+
+			{{ cellSeparator }}
+					<p>
+						{{ '_az.email.add.more.content.in.more.sections.if.you.like' }}
+					</p>
+		{% endblock %}	<!-- end main content -->
+			    </td>
+		{{ rightShadow }}
+		{{ leftShadow}}
+	        	<td width="620" bgcolor="white" style="text-align:center;">
+	        		<a href="http://azine.me" target="_blank" style="color: {{ azGreen }}; font-size: 36px; font-weight: bold; text-decoration: none; position:relative; top:1px;">
+			    		<img height="24" src="{{ logo_png }}" alt="azine.me" />
+			    	</a>
+	            </td>
+    	{{ rightShadow}}
+		{{ leftShadow}}
+            	<td width="620" align="center" valign="top" bgcolor="#434343" style="font: normal 12px/18px Arial; padding:10px 30px 30px 30px; border-top:3px solid #b1c800; text-align:center;" >
+            		<p style="color:white;">
+                	{% block footerInfoText %}
+	            		{{ '_az.email.footer.azine.email.bundle.is.brought.to.you.by.azine.it' | trans }}
+                	{% endblock %}
+            		</p>
+                    <p style="color:#acacac;">
+                    {% block footerLinks %}
+	               	    <a style="color:#acacac; text-decoration:none;" href="#help">{{ '_az.footer.help' | trans }}</a> |
+	                    <a style="color:#acacac; text-decoration:none;" href="#tos">{{ '_az.footer.terms.of.service' | trans }}</a> |
+	                    <a style="color:#acacac; text-decoration:none;" href="#about">{{ '_az.footer.about' | trans }}</a> |
+	                    <a style="color:#acacac; text-decoration:none;" href="#contact">{{ '_az.footer.contact' | trans }}</a>
+					{% endblock %}<!-- end footerLinks -->
+                    </p>
+				</td>
+		{{ rightShadow}}
+		</table>
+	</body>
+</html>
+{% endautoescape %}

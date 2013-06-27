@@ -1,12 +1,32 @@
 parameters:
-#    azine_geo_blocking.example.class: Azine\EmailBundle\Example        
 
 services:
-    azine_geo_blocking.kernel.request.listener:
-            class: Azine\EmailBundle\EventListener\GeoBlockingKernelRequestListener
-            tags:
-                - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
-            arguments: [ @router, @service_container ]  
-    azine_geo_blocking.lookup.adapter:  
-            class: Azine\EmailBundle\Adapter\DefaultLookupAdapter      
-            
+    azine_email.template_provider:
+        class: Azine\EmailBundle\Services\AzineTemplateProvider
+        arguments: 
+          router: "@router"
+          translator: "@translator.default"
+          parameters:
+            template_image_dir: "%azine_email_template_twig_swift_mailer%"
+              
+    azine_email.template_twig_swift_mailer:
+        class: Azine\EmailBundle\Services\AzineTwigSwiftMailer
+        arguments: 
+          mailer: "@mailer"
+          router: "@router"
+          twig: "@twig"
+          logger: "@logger"
+          translator: "@translator.default"
+          templateProvider: "@azine_email.template_provider"
+          parameters:
+            template: 
+              confirmation :  "%fos_user.registration.confirmation.template%"
+              resetting:      "%fos_user.resetting.email.template%"
+            from_email:
+              confirmation:   "%fos_user.registration.confirmation.from_email%"
+              resetting:      "%fos_user.resetting.email.from_email%"
+              noreply:        "%azine_email_no_reply%"
+            imageDir:         "%azine_email_template_image_dir%"     
+              
+              
+             

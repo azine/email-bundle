@@ -1,0 +1,25 @@
+Azine\EmailBundle\Entity\Notification:
+  type: entity
+  repositoryClass: Azine\EmailBundle\Entity\Repositories\NotificationRepository
+  table: notification
+  fields:
+    id:                                                         # ID of the notification                 
+      type: integer(9)
+      id: true
+      generator:
+        strategy: AUTO  
+    recipient_id:        { type: integer(9)   }                  # recipient id
+    title:               { type: string(25)   }                  # subject for the notification
+    content:             { type: text         }                  # content of the notification
+    type:                { type: string(60)   }                  # type of the notification (e.g. used to get the right template for rendering)
+    variables:           { type: text,      nullable true }      # array of template-variables encoded as JSON
+    send_immediately:    { type: boolean      }                  # true if the email should be sent a.s.a.p. and not joined with other notifications
+    importance:          { type: integer(2)   }                  # importance level of the message, in compound messages, important messages are at the top of the email. notifications with the same importance are ordered by creation date/time.
+    sent:                { type: dateTime,  nullable true }      # Date when the notification was sent
+    created:
+      type: datetime
+      gedmo:
+        timestampable:
+          on: create  
+
+  lifecycleCallbacks: {}
