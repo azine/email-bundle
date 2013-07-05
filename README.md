@@ -20,13 +20,13 @@ https://github.com/symfony/SwiftmailerBundle
 For spooling notifications, Notification-Objects (=&gt;`Azine\EmailBundle\Entity\Notification`) are stored in the database. So far only doctrine-storage is implemented.
 
 ##### 3. FOSUserBundle
-In its current Version it depends on the FOSUserBundle, as it also "beautyfies" the mails sent from the 
+In its current Version it depends on the [FOSUserBundle](https://github.com/FriendsOfSymfony/FOSUserBundle), as it also "beautyfies" the mails sent from the 
 FOSUserBundle and uses the Users to provide recipient information (name/email/notification interval/newsletter subscription) 
 for the mails to be sent.
 
 
 ## Installation
-To install AzineGeoBlockingBundle with Composer just add the following to your composer.json file:
+To install AzineGeoBlockingBundle with Composer just add the following to your `composer.json` file:
 
 ```
 // composer.json
@@ -129,8 +129,10 @@ Some (web-) mail clients (gmail/thunderbird) will show those embeded images prop
 
 BUT as far as I can tell, this only works if there is only one email recipient visible to the client and the "from"-address matches the account that the mails have been send from. There are many reasons why the images might not get displayed, so make sure your mails look good without the images too.
 
+
 ### Your own Twig-Templates
 There are two kinds of templates required for this bundle, and both kinds for html- and for txt-content.
+
 
 #### 1. the wrapper-templates
 These templates contain a header-section (logo etc.), header-content-section ("This is our newsletter blablabla"), main content (see "content-item-templates" below) and footer (links etc.).
@@ -158,7 +160,7 @@ An example for "Private-Messages" is included =&gt; `Resources/views/contentItem
 
 For a type of content-item you must allways provide a html and a txt-version. They will be referenced by their full ID withour the format.twig-ending.
 
-=&gt; AzineEmailBundle:contentItem:message for `Resources/views/contentItem/message.txt.twig` and `Resources/views/contentItem/message.html.twig`
+=&gt; "AzineEmailBundle:contentItem:message" for `Resources/views/contentItem/message.txt.twig` and `Resources/views/contentItem/message.html.twig`
 
 When rendering those templates you have access to the styles and snippets defined for this template in your TemplateProvider.
 
@@ -166,12 +168,12 @@ When rendering those templates you have access to the styles and snippets define
 ## TWIG-Filter textWrap
 This bundle also adds a twig filter that allows you to wrap text using the php function wordwrap. It defaults to a line width of 75 chars.
 
-'''
+```
 {{ "This text should be wrapped after 75 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap }}
 or
 {{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
-'''
+```
 
 
 ## Open Issues
-- I'd like to remove the dependency to the FOSUserBundle, but as I work with the FOSUserBundle, this has no priority for me. If you would like to see this implemented, let me know.
+- I'd like to remove the dependency to the [FOSUserBundle](https://github.com/FriendsOfSymfony/FOSUserBundle), but as I work with the [FOSUserBundle](https://github.com/FriendsOfSymfony/FOSUserBundle), this has no priority for me. If you would like to see this implemented, let me know.
