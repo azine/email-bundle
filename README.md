@@ -17,7 +17,7 @@ So the symfony/swiftmailer-bundle must be installed and properly configured.
 https://github.com/symfony/SwiftmailerBundle
 
 ##### 2. Doctrine for notification spooling
-For spooling notifications, Notification-Objects (=&gt; Entity\Notification.php ) are stored in the database. So far only doctrine-storage is implemented.
+For spooling notifications, Notification-Objects (=&gt;`Azine\EmailBundle\Entity\Notification`) are stored in the database. So far only doctrine-storage is implemented.
 
 ##### 3. FOSUserBundle
 In its current Version it depends on the FOSUserBundle, as it also "beautyfies" the mails sent from the 
@@ -39,7 +39,7 @@ To install AzineGeoBlockingBundle with Composer just add the following to your c
 }
 ```
 
-Then, you can install the new dependencies by running Composer’s update command from the directory where your composer.json file is located:
+Then, you can install the new dependencies by running Composer’s update command from the directory where your `composer.json` file is located:
 
 ```
 php composer.phar update
@@ -108,12 +108,12 @@ You can/must customize the layout of your email in three ways:
 A general overview is given here and the classes you should extend contain more inline-documentation on how stuff works.
 
 ### Your own implementation of TemplateProviderInterface
-This bundle includes a default implementation of a TemplateProvider ( =&gt; AzineTemplateProvider) 
-and also an example how to customize things (ExampleTemplateProvider).
+This bundle includes a default implementation of a TemplateProvider ( =&gt; `Services/AzineTemplateProvider`) 
+and also an example how to customize things (`Services/ExampleTemplateProvider`).
 
 Remember that css-styles don't work in most email viewers. You need to embed everything into the attributes (e.g. "style") of 
 your html-elements and do not use div-elements as they are not properly displayed in many viewers. 
-Use Tables instead (&lt;table&gt;&lt;tr&gt;&lt;td&gt;''' etc.) to layout your emails.
+Use Tables instead (&lt;table&gt;&lt;tr&gt;&lt;td&gt; etc.) to layout your emails.
 
 e.g. &lt;table width="100%"&gt;&lt;tr&gt;&lt;td height="20" style="font-size: 12px; color: blue;"&gt;Bla bla&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
@@ -139,7 +139,7 @@ They contain stuff that is usually exactly the same (except the greeting) for ea
 
 This bundle will render email that consist of a html-part and a plain-text part. 
 
-The supplied baseEmailLayout-template in this bundle is split into two files "baseEmailLayout.txt.twig" and "baseEmailLayout.html.twig" to make them more easy to extend and manage. The *.txt.twig with the required blocks and the *.html.twig which is included in the body_html-block of the *.txt.twig template. 
+The supplied baseEmailLayout-template in this bundle is split into two files `baseEmailLayout.txt.twig` and `baseEmailLayout.html.twig` to make them more easy to extend and manage. The *.txt.twig with the required blocks and the *.html.twig which is included in the body_html-block of the *.txt.twig template. 
 
 The "*.txt.twig" is the template that will be called for rendering. It must contain the following blocks:
 
@@ -154,11 +154,11 @@ For example in an update-email to your users you could mention 6 private message
 
 For those three types of content items you can define different "content-item-templates" and also differenct styles.
 
-An example for "Private-Messages" is included =&gt; 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'.
+An example for "Private-Messages" is included =&gt; `Resources/views/contentItem/message.txt.twig` and `Resources/views/contentItem/message.html.twig`.
 
 For a type of content-item you must allways provide a html and a txt-version. They will be referenced by their full ID withour the format.twig-ending.
 
-=&gt; AzineEmailBundle:contentItem:message for 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'
+=&gt; AzineEmailBundle:contentItem:message for `Resources/views/contentItem/message.txt.twig` and `Resources/views/contentItem/message.html.twig`
 
 When rendering those templates you have access to the styles and snippets defined for this template in your TemplateProvider.
 
