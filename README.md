@@ -17,7 +17,7 @@ So the symfony/swiftmailer-bundle must be installed and properly configured.
 https://github.com/symfony/SwiftmailerBundle
 
 ##### 2. Doctrine for notification spooling
-For spooling notifications, Notification-Objects (=&gt;Azine\EmailBundle\Entity\Notification) are stored in the database. So far only doctrine-storage is implemented.
+For spooling notifications, Notification-Objects (=&gt; Entity\Notification.php ) are stored in the database. So far only doctrine-storage is implemented.
 
 ##### 3. FOSUserBundle
 In its current Version it depends on the FOSUserBundle, as it also "beautyfies" the mails sent from the 
@@ -166,11 +166,11 @@ When rendering those templates you have access to the styles and snippets define
 ## TWIG-Filter textWrap
 This bundle also adds a twig filter that allows you to wrap text using the php function wordwrap. It defaults to a line width of 75 chars.
 
-...
+'''
 {{ "This text should be wrapped after 75 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap }}
 or
 {{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
-...
+'''
 
 
 ## Open Issues
