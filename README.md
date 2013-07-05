@@ -107,7 +107,7 @@ You can/must customize the layout of your email in three ways:
 
 A general overview is given here and the classes you should extend contain more inline-documentation on how stuff works.
 
-### TemplateProvider
+### Your own implementation of TemplateProviderInterface
 This bundle includes a default implementation of a TemplateProvider ( =&gt; AzineTemplateProvider) 
 and also an example how to customize things (ExampleTemplateProvider).
 
@@ -122,18 +122,24 @@ E.g. a drop-shadow implemented with td-elements with different shades of grey as
 =&gt; see "leftShadow" and "cellSeparator" in the AzineTemplateProvider class. 
 
 
-### Images
-You can use your own images which will be embeded into the emails. To do this, just define the path to your image-folder in your config.yml. =&gt; see above
+### Your own Images
+You can use your own images which will be embeded into the emails. To do this, just define the path to your image-folder in your config.yml. =&gt; see above.
 
-### Twig-Templates
-There are two kinds of templates required, both for html- and txt-content.
+Some (web-) mail clients (gmail/thunderbird) will show those embeded images properly without aksing the recipient if he would like to show the attached images. 
 
-#### 1. the wrapper-templates: 
-These templates contain a header-section (logo etc.), header-content-section ("This is our newsletter blablabla"), main content (see "content-item-templates") and footer (links etc.).
+BUT as far as I can tell, this only works if there is only one email recipient visible to the client and the "from"-address matches the account that the mails have been send from. There are many reasons why the images might not get displayed, so make sure your mails look good without the images too.
+
+### Your own Twig-Templates
+There are two kinds of templates required for this bundle, and both kinds for html- and for txt-content.
+
+#### 1. the wrapper-templates
+These templates contain a header-section (logo etc.), header-content-section ("This is our newsletter blablabla"), main content (see "content-item-templates" below) and footer (links etc.).
 
 They contain stuff that is usually exactly the same (except the greeting) for each of your recipients of this email. 
 
-The supplied baseEmailLayout-template in this bundle is split into two files "baseEmailLayout.txt.twig" and "baseEmailLayout.html.twig" to make them more easy to extend and manage. 
+This bundle will render email that consist of a html-part and a plain-text part. 
+
+The supplied baseEmailLayout-template in this bundle is split into two files "baseEmailLayout.txt.twig" and "baseEmailLayout.html.twig" to make them more easy to extend and manage. The *.txt.twig with the required blocks and the *.html.twig which is included in the body_html-block of the *.txt.twig template. 
 
 The "*.txt.twig" is the template that will be called for rendering. It must contain the following blocks:
 
@@ -141,16 +147,12 @@ The "*.txt.twig" is the template that will be called for rendering. It must cont
 - body_txt
 - body_html
 
-As mentioned, the supplied "baseEmailLayout" is split into two files. The *.txt.twig with the required blocks and the *.html.twig which is included in the body_html-block of the *.txt.twig template.
-
-In both templates you have access to the styles and snippets you defined in the TemplateProvider you use.
-
 #### 2. the content item-templates: 
 In a newsletter- or notification-email you probably have different kind of items you would like to include. 
 
-For example in one email to your users you could mention 6 private messages, 3 events and 2 news-articles. 
+For example in an update-email to your users you could mention 6 private messages, 3 events and 2 news-articles. 
 
-For those three types you can define different "content-item-templates" and styles that should be available for these templates.
+For those three types of content items you can define different "content-item-templates" and also differenct styles.
 
 An example for "Private-Messages" is included =&gt; 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'.
 
@@ -158,7 +160,7 @@ For a type of content-item you must allways provide a html and a txt-version. Th
 
 =&gt; AzineEmailBundle:contentItem:message for 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'
 
-Inside those templates you have access to the styles and snippets defined in your TemplateProvider.
+When rendering those templates you have access to the styles and snippets defined for this template in your TemplateProvider.
 
 
 ## TWIG-Filter textWrap
