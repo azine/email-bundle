@@ -1,0 +1,47 @@
+{% block subject %}email template{% endblock %}
+{% block body_text %}
+{% autoescape false %}
+{% block content %}
+{% block contentHead %}
+Hello {{ username }},
+=========================================
+
+Add some content here
+
+This is just the default content-block.
+
+Best regards,
+the azine team
+{% endblock %}
+{% if contentItems is defined %}
+{#
+the contentItems-array has the following structure
+
+array(0 => array(templateX => varsForX), 1 => array(templateY => varsForY), 1 => array(templateZ => varsForZ));
+
+the first loop get's all the arrays, the second loop get's the template from the key and the vars from the value of the inner array.
+#}
+{% for contentItemArrays in contentItems  %}
+{% for contentItemTemplate, contentItemParams in contentItemArrays %}
+-----------------------------------------------------------------------{# this line separates different content items visualy, replace it with what ever you think is niceer #}
+{% include contentItemTemplate ~ 'txt.twig' with contentItemParams %} {# You can add multiple content-blocks by adding items to the contentItems array.#}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% endblock %}	{# end main content #}
+{% block footerInfoText %}
+{{ 'The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.' | trans }}
+{% endblock %}
+
+{% block footerLinks %}
+- Help         : http://example.com#help
+- Terms of use : http://example.com#tos
+- About        : http://example.com#about
+- Contact      : http://example.com#contact
+	{% endblock %}
+
+{% endautoescape %}
+{% endblock %}
+{% block body_html %}
+{% include 'AzineEmailBundle::baseEmailLayout.html.twig' %}
+{% endblock %}

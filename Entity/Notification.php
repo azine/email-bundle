@@ -9,6 +9,14 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Notification
 {
+	/**
+	 * Initialize the created-date with "now"
+	 */
+	public function setCreatedValue()
+	{
+		$this->created = new \DateTime();
+	}
+
     /**
      * @var integer
      */
@@ -17,12 +25,12 @@ class Notification
     /**
      * @var integer
      */
-    private $user_id;
+    private $recipient_id;
 
     /**
      * @var string
      */
-    private $subject;
+    private $title;
 
     /**
      * @var string
@@ -30,30 +38,40 @@ class Notification
     private $content;
 
     /**
-     * @var dateTime
+     * @var string
      */
-    private $sent;
+    private $variables;
 
     /**
      * @var string
      */
-    private $type;
+    private $template;
+
+    /**
+     * @var boolean
+     */
+    private $send_immediately;
+
+    /**
+     * @var integer
+     */
+    private $importance;
+
+    /**
+     * @var \DateTime
+     */
+    private $sent;
 
     /**
      * @var \DateTime
      */
     private $created;
 
-    /**
-     * @var \Azine\EmailBundle\Entity\User
-     */
-    private $user;
-
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -61,49 +79,49 @@ class Notification
     }
 
     /**
-     * Set user_id
+     * Set recipient_id
      *
-     * @param integer $userId
+     * @param integer $recipientId
      * @return Notification
      */
-    public function setUserId($userId)
+    public function setRecipientId($recipientId)
     {
-        $this->user_id = $userId;
+        $this->recipient_id = $recipientId;
 
         return $this;
     }
 
     /**
-     * Get user_id
+     * Get recipient_id
      *
-     * @return integer 
+     * @return integer
      */
-    public function getUserId()
+    public function getRecipientId()
     {
-        return $this->user_id;
+        return $this->recipient_id;
     }
 
     /**
-     * Set subject
+     * Set title
      *
-     * @param string $subject
+     * @param string $title
      * @return Notification
      */
-    public function setSubject($subject)
+    public function setTitle($title)
     {
-        $this->subject = $subject;
+        $this->title = $title;
 
         return $this;
     }
 
     /**
-     * Get subject
+     * Get title
      *
-     * @return string 
+     * @return string
      */
-    public function getSubject()
+    public function getTitle()
     {
-        return $this->subject;
+        return $this->title;
     }
 
     /**
@@ -122,7 +140,7 @@ class Notification
     /**
      * Get content
      *
-     * @return string 
+     * @return string
      */
     public function getContent()
     {
@@ -130,12 +148,104 @@ class Notification
     }
 
     /**
-     * Set sent
+     * Set variables
      *
-     * @param \dateTime $sent
+     * @param string $variables
      * @return Notification
      */
-    public function setSent(\dateTime $sent)
+    public function setVariables($variables)
+    {
+        $this->variables = $variables;
+
+        return $this;
+    }
+
+    /**
+     * Get variables
+     *
+     * @return string
+     */
+    public function getVariables()
+    {
+        return $this->variables;
+    }
+
+    /**
+     * Set template
+     *
+     * @param string $template
+     * @return Notification
+     */
+    public function setTemplate($template)
+    {
+        $this->template = $template;
+
+        return $this;
+    }
+
+    /**
+     * Get template
+     *
+     * @return string
+     */
+    public function getTemplate()
+    {
+        return $this->template;
+    }
+
+    /**
+     * Set send_immediately
+     *
+     * @param boolean $sendImmediately
+     * @return Notification
+     */
+    public function setSendImmediately($sendImmediately)
+    {
+        $this->send_immediately = $sendImmediately;
+
+        return $this;
+    }
+
+    /**
+     * Get send_immediately
+     *
+     * @return boolean
+     */
+    public function getSendImmediately()
+    {
+        return $this->send_immediately;
+    }
+
+    /**
+     * Set importance
+     *
+     * @param integer $importance
+     * @return Notification
+     */
+    public function setImportance($importance)
+    {
+        $this->importance = $importance;
+
+        return $this;
+    }
+
+    /**
+     * Get importance
+     *
+     * @return integer
+     */
+    public function getImportance()
+    {
+        return $this->importance;
+    }
+
+    /**
+     * Set sent
+     *
+     * @param \DateTime $sent
+     * @return Notification
+     */
+    public function setSent($sent)
     {
         $this->sent = $sent;
 
@@ -145,34 +255,11 @@ class Notification
     /**
      * Get sent
      *
-     * @return \dateTime 
+     * @return \DateTime
      */
     public function getSent()
     {
         return $this->sent;
-    }
-
-    /**
-     * Set type
-     *
-     * @param string $type
-     * @return Notification
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Get type
-     *
-     * @return string 
-     */
-    public function getType()
-    {
-        return $this->type;
     }
 
     /**
@@ -191,33 +278,10 @@ class Notification
     /**
      * Get created
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreated()
     {
         return $this->created;
-    }
-
-    /**
-     * Set user
-     *
-     * @param \Azine\EmailBundle\Entity\User $user
-     * @return Notification
-     */
-    public function setUser(\Azine\EmailBundle\Entity\User $user = null)
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-    /**
-     * Get user
-     *
-     * @return \Azine\EmailBundle\Entity\User 
-     */
-    public function getUser()
-    {
-        return $this->user;
     }
 }

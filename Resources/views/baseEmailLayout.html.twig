@@ -1,0 +1,90 @@
+{% autoescape false %}
+<!DOCTYPE HTML 4.01 Transitional>
+<html>
+	<head>
+		<title>{% block title %}{% endblock %}</title>
+		<meta name="description" content="{% block description %}{% endblock %}" >
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	</head>
+	<body style=" color: black; margin:0; font: normal 12px/18px Arial, Helvetica, sans-serif; background-color: #fdfbfa;">
+		<table width="640" border="0" align="center" cellpadding="0" cellspacing="0" style="font: normal 12px/18px Arial, Helvetica, sans-serif;">
+			<tr>
+				<td>&nbsp;</td>
+				<td bgcolor="#f2f1f0">&nbsp;</td>
+				<td>&nbsp;</td>
+				</tr>
+			<tr>
+				<td width="10">&nbsp;</td>
+				<td width="620" bgcolor="#f2f1f0" style="padding: 0px 20px;">
+			    	<a href="http://example.com" target="_blank" style="color: green; font-size: 72px; font-weight: bold; text-decoration: none;">
+			    		<img src="{{ logo_png }}" alt="azine" />
+			    	</a>
+			    </td>
+				<td width="10">&nbsp;</td>
+			</tr>
+	  	</table>
+	  	{{ topShadow }}
+	 	{{ leftShadow}}
+		    	<td width="620" bgcolor="white"  style="padding:10px 20px 20px 20px; border-top: 1px solid #EEEEEE;">
+	    		<a name="top" ></a>
+	  			{% block content %}
+	  				{% block contentHead %}
+					<span {{ salutationStyle }}>Hello{{ username }},</span>
+					<p>
+						Add some content here
+					</p>
+					<p>
+						This is just the default content-block.
+					</p>
+					<p>
+						Best regards,
+						<br/>
+						<span style="color:#024d84;">the azine team</span>
+					</p>
+					{% endblock %}
+					{% if contentItems is defined %}
+{#
+the contentItems-array has the following structure
+
+array(0 => array(templateX => varsForX), 1 => array(templateY => varsForY), 1 => array(templateZ => varsForZ));
+
+the first loop get's all the arrays, the second loop get's the template from the key and the vars from the value of the inner array.
+#}
+						{% for contentItemArrays in contentItems  %}
+							{% for contentItemTemplate, contentItemParams in contentItemArrays %}
+								{{ cellSeparator }}				{# You can split your content into sections with the cellSepartor-variable. #}
+								{% include contentItemTemplate ~ 'html.twig' with contentItemParams %}
+			  				{% endfor %}
+			  			{% endfor %}
+			  		{% endif %}
+				{% endblock %}	{# end main content #}
+			    </td>
+		{{ rightShadow }}
+		{{ leftShadow}}
+	        	<td width="620" bgcolor="white" style="text-align:center;">
+	        		<a href="http://example.com" target="_blank" style="color: {{ azGreen }}; font-size: 36px; font-weight: bold; text-decoration: none; position:relative; top:1px;">
+			    		<img height="24" src="{{ logo_png }}" alt="azine" />
+			    	</a>
+	            </td>
+    	{{ rightShadow}}
+		{{ leftShadow}}
+            	<td width="620" align="center" valign="top" bgcolor="#434343" style="font: normal 12px/18px Arial; padding:10px 30px 30px 30px; border-top:3px solid #b1c800; text-align:center;" >
+            		<p style="color:white;">
+                	{% block footerInfoText %}
+	            		{{ 'The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.' | trans }}
+                	{% endblock %}
+            		</p>
+                    <p style="color:#acacac;">
+                    {% block footerLinks %}
+	               	    <a style="color:#acacac; text-decoration:none;" href="http://example.com#help">Help</a> |
+	                    <a style="color:#acacac; text-decoration:none;" href="http://example.com#tos">Terms of use</a> |
+	                    <a style="color:#acacac; text-decoration:none;" href="http://example.com#about">About</a> |
+	                    <a style="color:#acacac; text-decoration:none;" href="http://example.com#contact">Contact</a>
+					{% endblock %}<!-- end footerLinks -->
+                    </p>
+				</td>
+		{{ rightShadow}}
+		</table>
+	</body>
+</html>
+{% endautoescape %}

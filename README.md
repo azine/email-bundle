@@ -1,30 +1,30 @@
-Simple GeoBlocking-Bundle
-=========================
+Azine Email Bundle
+==================
 
-Symfony2 Bundle that allows you to configure geoblocking access to certain pages of your application.
+Symfony2 Bundle provides the following functionalities:
 
-It adds an kernel event listener that listens for "kernel.request" events and uses the php geoip module to identify the country of origin of the current request and depending on the configuration displays an error-page.
-
+- simplify the rendering and sending of nicely styled html-emails from within your application
+- provide an infrastructure to send notifications/update-infos to your recipients, immediately or aggregated and scheduled.
+- provide an infrastructure to send newsletters to the recipients which wish to recieve it.
 
 ## Requirements
-There are no explicit requirements. BUT the default setup makes two assumptions:
 
-##### 1. the php geoip-module is enabled on your server
-   
-"GeoIpLookupAdapter" uses the [php function geoip_country_code_by_name($address)](http://www.php.net/manual/en/function.geoip-country-code3-by-name.php) 
-to find the country of the given address.
+##### 1. Swift-Mailer with working configuration 
+Mails are sent using the Swiftmailer with it's configuration.
 
-To use the default implementation, this function (provided by the php geoip module => http://www.php.net/manual/en/book.geoip.php) must be available.
+So the symfony/swiftmailer-bundle must be installed and properly configured.
 
-Alternatively you can implement and use your own GeoLookupAdapter that uses an other way to find the country for the given ip (see below).
+https://github.com/symfony/SwiftmailerBundle
 
-##### 2. you use fosuserbundle for authentication/usermanagment
+##### 2. Doctrine for notification spooling
+For spooling notifications, Notification-Objects (AzineEmailBundle/ are stored in the database. So far only doctrine-storage is implemented.
 
-Most often you would like that registered users can access your site from wherever they are. So there should be a option to login and for logged 
-in users no pages should be blocked. As a lot of people (including me) use the fosuserbundle for user managment, the default configuration is set 
-to work nicely with the default configuration of the fosuserbundle.
+##### 3. FOSUserBundle
+In its current Version it depends on the FOSUserBundle, as it also "beautyfies" the mails send from the 
+FOSUserBundle and uses the Users to provide recipient information for the mails to be sent.
 
-You can change this of course in the config.yml.
+=> Azine\EmailBundle\Entity\Notification
+
 
 
 ## Installation
@@ -36,7 +36,7 @@ To install AzineGeoBlockingBundle with Composer just add the following to your c
     // ...
     require: {
         // ...
-        "azine/geoblocking-bundle": "dev-master"
+        "azine/email-bundle": "dev-master"
     }
 }
 ```
@@ -47,7 +47,9 @@ Then, you can install the new dependencies by running Composer’s update comman
 php composer.phar update
 ```
 
-Now, Composer will automatically download all required files, and install them for you. All that is left to do is to update your AppKernel.php file, and register the new bundle:
+Now, Composer will automatically download all required files, and install them for you. 
+All that is left to do is to update your AppKernel.php file, and register the new bundle:
+
 
 ```
 <?php
@@ -55,65 +57,121 @@ Now, Composer will automatically download all required files, and install them f
 // in AppKernel::registerBundles()
 $bundles = array(
     // ...
-   	new Azine\GeoBlockingBundle\AzineGeoBlockingBundle(),
+   	new Azine\EmailBundle\EmailBundle(),
     // ...
 );
 ```
 
 
 ## Configuration options
-For the bundle to work with the default-settings, no config-options are required. 
-The default blocks all anonymouse users unless they are in the same 
-private subnet (=> both server & client are inside the same home/company network) or on localhost (=> web-server and client are the same computer, e.g. when debugging locally).
+For the bundle to work with the default-settings, no config-options are required, but the swiftmailer must be configured.
 
 This is the complete list of configuration options with their defaults.
 ```
 // app/config/config.yml
-azine_geo_blocking:
-    enabled:              			true 								# true|false : turn the whole bundle on/off
-    access_denied_view:  AzineGeoBlockingBundle::accessDenied.html.twig # the view to be rendered as "blocked" page
-    block_anonymouse_users_only:	true		 						# block all users or only users that are not logged in yet
-    login_route:          			fos_user_security_login 			# route name to the login-form (only relevant if block_anonymouse_users_only is set to true)
-    lookup_adapter:       			azine_geo_blocking.lookup.adapter	# id of the lookup-adapter you would like to use
-    allow_private_ips:    			true								# true | false : also applie the rules to private IPs e.g. 127.0.0.1 or 192.168.xxx.yyy etc.
+azine_email:
 
-	# routes to applie the blocking rules to
-    # only either whitelist or blacklist can contain values, if you configure both, the blacklist will be ignored.
-    routes:
-        whitelist:
-        	- route_to_allways_allow
-            # Defaults: these defaults work nice with the fosuserbundle defaults
-            - fos_user_security_login
-            - fos_user_security_login_check
-            - fos_user_security_logout
-        blacklist:            
-        	- route_to_allways_block
-        	- other_route_to_allways_block
+    # the class of your implementation of the RecipientInterface
+    recipient_class:      Acme\SomeBundle\Entity\User # Required
 
-	# countries to applie the blocking rules for
-    # only either whitelist or blacklist can contain values, if you configure both, the blacklist will be ignored.
-    countries:
-        whitelist:  # e.g. "CH","FR","DE" etc. => access is allowed to visitors from these countries
-        	- CH
-        	- FR
-        	- DE
-        blacklist:  # e.g. "US","CN" etc. => access is denied to visitors from these countries
-        	- US
-        	- CN
-    
+    # the fieldname of the boolean field on the recipient class indicating, that a newsletter should be sent or not
+    recipient_newsletter_field:  news_letter
+
+    # the service-id of your implementation of the nofitier service to be used
+    notifier_service:     azine_email.example.notifier_service
+
+    # the service-id of your implementation of the template provider service to be used
+    template_provider:    azine_email.example.template_provider # Required
+
+    # the service-id of the implementation of the RecipientProviderInterface to be used
+    recipient_provider:   azine_email.default.recipient_provider
+
+    # the service-id of the mailer service to be used
+    template_twig_swift_mailer:  azine_email.default.template_twig_swift_mailer
+    no_reply:
+
+        # the no-reply email-address
+        email:                no-reply@example.com # Required
+
+        # the name to appear with the 'no-reply'-address.
+        name:                 notification daemon # Required
+
+    # absolute path to the image-folder containing the images used in your templates.
+    image_dir:            %kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/
+
 ```
 
+## Customise the content and layout of your emails
+You can/must customize the layout of your email in three ways:
+- define your own styles by writing your own implementation of the TemplateProviderInterface 
+- use your own images
+- create your own html and txt twig-templates.
 
-## Alternative GeoIpLookupAdapter
-You can create your own implementation of [Adapter\GeoIpLookupAdapterInterface.php](Adapter/GeoIpLookupAdapterInterface.php), define it as service in your service.yml or service.xml and set the service-id as lookup_adapter in the config.yml:
-```
-// app/config/config.yml
-azine_geo_blocking:
-    enabled:              true 										# true|false : turn the whole bundle on/off
-    lookup_adapter:       your.own.implementation.of.lookup.adapter	# id of the lookup-adapter you would like to use
-``` 
+A general overview is given here and the classes you should extend contain more inline-documentation on how stuff works.
+
+### TemplateProvider
+This bundle includes a default implementation of a TemplateProvider ( => AzineTemplateProvider) 
+and also an example how to customize things (ExampleTemplateProvider).
+
+Remember that css-styles don't work in most email viewers. You need to embed everything into the attributes (e.g. "style") of 
+your html-elements and do not use div-elements as they are not properly displayed in many viewers. 
+Use Tables instead (<table><tr><td> etc.) to layout your emails.
+
+e.g. <table width="100%"><tr><td height="20" style="font-size: 12px; color: blue;">Bla bla</td></tr></table>
+
+You can define styles you would like to use in your emails and and also blocks of html-code. 
+E.g. a drop-shadow implemented with td-elements with different shades of grey as background color. 
+=> see "leftShadow" and "cellSeparator" in AzineTemplateProvider  
+
+
+### Images
+You can use your own images which will be embeded into the emails. To do this, just define the path to your image-folder in your config.yml. => see above
+
+### Twig-Templates
+There are two kinds of templates required, both for html- and txt-content.
+
+#### 1. the wrapper-templates: 
+These templates contain a header-section (logo etc.), header-content-section ("This is our newsletter blablabla"), main content (see "content-item-templates") and footer (links etc.).
+
+They contain stuff that is usually exactly the same (except the greeting) for each of your recipients of this email. 
+
+The supplied baseEmailLayout-template in this bundle is split into two files "baseEmailLayout.txt.twig" and "baseEmailLayout.html.twig" to make them more easy to extend and manage. 
+
+The "*.txt.twig" is the template that will be called for rendering. It must contain the following blocks:
+
+- subject
+- body_txt
+- body_html
+
+As mentioned, the supplied "baseEmailLayout" is split into two files. The *.txt.twig with the required blocks and the *.html.twig which is included in the body_html-block of the *.txt.twig template.
+
+In both templates you have access to the styles and snippets you defined in the TemplateProvider you use.
+
+#### 2. the content item-templates: 
+In a newsletter- or notification-email you probably have different kind of items you would like to include. 
+
+For example in one email to your users you could mention 6 private messages, 3 events and 2 news-articles. 
+
+For those three types you can define different "content-item-templates" and styles that should be available for these templates.
+
+An example for "Private-Messages" is included => 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'.
+
+For a type of content-item you must allways provide a html and a txt-version. They will be referenced by their full ID withour the format.twig-ending.
+
+=> AzineEmailBundle:contentItem:message for 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'
+
+Inside those templates you have access to the styles and snippets defined in your TemplateProvider.
+
+
+## TWIG-Filter textWrap
+This bundle also adds a twig filter that allows you to wrap text using the php function wordwrap. It defaults to a line width of 75 chars.
+
+...
+{{ "This text should be wrapped after 75 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap }}
+or
+{{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
+...
 
 
 ## Open Issues
-It's not really an issue for my usecase, but if you block access for example for US users, this also means, that search-engine-robots cannot crawl your site
-to index it.
+- I'd like to remove the dependency to the FOSUserBundle, but as I work with the FOSUserBundle, this has no priority for me. If you would like to see this implemented, let me know.

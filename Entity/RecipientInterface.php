@@ -4,9 +4,9 @@ namespace Azine\EmailBundle\Entity;
 
 /**
  * Interface with methods required by the AzineEmailBundle to send Notification/Newsletters via email
- * Azine\EmailBundle\Entity\NotifiableInterface
+ * Azine\EmailBundle\Entity\RecipientInterface
  */
-interface NotifiableInterface {
+interface RecipientInterface {
 
 	const NOTIFICATION_MODE_NEVER = 0;
 	const NOTIFICATION_MODE_DAYLY = 1;
@@ -32,7 +32,7 @@ interface NotifiableInterface {
 	 * Get the interval for notifications
 	 *
 	 */
-	public function getNotificationInterval();
+	public function getNotificationMode();
 
 	/**
 	 * Whether the recipient likes to get the newsletter or not

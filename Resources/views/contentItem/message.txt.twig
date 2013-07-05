@@ -1,0 +1,8 @@
+{# variables stored in the array that is stored in the "notification.variables" entity field in the database will be available here. => e.g. goToUrl #}
+{{ 'New message' | trans }}: {{ notification.title }} ({{ notification.created | date("j. F Y H:i") }}
+
+{{ notification.content }}
+
+{% if goToUrl is defined %}
+{{ 'Go to message thread' | trans }} : {{ goToUrl }}
+{% endif %}

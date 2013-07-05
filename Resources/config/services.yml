@@ -1,23 +1,40 @@
 parameters:
 
 services:
-    azine_email.template_provider:
+###################################################################
+## Services you should override/extend in your bundle
+###################################################################
+    azine_email.example.template_provider:
         class: Azine\EmailBundle\Services\AzineTemplateProvider
         arguments: 
-          router: "@router"
-          translator: "@translator.default"
+          router:       "@router"
+          translator:   "@translator.default"
           parameters:
-            template_image_dir: "%azine_email_template_twig_swift_mailer%"
+            image_dir:  "%azine_email_image_dir%"
+            
+    azine_email.example.notifier_service:
+        class: Azine\EmailBundle\Services\AzineNotifierService
+        arguments: 
+          mailer:             "@azine_email_template_twig_swift_mailer"
+          twig:               "@twig"
+          logger:             "@logger"
+          router:             "@router"
+          entityManager:      "@doctrine.orm.entity_manager"
+          templateProvider:   "@azine_email_template_provider"
+          recipientProvider:  "@azine_email_recipient_provider"
               
-    azine_email.template_twig_swift_mailer:
+###################################################################
+## Services you can use as default if you work with the FOSUserBundle
+###################################################################
+    azine_email.default.template_twig_swift_mailer:
         class: Azine\EmailBundle\Services\AzineTwigSwiftMailer
         arguments: 
-          mailer: "@mailer"
-          router: "@router"
-          twig: "@twig"
-          logger: "@logger"
-          translator: "@translator.default"
-          templateProvider: "@azine_email.template_provider"
+          mailer:             "@mailer"
+          router:             "@router"
+          twig:               "@twig"
+          logger:             "@logger"
+          translator:         "@translator.default"
+          templateProvider:   "@azine_email_template_provider"
           parameters:
             template: 
               confirmation :  "%fos_user.registration.confirmation.template%"
@@ -25,8 +42,23 @@ services:
             from_email:
               confirmation:   "%fos_user.registration.confirmation.from_email%"
               resetting:      "%fos_user.resetting.email.from_email%"
-              noreply:        "%azine_email_no_reply%"
-            imageDir:         "%azine_email_template_image_dir%"     
-              
-              
+            no_reply:         "%azine_email_no_reply%"
+            image_dir:        "%azine_email_image_dir%"  
+ 
+    azine_email.default.recipient_provider:
+        class: Azine\EmailBundle\Services\AzineRecipientProvider
+        arguments:
+          entityManager:      "@doctrine.orm.entity_manager"   
+          recipient_class:   "%azine_email_recipient_class%"    
+          newsLetterField:    "%azine_email_recipient_newsletter_field%"
+             
+###################################################################
+## Twig-Filter
+###################################################################
+    azine.email.text.wrap.filter:
+        class: Azine\EmailBundle\Services\AzineEmailTwigExtension 
+        public: false
+        tags:
+            - { name: twig.extension }
+        
              
