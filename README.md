@@ -17,14 +17,12 @@ So the symfony/swiftmailer-bundle must be installed and properly configured.
 https://github.com/symfony/SwiftmailerBundle
 
 ##### 2. Doctrine for notification spooling
-For spooling notifications, Notification-Objects (AzineEmailBundle/ are stored in the database. So far only doctrine-storage is implemented.
+For spooling notifications, Notification-Objects (=&gt;Azine\EmailBundle\Entity\Notification) are stored in the database. So far only doctrine-storage is implemented.
 
 ##### 3. FOSUserBundle
-In its current Version it depends on the FOSUserBundle, as it also "beautyfies" the mails send from the 
-FOSUserBundle and uses the Users to provide recipient information for the mails to be sent.
-
-=> Azine\EmailBundle\Entity\Notification
-
+In its current Version it depends on the FOSUserBundle, as it also "beautyfies" the mails sent from the 
+FOSUserBundle and uses the Users to provide recipient information (name/email/notification interval/newsletter subscription) 
+for the mails to be sent.
 
 
 ## Installation
@@ -110,22 +108,22 @@ You can/must customize the layout of your email in three ways:
 A general overview is given here and the classes you should extend contain more inline-documentation on how stuff works.
 
 ### TemplateProvider
-This bundle includes a default implementation of a TemplateProvider ( => AzineTemplateProvider) 
+This bundle includes a default implementation of a TemplateProvider ( =&gt; AzineTemplateProvider) 
 and also an example how to customize things (ExampleTemplateProvider).
 
 Remember that css-styles don't work in most email viewers. You need to embed everything into the attributes (e.g. "style") of 
 your html-elements and do not use div-elements as they are not properly displayed in many viewers. 
-Use Tables instead (<table><tr><td> etc.) to layout your emails.
+Use Tables instead (&lt;table&gt;&lt;tr&gt;&lt;td&gt;''' etc.) to layout your emails.
 
-e.g. <table width="100%"><tr><td height="20" style="font-size: 12px; color: blue;">Bla bla</td></tr></table>
+e.g. &lt;table width="100%"&gt;&lt;tr&gt;&lt;td height="20" style="font-size: 12px; color: blue;"&gt;Bla bla&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 You can define styles you would like to use in your emails and and also blocks of html-code. 
 E.g. a drop-shadow implemented with td-elements with different shades of grey as background color. 
-=> see "leftShadow" and "cellSeparator" in AzineTemplateProvider  
+=&gt; see "leftShadow" and "cellSeparator" in the AzineTemplateProvider class. 
 
 
 ### Images
-You can use your own images which will be embeded into the emails. To do this, just define the path to your image-folder in your config.yml. => see above
+You can use your own images which will be embeded into the emails. To do this, just define the path to your image-folder in your config.yml. =&gt; see above
 
 ### Twig-Templates
 There are two kinds of templates required, both for html- and txt-content.
@@ -154,11 +152,11 @@ For example in one email to your users you could mention 6 private messages, 3 e
 
 For those three types you can define different "content-item-templates" and styles that should be available for these templates.
 
-An example for "Private-Messages" is included => 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'.
+An example for "Private-Messages" is included =&gt; 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'.
 
 For a type of content-item you must allways provide a html and a txt-version. They will be referenced by their full ID withour the format.twig-ending.
 
-=> AzineEmailBundle:contentItem:message for 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'
+=&gt; AzineEmailBundle:contentItem:message for 'Resources/views/contentItem/message.txt.twig' and 'Resources/views/contentItem/message.html.twig'
 
 Inside those templates you have access to the styles and snippets defined in your TemplateProvider.
 
