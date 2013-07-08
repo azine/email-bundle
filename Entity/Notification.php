@@ -17,7 +17,12 @@ class Notification
 		$this->created = new \DateTime();
 	}
 
-    /**
+///////////////////////////////////////////////////////////////////
+// generated stuff only below this line.
+// @codeCoverageIgnoreStart
+///////////////////////////////////////////////////////////////////
+
+	/**
      * @var integer
      */
     private $id;

@@ -74,7 +74,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		$this->noReplyEmail = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS];
 		$this->noReplyName = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_NAME];
 		$this->currentHost = $router->getContext()->getHost();
-		$this->encodedItemIdPattern = "/^cid:.*".$this->currentHost."/";
+		$this->encodedItemIdPattern = "/^cid:.*@/";
 	}
 
 	/**
@@ -280,10 +280,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 				$id = $image->getId();
 
 				// log an error if the image could not be embedded properly
-				if(	$id == $filePath || 															// $id and $value must not be the same => this happens if the file cannot be found/read
-					strripos($id, $this->currentHost) !== strlen($id)-strlen($this->currentHost)	// $id must end with the current host
-					){
-
+				if(	$id == $filePath ){		// $id and $value must not be the same => this happens if the file cannot be found/read
 					// log error
 					$this->logger->error('The image $value was not correctly embedded in the email.', array('image' => $filePath, 'resulting id' => $id));
 					// add a null-value to the cache for this path, so we don't try again.

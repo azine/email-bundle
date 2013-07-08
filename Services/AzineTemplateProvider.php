@@ -15,6 +15,8 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class AzineTemplateProvider implements TemplateProviderInterface {
 
+	const BASE_TEMPLATE = 'AzineEmailBundle::baseEmailLayout';
+
 	/**
 	 * Override this function for your template(s)!
 	 *
@@ -27,7 +29,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		// if you need different templates for different email-types
 
 		// use the default template for all types
-		$this->templateArray[$type] = 'AzineEmailBundle::baseEmailLayout';
+		$this->templateArray[$type] = self::BASE_TEMPLATE;
 	}
 
 	/**
