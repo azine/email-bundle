@@ -161,7 +161,7 @@ EOF;
     {
         $yaml = <<<EOF
 recipient_class: "Acme\SomeBundle\Entity\User"
-recipient_newsletter_field: "news_letter"
+recipient_newsletter_field: "newsletter"
 notifier_service: "azine_email.example.notifier_service"
 template_provider: "azine_email.example.template_provider"
 recipient_provider: "azine_email.default.recipient_provider"

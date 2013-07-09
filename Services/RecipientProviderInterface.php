@@ -19,5 +19,5 @@ interface RecipientProviderInterface {
 	 * Get all recipient entities that like to recieve the newsletter.
 	 * @return array of notibiable entity IDs
 	 */
-	public function getNewsLetterRecipientIDs();
+	public function getNewsletterRecipientIDs();
 }

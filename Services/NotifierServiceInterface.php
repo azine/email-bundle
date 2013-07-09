@@ -15,12 +15,12 @@ interface NotifierServiceInterface {
 	public function sendNotifications(array &$failedAddresses);
 
 	/**
-	 * Send the NewsLetter to all recipients.
+	 * Send the Newsletter to all recipients.
 	 *
 	 * @param $failedAddresses array modified by reference, so after the function returns, the array contains the failed email-addresses.
 	 * @return array of failed email addressess
 	 */
-	public function sendNewsLetter(array &$failedAddresses);
+	public function sendNewsletter(array &$failedAddresses);
 
 
 }

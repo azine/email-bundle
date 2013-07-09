@@ -53,7 +53,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 */
 	protected function getGeneralVarsForNewsletter(){
 		$vars = array();
-		$vars['recipientCount'] = sizeof($this->recipientProvider->getNewsLetterRecipientIDs());
+		$vars['recipientCount'] = sizeof($this->recipientProvider->getNewsletterRecipientIDs());
 	}
 
 	/**
@@ -245,7 +245,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		foreach ($notifications as $notification){
 
 			// decode the $params from the json in the notification-entity
-			$itemVars = json_decode($notification->getVariables(),true);
+			$itemVars = $notification->getVariables();
 			$itemVars = array_merge($params, $itemVars);
 			$itemVars['notification'] = $notification;
 			$itemVars['recipient'] = $recipient;
@@ -276,9 +276,9 @@ class AzineNotifierService implements NotifierServiceInterface {
 
 	/**
 	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.NotifierServiceInterface::sendNewsLetter()
+	 * @see Azine\EmailBundle\Services.NotifierServiceInterface::sendNewsletter()
 	 */
-	public function sendNewsLetter(array &$failedAddresses){
+	public function sendNewsletter(array &$failedAddresses){
 
 		// get the wrapper-template and its variables
 		$wrapperTemplate = $this->templateProvider->getTemplateFor(TemplateProviderInterface::NEWSLETTER_TYPE);
@@ -286,11 +286,11 @@ class AzineNotifierService implements NotifierServiceInterface {
 		// get the the non-recipient-specific contentItems of the newsletter
 		$params[self::CONTENT_ITEMS] = $this->getNonRecipientSpecificNewsletterContentItems( array());
 
-		// get recipientIds for the newsLetter
-		$recipientIds = $this->recipientProvider->getNewsLetterRecipientIDs();
+		// get recipientIds for the newsletter
+		$recipientIds = $this->recipientProvider->getNewsletterRecipientIDs();
 
 		foreach ($recipientIds as $recipientId){
-			$failedAddress = $this->sendNewsLetterFor($recipientId, $params, $wrapperTemplate);
+			$failedAddress = $this->sendNewsletterFor($recipientId, $params, $wrapperTemplate);
 
 			if($failedAddress != null){
 				$failedAddresses[] = $failedAddress;
@@ -307,7 +307,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @param string $wrapperTemplate
 	 * @return null or the failed email addressess
 	 */
-	public function sendNewsLetterFor($recipientId, array $params, $wrapperTemplate){
+	public function sendNewsletterFor($recipientId, array $params, $wrapperTemplate){
 		$recipient = $this->recipientProvider->getRecipient($recipientId);
 
 		// create new array for each recipient.

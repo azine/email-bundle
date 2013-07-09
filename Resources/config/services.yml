@@ -50,7 +50,7 @@ services:
         arguments:
           entityManager:      "@doctrine.orm.entity_manager"   
           recipient_class:   "%azine_email_recipient_class%"    
-          newsLetterField:    "%azine_email_recipient_newsletter_field%"
+          newsletterField:    "%azine_email_recipient_newsletter_field%"
              
 ###################################################################
 ## Twig-Filter

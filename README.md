@@ -38,16 +38,13 @@ To install AzineGeoBlockingBundle with Composer just add the following to your `
     }
 }
 ```
-
 Then, you can install the new dependencies by running Composer’s update command from the directory where your `composer.json` file is located:
 
 ```
 php composer.phar update
 ```
-
 Now, Composer will automatically download all required files, and install them for you. 
 All that is left to do is to update your AppKernel.php file, and register the new bundle:
-
 
 ```
 <?php
@@ -73,7 +70,7 @@ azine_email:
     recipient_class:      Acme\SomeBundle\Entity\User # Required
 
     # the fieldname of the boolean field on the recipient class indicating, that a newsletter should be sent or not
-    recipient_newsletter_field:  news_letter
+    recipient_newsletter_field:  newsletter
 
     # the service-id of your implementation of the nofitier service to be used
     notifier_service:     azine_email.example.notifier_service

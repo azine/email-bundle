@@ -45,11 +45,6 @@ class Notification
     /**
      * @var string
      */
-    private $variables;
-
-    /**
-     * @var string
-     */
     private $template;
 
     /**
@@ -150,29 +145,6 @@ class Notification
     public function getContent()
     {
         return $this->content;
-    }
-
-    /**
-     * Set variables
-     *
-     * @param string $variables
-     * @return Notification
-     */
-    public function setVariables($variables)
-    {
-        $this->variables = $variables;
-
-        return $this;
-    }
-
-    /**
-     * Get variables
-     *
-     * @return string
-     */
-    public function getVariables()
-    {
-        return $this->variables;
     }
 
     /**
@@ -288,5 +260,33 @@ class Notification
     public function getCreated()
     {
         return $this->created;
+    }
+    /**
+     * @var array
+     */
+    private $variables;
+
+
+    /**
+     * Set variables
+     *
+     * @param array $variables
+     * @return Notification
+     */
+    public function setVariables($variables)
+    {
+        $this->variables = $variables;
+
+        return $this;
+    }
+
+    /**
+     * Get variables
+     *
+     * @return array 
+     */
+    public function getVariables()
+    {
+        return $this->variables;
     }
 }

@@ -15,18 +15,18 @@ use Doctrine\ORM\EntityManager;
 	private $userClass;
 
 	/** @var string the field name of the boolean field that indicate wether or not a newsletter should be sent to the recipient entity. */
-	private $newsLetterField;
+	private $newsletterField;
 
 	/**
 	 *
 	 * @param EntityManager $em
 	 * @param unknown_type $userClass
-	 * @param unknown_type $newsLetterField
+	 * @param unknown_type $newsletterField
 	 */
-	public function __construct(EntityManager $em, $userClass, $newsLetterField) {
+	public function __construct(EntityManager $em, $userClass, $newsletterField) {
 		$this->em = $em;
 		$this->userClass = $userClass;
-		$this->newsLetterField = $newsLetterField;
+		$this->newsletterField = $newsletterField;
 	}
 
 	/**
@@ -39,13 +39,13 @@ use Doctrine\ORM\EntityManager;
 
 	/**
 	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.RecipientProviderInterface::getNewsLetterRecipientIDs()
+	 * @see Azine\EmailBundle\Services.RecipientProviderInterface::getNewsletterRecipientIDs()
 	 */
-	public function getNewsLetterRecipientIDs(){
+	public function getNewsletterRecipientIDs(){
 		$qb = $this->em->createQueryBuilder()
 			->select("n.id")
 			->from($this->userClass, "n")
-			->where('n.'.$this->newsLetterField.' = true');
+			->where('n.'.$this->newsletterField.' = true');
 		$results = $qb->getQuery()->execute();
 		$ids = array();
 		foreach ($results as $next){

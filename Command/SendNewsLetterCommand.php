@@ -18,7 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
  * Send Newsletter via email
  * @author dominik
  */
-class SendNewsLetterCommand extends ContainerAwareCommand{
+class SendNewsletterCommand extends ContainerAwareCommand{
 
 
 	/**
@@ -27,10 +27,10 @@ class SendNewsLetterCommand extends ContainerAwareCommand{
 	 */
 	protected function configure()
 	{
-		$this	->setName('notifications:sendNewsLetter')
+		$this	->setName('notifications:sendNewsletter')
 				->setDescription('Send Newsletter via email.')
 				->setHelp(<<<EOF
-The <info>notifications:sendNewsLetter</info> command sends the newsletter email to all recipients who
+The <info>notifications:sendNewsletter</info> command sends the newsletter email to all recipients who
 indicate that they would like to recieve the newsletter (see .
 
 Depending on you Swiftmailer-Configuration the email will be send directly or will be written to the spool.
