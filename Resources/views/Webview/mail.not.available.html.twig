@@ -1,0 +1,24 @@
+{% autoescape false %}
+<!DOCTYPE html>
+<html class="no-js" lang="en"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8" />
+		<title>{{ 'web.view.mail.not.available.page.title' | trans({}, 'AzineEmailBundle') }}</title>
+		<meta name="description" content="{{ 'web.view.mail.not.available.page.description' | trans({}, 'AzineEmailBundle') }}">
+
+	</head>
+	<body>
+		<table width="640" border="0" align="center" cellpadding="0" cellspacing="0" >
+			<tr>
+				<td>
+				<h1>{{ 'web.view.mail.not.available.title' | trans({}, 'AzineEmailBundle') }}</h1>
+				<p>{{ 'web.view.mail.not.available.the.mail.you.are.looking.for.could.not.be.found' | trans({}, 'AzineEmailBundle') }}</p>
+				{% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+				<p>{{ 'web.view.mail.not.available.maybe.the.mail.was.not.sent.to.you.%username%.or.it.was.sent.a.long.time.ago' | trans({'%username%' : app.user.username}, 'AzineEmailBundle') }}</p>
+				{% endif %}
+				<p>{{ 'web.view.mail.not.available.mails.are.only.kept.for.%days%.days.in.web.view' | trans({'%days%' : days}, 'AzineEmailBundle') }}</p>
+				</td>
+		</table>
+	</body>
+</html>
+{% endautoescape %}

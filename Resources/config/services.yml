@@ -22,6 +22,15 @@ services:
           entityManager:      "@doctrine.orm.entity_manager"
           templateProvider:   "@azine_email_template_provider"
           recipientProvider:  "@azine_email_recipient_provider"
+          parameters:
+            newsletter_interval : "%azine_email_newsletter_interval%"
+            newsletter_send_time: "%azine_email_newsletter_send_time%"
+            
+    azine_email.example.web_view_service:
+        class: Azine\EmailBundle\Services\AzineWebViewService
+        arguments: 
+          router:       "@router"
+    
               
 ###################################################################
 ## Services you can use as default if you work with the FOSUserBundle
@@ -35,6 +44,7 @@ services:
           logger:             "@logger"
           translator:         "@translator.default"
           templateProvider:   "@azine_email_template_provider"
+          entityManager:      "@doctrine.orm.entity_manager"   
           parameters:
             template: 
               confirmation :  "%fos_user.registration.confirmation.template%"

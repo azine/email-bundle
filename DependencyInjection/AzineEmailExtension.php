@@ -22,6 +22,13 @@ class AzineEmailExtension extends Extension
 	const TEMPLATE_PROVIDER = 			"template_provider";
 	const TEMPLATE_TWIG_SWIFT_MAILER =	"template_twig_swift_mailer";
 	const NOTIFIER_SERVICE =			"notifier_service";
+	const NEWSLETTER =					"newsletter";
+	const NEWSLETTER_INTERVAL = 		"interval";
+	const NEWSLETTER_SEND_TIME =		"send_time";
+	const WEB_VIEW_SERVICE =			"web_view_service";
+	const WEB_VIEW_RETENTION =			"web_view_retention";
+	const PREFIX =						"azine_email_";
+
 
 
 	/**
@@ -32,7 +39,7 @@ class AzineEmailExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $prefix = 'azine_email_';
+        $prefix = self::PREFIX;
         $container->setAlias	($prefix.self::RECIPIENT_PROVIDER,			$config[self::RECIPIENT_PROVIDER]);
         $container->setParameter($prefix.self::RECIPIENT_CLASS,				$config[self::RECIPIENT_CLASS]);
         $container->setParameter($prefix.self::RECIPIENT_NEWSLETTER_FIELD,	$config[self::RECIPIENT_NEWSLETTER_FIELD]);
@@ -42,6 +49,12 @@ class AzineEmailExtension extends Extension
         														'name' => 	$config[self::NO_REPLY][self::NO_REPLY_EMAIL_NAME]));
         $container->setParameter($prefix.self::TEMPLATE_IMAGE_DIR,			$config[self::TEMPLATE_IMAGE_DIR]);
         $container->setAlias	($prefix.self::NOTIFIER_SERVICE,			$config[self::NOTIFIER_SERVICE]);
+
+        $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_INTERVAL,		$config[self::NEWSLETTER][self::NEWSLETTER_INTERVAL]);
+        $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_SEND_TIME,		$config[self::NEWSLETTER][self::NEWSLETTER_SEND_TIME]);
+
+        $container->setAlias	($prefix.self::WEB_VIEW_SERVICE,			$config[self::WEB_VIEW_SERVICE]);
+        $container->setParameter($prefix.self::WEB_VIEW_RETENTION,			$config[self::WEB_VIEW_RETENTION]);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');

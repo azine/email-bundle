@@ -1,0 +1,110 @@
+<!doctype html>
+<head>
+<title>{{ 'web.view.index.page.title' | trans({}, 'AzineEmailBundle') }}</title>
+<style type="text/css">
+.button{
+	background: none repeat scroll 0 0 #003E6D;
+	border: 1px solid #023053;
+	border-radius: 3px 3px 3px 3px;
+	box-shadow: 0 1px 0 #12629E inset;
+	color: #FFFFFF;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 13px;
+	margin-right: 5px;
+	padding: 9px 15px 10px;
+	cursor: pointer;
+	display: inline-block;
+	line-height: 1;
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+	transition: background-color 0.15s ease-in-out 0s;
+	width: auto;
+}
+
+.alert-box{
+	color: #454748;
+	margin: 15px;
+	z-index: 1000;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 3px 3px 3px 3px;
+	color: white;
+	display: block;
+	font-size: 14px;
+	font-weight: bold;
+	margin-bottom: 12px;
+	padding: 6px 7px 7px;
+	position: relative;
+	text-shadow: 0 -1px rgba(0, 0, 0, 0.3);
+}
+
+.info{
+	background: none repeat scroll 0 0 #2BA6CB;
+}
+
+.warn{
+	background: none repeat scroll 0 0 #DF940B;
+}
+
+</style>
+</head>
+<body>
+{% for key, flashes in app.session.flashbag.all %}
+	{% for message in flashes %}
+	<div id="flash" class="row">
+		<div class="eleven columns centered alert-box {{ key }}" id="{{ key }}-block">
+			{{ message | trans | nl2br }}
+			<a href="" class="close">&times;</a>
+		</div>
+	</div>
+	{% endfor %}
+{% endfor %}
+
+{% for template in templates %}
+	<p>
+		{% for format in template.formats %}
+			<a href="{{ template.url }}/{{ format }}" target="{{ template.templateId }}">{{ template.description }} / {{ format }}</a>
+			<br/>
+		{% endfor %}
+
+		{{ 'web.view.index.send.html.email.to' | trans({}, 'AzineEmailBundle') }} :
+		{% for next in emails %}
+			<a class="button" href="{{ path('azine_email_send_test_email',{'email': next.accountEmail, 'template' : template.templateId}) }}">{{ next.accountDescription }}</a>
+		{% endfor %}
+
+		<span class="custom">
+			<a style="display: inline-block;" id="customEmail" class="button"
+				href="#"
+				origHref="{{ path('azine_email_send_test_email',{'template' : template.templateId}) }}">{{ 'web.view.index.use.custom.email' | trans({}, 'AzineEmailBundle') }} :</a>
+			<input style="width: 200px; display: inline-block;" id="customEmailField" type="text" value="{{ customEmail }}">
+		</span>
+
+		<br>
+	</p>
+{% endfor %}
+{% set jqueryVersion = "1.9.1" %}
+{% set jqueryUIVersion = "1.10.2" %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/{{ jqueryVersion }}/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/{{ jqueryUIVersion }}/jquery-ui.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('.custom a').each(function(){
+			$(this).mousedown(function(){
+				var href = $(this).attr("origHref");
+				var email = $(this).parent().find('input').val();
+				$(this).attr("href", href + "/" + email);
+			});
+		});
+		$('.custom input').each(function(){
+				$(this).blur(function(){
+					var email = $(this).val();
+					$(".custom input").each(function(){
+						$(this).attr("value", email);
+						$(this).val(email);
+					});
+				});
+			});
+   	 });
+</script>
+</body>
+</html>

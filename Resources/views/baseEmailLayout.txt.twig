@@ -1,6 +1,13 @@
 {% block subject %}email template{% endblock %}
 {% block body_text %}
 {% autoescape false %}
+
+{% block linkToWebView %}
+{% if( azineEmailWebViewToken is defined) %}
+{{ 'txt.email.head.link.to.web.view.text.%url%' | trans({'%url%' : url('azine_email_webview', {'token' : azineEmailWebViewToken, '_locale' : emailLocale })}, 'AzineEmailBundle') | raw }}
+{% endif %}
+{% endblock %}
+
 {% block content %}
 {% block contentHead %}
 Hello {{ username }},
@@ -24,13 +31,15 @@ the first loop get's all the arrays, the second loop get's the template from the
 {% for contentItemArrays in contentItems  %}
 {% for contentItemTemplate, contentItemParams in contentItemArrays %}
 -----------------------------------------------------------------------{# this line separates different content items visualy, replace it with what ever you think is niceer #}
-{% include contentItemTemplate ~ 'txt.twig' with contentItemParams %} {# You can add multiple content-blocks by adding items to the contentItems array.#}
+{% include contentItemTemplate ~ '.txt.twig' with contentItemParams %} {# You can add multiple content-blocks by adding items to the contentItems array.#}
 {% endfor %}
 {% endfor %}
 {% endif %}
 {% endblock %}	{# end main content #}
 {% block footerInfoText %}
-{{ 'The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.' | trans }}
+
+-----------------------------------------------------------------------
+The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.
 {% endblock %}
 
 {% block footerLinks %}
@@ -38,7 +47,7 @@ the first loop get's all the arrays, the second loop get's the template from the
 - Terms of use : http://example.com#tos
 - About        : http://example.com#about
 - Contact      : http://example.com#contact
-	{% endblock %}
+{% endblock %}
 
 {% endautoescape %}
 {% endblock %}

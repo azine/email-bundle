@@ -5,6 +5,8 @@ use Azine\EmailBundle\Entity\RecipientInterface;
 
 /**
  * Interface with methods required by the AzineEmailBundle to send Notification/Newsletters via email
+ *
+ * @author dominik
  */
 interface RecipientProviderInterface {
 

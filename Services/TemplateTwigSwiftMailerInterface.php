@@ -1,7 +1,11 @@
 <?php
 namespace Azine\EmailBundle\Services;
 
-
+/**
+ *
+ * @author dominik
+ *
+ */
 interface TemplateTwigSwiftMailerInterface {
 
 	/**

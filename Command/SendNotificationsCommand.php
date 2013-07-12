@@ -27,10 +27,10 @@ class SendNotificationsCommand extends ContainerAwareCommand{
 	 */
 	protected function configure()
 	{
-		$this	->setName('notifications:sendNotifications')
+		$this	->setName('emails:sendNotifications')
 				->setDescription('Aggregate and send pending notifications via email.')
 				->setHelp(<<<EOF
-The <info>notifications:sendNotifications</info> command sends emails for all pending notifications.
+The <info>emails:sendNotifications</info> command sends emails for all pending notifications.
 
 Depending on you Swiftmailer-Configuration the email will be send directly or will be written to the spool.
 

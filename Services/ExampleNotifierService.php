@@ -15,6 +15,9 @@ class ExampleNotifierService extends AzineNotifierService {
 	 */
 	protected function getRecipientVarsForNotificationsEmail(RecipientInterface $recipient){
 		$recipientParams = parent::getRecipientVarsForNotificationsEmail($recipient);
+
+		// $recipientParams = array_merge($this->getSomeMoreRecipientParamsForTheNotificationEmail($recipient), $recipientParams);
+
 		return $recipientParams;
 	}
 
@@ -25,7 +28,9 @@ class ExampleNotifierService extends AzineNotifierService {
 	protected function getNonRecipientSpecificNewsletterContentItems(){
 		$contentItems = array();
 
-		//$contentItems[] = array('AcmeBundle:foo:barSameForAllRecipientsTemplate', $templateParams);
+		// $templateParams = array('title' => 'foo bar');
+		// $templateParams = array_merge($this->getSomeMoreParamsForTheNewsletter(), $templateParams)
+		// $contentItems[] = array('AcmeBundle:foo:barSameForAllRecipientsTemplate', $templateParams);
 
 		return $contentItems;
 	}
@@ -37,7 +42,9 @@ class ExampleNotifierService extends AzineNotifierService {
 	protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient){
 		$contentItems = array();
 
-		//$contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate', $recipientSpecificTemplateParams);
+		// $recipientSpecificTemplateParams = array('title' => 'foo bar');
+		// $recipientSpecificTemplateParams = array_merge($this->getSomeMoreParamsForTheNewsletterForThisRecipient($recipient), $recipientSpecificTemplateParams)
+		// $contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate', $recipientSpecificTemplateParams);
 
 		return $contentItems;
 	}

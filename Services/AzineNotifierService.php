@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Services;
 
+use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
+
 use Azine\EmailBundle\Entity\Notification;
 
 use Azine\EmailBundle\Entity\RecipientInterface;
@@ -120,6 +122,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @param Logger $logger
 	 * @param TemplateProviderInterface $templateProvider
 	 * @param RecipientProviderInterface $recipientProvider
+	 * @param array $parameters
 	 */
 	public function __construct(	TemplateTwigSwiftMailerInterface $mailer,
 									\Twig_Environment $twig,
@@ -127,7 +130,8 @@ class AzineNotifierService implements NotifierServiceInterface {
 									UrlGeneratorInterface $router,
 									EntityManager $entityManager,
 									TemplateProviderInterface $templateProvider,
-									RecipientProviderInterface $recipientProvider
+									RecipientProviderInterface $recipientProvider,
+									array $parameters
 								){
 
 		$this->mailer = $mailer;
@@ -137,6 +141,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$this->em = $entityManager;
 		$this->templateProvider = $templateProvider;
 		$this->recipientProvider = $recipientProvider;
+		$this->configParameter = $parameters;
 	}
 
 
@@ -187,6 +192,12 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @var array
 	 */
 	private $templateStore = array();
+
+	/**
+	 * Array of configuration-parameters from the config.yml
+	 * @var array
+	 */
+	protected $configParameter;
 
 	/**
 	 * (non-PHPdoc)
@@ -258,6 +269,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		// add the notifications to the params array so they will be rendered later
 		$params[self::CONTENT_ITEMS] = $contentItems;
 		$params['recipient'] = $recipient;
+		$params['_locale'] = $recipient->getPreferredLocale();
 
 		// send the email with the right wrapper-template
 		$sent = $this->mailer->sendSingleEmail($recipient->getEmail(), $recipient->getDisplayName(), $params, $wrapperTemplateName.".txt.twig", $recipient->getPreferredLocale());
@@ -323,6 +335,8 @@ class AzineNotifierService implements NotifierServiceInterface {
 			$generalContentItems = array();
 		}
 		$recipientParams[self::CONTENT_ITEMS] = array_merge($recipientContentItems, $generalContentItems);
+		$recipientParams['_locale'] = $recipient->getPreferredLocale();
+
 
 		// render and send the email with the right wrapper-template
 		$sent = $this->mailer->sendSingleEmail($recipient->getEmail(), $recipient->getDisplayName(), $recipientParams, $wrapperTemplate.".txt.twig", $recipient->getPreferredLocale());
@@ -448,6 +462,27 @@ class AzineNotifierService implements NotifierServiceInterface {
 			->andWhere("n.recipient_id = :recipientId")
 			->setParameter('recipientId', $recipient->getId());
 		$qb->getQuery()->execute();
+	}
+
+	/**
+	 * Get the interval in days between newsletter mailings
+	 */
+	protected function getNewsletterInterval(){
+		return $this->configParameter[AzineEmailExtension::NEWSLETTER_INTERVAL];
+	}
+
+	/**
+	 * Get the time of the day when the newsletter should be sent.
+	 */
+	protected function getNewsletterSendTime(){
+		return $this->configParameter[AzineEmailExtension::NEWSLETTER_SEND_TIME];
+	}
+
+	/**
+	 * Get the DateTime at which the last newsletter mailing probably has taken place. (Calculated: send-time-today - interval in days)
+	 */
+	protected function getDateTimeOfLastNewsletter(){
+		return new \DateTime($this->getNewsletterInterval()." days ago ".$this->getNewsletterSendTime());
 	}
 
 }

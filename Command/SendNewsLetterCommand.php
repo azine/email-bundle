@@ -27,11 +27,11 @@ class SendNewsletterCommand extends ContainerAwareCommand{
 	 */
 	protected function configure()
 	{
-		$this	->setName('notifications:sendNewsletter')
-				->setDescription('Send Newsletter via email.')
+		$this	->setName('emails:sendNewsletter')
+				->setDescription('Send Newsletter via email to all subscribers.')
 				->setHelp(<<<EOF
-The <info>notifications:sendNewsletter</info> command sends the newsletter email to all recipients who
-indicate that they would like to recieve the newsletter (see .
+The <info>emails:sendNewsletter</info> command sends the newsletter email to all recipients who
+indicate that they would like to recieve the newsletter (see Azine\EmailBundle\Entity\RecipientInterface.getNewsletter).
 
 Depending on you Swiftmailer-Configuration the email will be send directly or will be written to the spool.
 

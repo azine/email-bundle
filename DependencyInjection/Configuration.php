@@ -33,8 +33,17 @@ class Configuration implements ConfigurationInterface
 	        			->scalarNode	(AzineEmailExtension::NO_REPLY_EMAIL_NAME)		->defaultValue('notification daemon')->isRequired()			->info("the name to appear with the 'no-reply'-address.")->isRequired()->end()
 	        			->end()
 	        		->end()
-	        	->scalarNode	(AzineEmailExtension::TEMPLATE_IMAGE_DIR)			->defaultValue('%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/')		->info("absolute path to the image-folder containing the images used in your templates.")->end()
-	        ->end();
+	        	->scalarNode	(AzineEmailExtension::TEMPLATE_IMAGE_DIR)				->defaultValue('%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/')		->info("absolute path to the image-folder containing the images used in your templates.")->end()
+	        	->arrayNode(AzineEmailExtension::NEWSLETTER)->info("newsletter configuration")
+	        		->addDefaultsIfNotSet()
+                    ->children()
+                       	->scalarNode(AzineEmailExtension::NEWSLETTER_INTERVAL)			->defaultValue('14')		->info("number of days between newsletters")->end()
+	        			->scalarNode(AzineEmailExtension::NEWSLETTER_SEND_TIME)			->defaultValue('10:00')		->info("time of the day, when newsletters should be sent, 24h-format => e.g. 23:59")->end()
+	        		->end()
+	        	->end()
+	        	->scalarNode	(AzineEmailExtension::WEB_VIEW_RETENTION)			->defaultValue('90')		->info("number of days that emails should be available in web-view")->end()
+	        	->scalarNode	(AzineEmailExtension::WEB_VIEW_SERVICE)				->defaultValue('azine_email.example.web.view.service')			->info("the service-id of your implementation of the web view service to be used")->end()
+	        ;
 
         return $treeBuilder;
     }

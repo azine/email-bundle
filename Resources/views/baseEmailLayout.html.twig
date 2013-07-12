@@ -10,6 +10,20 @@
 		<table width="640" border="0" align="center" cellpadding="0" cellspacing="0" style="font: normal 12px/18px Arial, Helvetica, sans-serif;">
 			<tr>
 				<td>&nbsp;</td>
+				<td style="text-align: center;">&nbsp;<br>
+				{% block linkToWebView %}
+				{% if( azineEmailWebViewToken is defined) %}
+						<span {{ smallGreyStyle }}>
+							{{ 'html.email.head.link.to.web.view.text.%url%' | trans({'%url%' : url('azine_email_webview', {'token' : azineEmailWebViewToken, '_locale' : emailLocale })}, 'AzineEmailBundle') | raw }}
+						</span>
+				{% endif %}
+				{% endblock %}
+				<br>&nbsp;</td>
+				<td>&nbsp;</td>
+				</tr>
+			<tr>
+			<tr>
+				<td>&nbsp;</td>
 				<td bgcolor="#f2f1f0">&nbsp;</td>
 				<td>&nbsp;</td>
 				</tr>
@@ -46,18 +60,18 @@
 {#
 the contentItems-array has the following structure
 
-array(0 => array(templateX => varsForX), 1 => array(templateY => varsForY), 1 => array(templateZ => varsForZ));
+array(0 => array(templateX => varsForX), 1 => array(templateY => varsForY), 2 => array(templateZ => varsForZ));
 
 the first loop get's all the arrays, the second loop get's the template from the key and the vars from the value of the inner array.
 #}
 						{% for contentItemArrays in contentItems  %}
 							{% for contentItemTemplate, contentItemParams in contentItemArrays %}
-								{{ cellSeparator }}				{# You can split your content into sections with the cellSepartor-variable. #}
-								{% include contentItemTemplate ~ 'html.twig' with contentItemParams %}
+								{{ cellSeparator }}{# You can split your content into sections with the cellSepartor-variable. #}
+								{% include contentItemTemplate ~ '.html.twig' with contentItemParams %}
 			  				{% endfor %}
 			  			{% endfor %}
 			  		{% endif %}
-				{% endblock %}	{# end main content #}
+				{% endblock %}{# end main content #}
 			    </td>
 		{{ rightShadow }}
 		{{ leftShadow}}
@@ -71,7 +85,7 @@ the first loop get's all the arrays, the second loop get's the template from the
             	<td width="620" align="center" valign="top" bgcolor="#434343" style="font: normal 12px/18px Arial; padding:10px 30px 30px 30px; border-top:3px solid #b1c800; text-align:center;" >
             		<p style="color:white;">
                 	{% block footerInfoText %}
-	            		{{ 'The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.' | trans }}
+	            		The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.
                 	{% endblock %}
             		</p>
                     <p style="color:#acacac;">

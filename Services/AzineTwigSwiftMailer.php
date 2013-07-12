@@ -2,6 +2,12 @@
 namespace Azine\EmailBundle\Services;
 
 
+use Azine\EmailBundle\Controller\AzineEmailTemplateController;
+
+use Doctrine\ORM\EntityManager;
+
+use Azine\EmailBundle\Entity\SentEmail;
+
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
@@ -36,6 +42,11 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 	protected $templateProvider;
 
 	/**
+	 * @var EntityManager
+	 */
+	protected $entityManager;
+
+	/**
 	 * @var email to use for "no-reply"
 	 */
 	protected $noReplyEmail;
@@ -57,6 +68,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 	 * @param \Twig_Environment $twig
 	 * @param Logger $logger
 	 * @param Translator $translator
+	 * @param EntityManager $em
 	 * @param array $parameters
 	 */
 	public function __construct(	\Swift_Mailer $mailer,
@@ -65,12 +77,14 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 									Logger $logger,
 									Translator $translator,
 									TemplateProviderInterface $templateProvider,
+									EntityManager $entityManager,
 									array $parameters)
 	{
 		parent::__construct($mailer, $router, $twig, $parameters);
 		$this->logger = $logger;
 		$this->translator = $translator;
 		$this->templateProvider = $templateProvider;
+		$this->entityManager = $entityManager;
 		$this->noReplyEmail = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS];
 		$this->noReplyName = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_NAME];
 		$this->currentHost = $router->getContext()->getHost();
@@ -103,20 +117,18 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		// create the message
 		$message = \Swift_Message::newInstance();
 
-		// add all template-variables to the params-array
+		// check if this email should be stored for web-view
+		if($this->templateProvider->saveWebViewFor($template)){
+			// keep a copy of the vars for the web-view
+			$webViewParams = $params;
+
+			// add the web-view token
+			$params[$this->templateProvider->getWebViewTokenId()] = SentEmail::getNewToken();
+		}
+
+		// recursively add all template-variables for the wrapper-templates and contentItems
 		$params = $this->templateProvider->addTemplateVariablesFor($template, $params);
 
-		// add the template-variables to the contentItem-params-arrays
-		if(array_key_exists('contentItems', $params)){
-			$contentItems = $params['contentItems'];
-			foreach ($contentItems as $key => $contentItem){
-				reset($contentItem);
-				$itemTemplate = key($contentItem);
-				$itemParams = $contentItem[$itemTemplate];
-				$contentItem[$itemTemplate] = $this->templateProvider->addTemplateVariablesFor($itemTemplate, $itemParams);
-				$contentItems[$key] = $contentItem;
-			}
-		}
 
 		// recursively attach all messages in the array
 		$this->embedImages($message, $params);
@@ -125,22 +137,15 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		if($emailLocale != null){
 			$currentUserLocale = $this->translator->getLocale();
 			$this->translator->setLocale($emailLocale);
+		} else {
+			$emailLocale = $this->translator->getLocale();
 		}
 
-		// add styles & blocks for the wrapper-template
-		$params = $this->templateProvider->addTemplateSnippetsWithEmbededImagesFor($template, $params, $this->translator->getLocale());
+		// recursively add snippets for the wrapper-templates and contentItems
+		$params = $this->templateProvider->addTemplateSnippetsWithImagesFor($template, $params, $emailLocale);
 
-		// add styles & blocks for the contentItem-params-arrays
-		if(array_key_exists('contentItems', $params)){
-			$contentItems = $params['contentItems'];
-			foreach ($contentItems as $key => $contentItem){
-				reset($contentItem);
-				$itemTemplate = key($contentItem);
-				$itemParams = $contentItem[$itemTemplate];
-				$contentItem[$itemTemplate] = $this->templateProvider->addTemplateSnippetsWithEmbededImagesFor($itemTemplate, $itemParams,  $this->translator->getLocale());
-				$contentItems[$key] = $contentItem;
-			}
-		}
+		// add the emailLocale (used for web-view)
+		$params['emailLocale'] = $emailLocale;
 
 		// render the email parts
 		$twigTemplate = $this->loadTemplate($template);
@@ -154,22 +159,10 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		$message->setBody($htmlBody, 'text/html');
 
 		// remove unused/unreferenced embeded items from the message
-		foreach ($params as $key => $value){
-			// check if the embeded items are referenced in the templates
-			$isEmbededItem = is_string($value) && preg_match($this->encodedItemIdPattern, $value) == 1;
-			if($isEmbededItem && stripos($htmlBody, $value) === false){
-				// remove unreferenced items from the mail
-				foreach($message->getChildren() as $attachment){
-					$attachmentId = $attachment->getId();
-					if("cid:".$attachmentId == $value){
-						$message->detach($attachment);
-					}
-				}
-			}
-		}
+		$message = $this->removeUnreferecedEmbededItemsFromMessage($message, $params, $htmlBody);
 
 		// change the locale back to the users locale
-		if($emailLocale != null){
+		if($currentUserLocale != null){
 			$this->translator->setLocale($currentUserLocale);
 		}
 
@@ -215,8 +208,81 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		// send the message
 		$messagesSent = $this->mailer->send($message, $failedRecipients);
 
+		// if the message was successfully sent,
+		// and it should be made available in web-view
+		if($messagesSent && array_key_exists($this->templateProvider->getWebViewTokenId(), $params)){
+
+			// store the email
+			$sentEmail = new SentEmail();
+			$sentEmail->setToken($params[$this->templateProvider->getWebViewTokenId()]);
+			$templateId = substr($template, 0, strrpos($template, ".", -6));
+			$sentEmail->setTemplate($templateId);
+			$sentEmail->setSent(new \DateTime());
+
+			// recursively add all template-variables for the wrapper-templates and contentItems
+			$webViewParams = $this->templateProvider->addTemplateVariablesFor($template, $webViewParams);
+
+			// replace absolute image-paths with relative ones.
+			$webViewParams = $this->templateProvider->makeImagePathsWebRelative($webViewParams, $emailLocale);
+
+			// recursively add snippets for the wrapper-templates and contentItems
+			$webViewParams = $this->templateProvider->addTemplateSnippetsWithImagesFor($template, $webViewParams, $emailLocale, true);
+
+			$sentEmail->setVariables($webViewParams);
+
+			// save only successfull recipients
+			if(!is_array($to)){
+				$to = array($to);
+			}
+			$successfulRecipients = array_diff($to, $failedRecipients);
+			$sentEmail->setRecipients($successfulRecipients);
+
+			// write to db
+			$this->entityManager->persist($sentEmail);
+			$this->entityManager->flush($sentEmail);
+		}
+
 		return $messagesSent;
 	}
+
+	/**
+	 * Remove all Embeded Attachments that are not referenced in the html-body from the message
+	 * to avoid using unneccary bandwidth.
+	 *
+	 * @param \Swift_Message $message
+	 * @param array $params the parameters used to render the html
+	 * @param string $htmlBody
+	 */
+	private function removeUnreferecedEmbededItemsFromMessage(\Swift_Message $message, $params, $htmlBody){
+
+		foreach ($params as $key => $value){
+			// remove unreferenced attachments from contentItems too.
+			if($key == 'contentItems'){
+				foreach ($value as $contentItemParams){
+					$message = $this->removeUnreferecedEmbededItemsFromMessage($message, $contentItemParams, $htmlBody);
+				}
+			} else {
+
+				// check if the embeded items are referenced in the templates
+				$isEmbededItem = is_string($value) && preg_match($this->encodedItemIdPattern, $value) == 1;
+
+				if($isEmbededItem && stripos($htmlBody, $value) === false){
+					// remove unreferenced items
+					$children = array();
+
+					foreach($message->getChildren() as $attachment){
+						if("cid:".$attachment->getId() != $value){
+							$children[] = $attachment;
+						}
+					}
+
+					$message->setChildren($children);
+				}
+			}
+		}
+		return $message;
+	}
+
 
 	/**
 	 * Get the template from the cache if it was loaded already
@@ -263,6 +329,10 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 				// don't do anything
 			}
 		}
+
+		// remove duplicate-attachments
+		$message->setChildren(array_unique($message->getChildren()));
+
 		return $params;
 	}
 

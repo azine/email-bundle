@@ -50,7 +50,7 @@ class AzineTemplateProviderTest extends WebTestCase{
 		$sizeWithVars = sizeof($vars);
 		$this->assertGreaterThan(sizeof($copy), $sizeWithVars, "There should be more items in the array after adding the variables.");
 
-		$vars = $this->templateProvider->addTemplateSnippetsWithEmbededImagesFor("test", $vars, "de");
+		$vars = $this->templateProvider->addTemplateSnippetsWithImagesFor("test", $vars, "de");
 		$sizeWithVars2 = sizeof($vars);
 		$this->assertGreaterThan($sizeWithVars, $sizeWithVars2, "There should be more items in the array after adding the snippets.");
 
@@ -64,7 +64,7 @@ class AzineTemplateProviderTest extends WebTestCase{
      * @expectedException \Exception
 	 */
 	public function testAddSnippetsWithoutVariables(){
-		$this->templateProvider->addTemplateSnippetsWithEmbededImagesFor("test", array(), "de");
+		$this->templateProvider->addTemplateSnippetsWithImagesFor("test", array(), "de");
 	}
 
 	public function testGetImageDir(){

@@ -1,0 +1,23 @@
+##################################################################
+## Web-View routes
+##################################################################
+azine_email_webview:
+    pattern:  /email/webview/{token}
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:webView" }
+    
+azine_email_serve_template_image:
+    pattern:  /email/template/image/{filename}
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:serveImage"}
+
+azine_email_template_index:
+    pattern:  /admin/email/
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:index" }
+    
+azine_email_web_preview:
+    pattern:  /admin/email/webpreview/{template}/{format}
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:webPreView", format : null }
+    
+azine_email_send_test_email:
+    pattern:  /admin/email/send-test-email-for/{template}/to/{email}
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:sendTestEmail", email: null}
+    
