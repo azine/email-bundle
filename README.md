@@ -6,12 +6,12 @@ So far it is completely without unit-test. Work is in progress!
 Azine Email Bundle
 ==================
 
-Symfony2 Bundle provides the following functionalities:
+Symfony2 Bundle provides an infrastructure for the following functionalities:
 
 - simplify the rendering and sending of nicely styled html-emails from within your application
-- provide an infrastructure to send notifications/update-infos to your recipients, immediately or aggregated and scheduled.
-- provide an infrastructure to send newsletters to the recipients which wish to recieve it.
-- provide an infrastrucutre to view sent emails in a web-view in the browser, for the case the email isn't displayed well in the users email-client.
+- send notifications/update-infos to your recipients, immediately or aggregated and scheduled.
+- send newsletters to the recipients which wish to recieve it.
+- view sent emails in a web-view in the browser, for the case the email isn't displayed well in the users email-client.
 
 ## Requirements
 
