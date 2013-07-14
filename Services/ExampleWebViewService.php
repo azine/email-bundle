@@ -8,7 +8,7 @@ namespace Azine\EmailBundle\Services;
  * @author dominik
  *
  */
-class ExampleWebViewSerive extends AzineWebViewSerice
+class ExampleWebViewService extends AzineWebViewService
 {
 
 	public function getTemplatesForWebView(){

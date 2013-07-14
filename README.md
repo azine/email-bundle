@@ -6,6 +6,7 @@ Symfony2 Bundle provides the following functionalities:
 - simplify the rendering and sending of nicely styled html-emails from within your application
 - provide an infrastructure to send notifications/update-infos to your recipients, immediately or aggregated and scheduled.
 - provide an infrastructure to send newsletters to the recipients which wish to recieve it.
+- provide an infrastrucutre to view sent emails in a web-view in the browser, for the case the email isn't displayed well in the users email-client.
 
 ## Requirements
 
@@ -23,7 +24,6 @@ For spooling notifications, Notification-Objects (=&gt;`Azine\EmailBundle\Entity
 In its current Version it depends on the [FOSUserBundle](https://github.com/FriendsOfSymfony/FOSUserBundle), as it also "beautyfies" the mails sent from the 
 FOSUserBundle and uses the Users to provide recipient information (name/email/notification interval/newsletter subscription) 
 for the mails to be sent.
-
 
 ## Installation
 To install AzineGeoBlockingBundle with Composer just add the following to your `composer.json` file:
@@ -57,6 +57,15 @@ $bundles = array(
 );
 ```
 
+Register the routes of the AzineEmailBundle:
+
+```
+// in app/config/routing.yml
+
+azine_email_bundle:
+    resource: "@AzineEmailBundle/Resources/config/routing.yml"
+    
+```
 
 ## Configuration options
 For the bundle to work with the default-settings, no config-options are required, but the swiftmailer must be configured.
@@ -83,7 +92,7 @@ azine_email:
 
     # the service-id of the mailer service to be used
     template_twig_swift_mailer:  azine_email.default.template_twig_swift_mailer
-    no_reply:
+    no_reply:             # Required
 
         # the no-reply email-address
         email:                no-reply@example.com # Required
@@ -94,15 +103,32 @@ azine_email:
     # absolute path to the image-folder containing the images used in your templates.
     image_dir:            %kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/
 
+    # newsletter configuration
+    newsletter:
+
+        # number of days between newsletters
+        interval:             14
+
+        # time of the day, when newsletters should be sent, 24h-format => e.g. 23:59
+        send_time:            10:00
+
+    # number of days that emails should be available in web-view
+    web_view_retention:   90
+
+    # the service-id of your implementation of the web view service to be used
+    web_view_service:     azine_email.example.web.view.service
+
 ```
 
 ## Customise the content and layout of your emails
 You can/must customize the layout of your email in three ways:
+
 - define your own styles by writing your own implementation of the TemplateProviderInterface 
 - use your own images
 - create your own html and txt twig-templates.
 
 A general overview is given here and the classes you should extend contain more inline-documentation on how stuff works.
+
 
 ### Your own implementation of TemplateProviderInterface
 This bundle includes a default implementation of a TemplateProvider ( =&gt; `Services/AzineTemplateProvider`) 
@@ -162,6 +188,78 @@ For a type of content-item you must allways provide a html and a txt-version. Th
 When rendering those templates you have access to the styles and snippets defined for this template in your TemplateProvider.
 
 
+## Make your emails available in the web-view 
+In the "web-view" you can take a look at the rendered html-emails in your browser and 
+send test-emails to your own email-address to view it in your favorite email-client.
+
+Also users reading you email can take a look at the email in their browser, if their 
+favorite email client messes up the layout. It adds a link at the top of you email
+to direct your users to the web-view : "If this email isn't displayed properly, see the web-version"
+
+### Configuring the web-view
+In order to use the web-view you must implement your version of WebViewServiceInterface , 
+configure it as service in your services.yml/.xml and set it in your config.yml 
+as `azine_email_web_view_service`.
+
+You can define how long those mails shall be kept available by setting the 
+value for `azine_email_web_view_retention`. The default is 90 days.
+
+The web-view adds the following routes:
+
+```
+// ...EmailBundle/Resources/config/routing.yml
+# route for users to see emails
+azine_email_webview:
+    pattern:  /email/webview/{token}
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:webView" }
+    
+# route for images that were embeded in emails and now must be shown in web-view
+azine_email_serve_template_image:
+    pattern:  /email/template/image/{filename}
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:serveImage"}
+
+# index with all the email-templates you configured in you implementation of WebViewServiceInterface
+azine_email_template_index:
+    pattern:  /admin/email/
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:index" }
+    
+# preview of a template filled with dummy-data ... this should probably only be accessible by admins
+azine_email_web_preview:
+    pattern:  /admin/email/webpreview/{template}/{format}
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:webPreView", format : null }
+
+# route to send test-mails filled with dummy-data ... this should probably only be accessible by admins
+azine_email_send_test_email:
+    pattern:  /admin/email/send-test-email-for/{template}/to/{email}
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:sendTestEmail", email: null}
+```   
+
+#### Implement WebViewServiceInterface
+The easiest way for you is to extend the `AzineWebViewService` and implement the three public functions
+- `public function getTemplatesForWebView()`
+- `public function getTestMailAccounts()`
+- `public function getDummyVarsFor($template)`
+and maybe the 
+- `public function __constructor(...)` if you need any extra services to gather the dummy-data
+
+You can take a look at the `ExampleWebViewService` what to do in those functions.
+
+#### Update your database
+The web-view stores all sent emails in the database. In order to do so, the entity SentEmail must be available.
+
+It is defined in `SentEmail.orm.yml` and you can update you database either with the command `doctrine:schema:update` or via migrations.
+
+#### Define which mails to store for web-view
+You can decide which mails you want to make available in web-view by overriding the function `saveWebViewFor($template)` in your TemplateProvider.
+
+See ExampleTemplateProvider for hints on how to do this.
+
+#### Deleting old "SentEmails"
+The symfony console-command `emails:remove-old-web-view-emails` will remove all "SentEmail" 
+that are older than the number of days you defined in `azine_email_web_view_retention`.
+
+You can configure a cron-job to call this command.
+
 ## TWIG-Filter textWrap
 This bundle also adds a twig filter that allows you to wrap text using the php function wordwrap. It defaults to a line width of 75 chars.
 
@@ -171,6 +269,3 @@ or
 {{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
 ```
 
-
-## Open Issues
-- I'd like to remove the dependency to the [FOSUserBundle](https://github.com/FriendsOfSymfony/FOSUserBundle), but as I work with the [FOSUserBundle](https://github.com/FriendsOfSymfony/FOSUserBundle), this has no priority for me. If you would like to see this implemented, let me know.
