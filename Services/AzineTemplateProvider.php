@@ -147,7 +147,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		// define some vars that are used several times
 		$lightGray = $vars["lightGray"];;
 		$blackColor = $vars["blackColor"];
-		$upLinkTitle = $this->getTranslator($emailLocale)->trans("html.email.go.to.top.link.label", array(), 'AzineEmailBundle', $emailLocale);
+		$upLinkTitle = $this->getTranslator($emailLocale)->trans("html.email.go.to.top.link.label", array(), 'messages', $emailLocale);
 
 		// create and add html-elements for easy reuse in the twig-templates
 		$snippets["linkToTop"] 		= "<a href='#top' style='text-decoration:none;color:$blackColor' title='$upLinkTitle'>Λ</a>";

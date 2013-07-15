@@ -229,10 +229,10 @@ class AzineEmailTemplateController extends ContainerAware{
 
 		// inform about sent/failed emails
 		if($sent){
-			$msg = $this->container->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email), 'AzineEmailBundle');
+			$msg = $this->container->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
 			$this->container->get('session')->getFlashBag()->add('info', $msg);
 		} else {
-			$msg = $this->container->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email), 'AzineEmailBundle');
+			$msg = $this->container->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
 			$this->container->get('session')->getFlashBag()->add('warn', $msg);
 		}
 
