@@ -19,6 +19,7 @@ class AzineEmailExtension extends Extension
 	const NO_REPLY_EMAIL_ADDRESS =		"email";
 	const NO_REPLY_EMAIL_NAME =			"name";
 	const TEMPLATE_IMAGE_DIR =			"image_dir";
+	const ALLOWED_IMAGES_FOLDERS = 		"allowed_images_folders";
 	const TEMPLATE_PROVIDER = 			"template_provider";
 	const TEMPLATE_TWIG_SWIFT_MAILER =	"template_twig_swift_mailer";
 	const NOTIFIER_SERVICE =			"notifier_service";
@@ -48,6 +49,7 @@ class AzineEmailExtension extends Extension
         $container->setParameter($prefix.'no_reply',	array(	'email' => 	$config[self::NO_REPLY][self::NO_REPLY_EMAIL_ADDRESS],
         														'name' => 	$config[self::NO_REPLY][self::NO_REPLY_EMAIL_NAME]));
         $container->setParameter($prefix.self::TEMPLATE_IMAGE_DIR,			$config[self::TEMPLATE_IMAGE_DIR]);
+        $container->setParameter($prefix.self::ALLOWED_IMAGES_FOLDERS,		$config[self::ALLOWED_IMAGES_FOLDERS]);
         $container->setAlias	($prefix.self::NOTIFIER_SERVICE,			$config[self::NOTIFIER_SERVICE]);
 
         $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_INTERVAL,		$config[self::NEWSLETTER][self::NEWSLETTER_INTERVAL]);

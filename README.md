@@ -113,6 +113,9 @@ azine_email:
     # absolute path to the image-folder containing the images used in your templates.
     image_dir:            %kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/
 
+    # list of folders from which images are allowed to be embeded into emails
+    allowed_images_folders:  []
+
     # newsletter configuration
     newsletter:
 
@@ -249,7 +252,7 @@ azine_email_webview:
     
 # route for images that were embeded in emails and now must be shown in web-view
 azine_email_serve_template_image:
-    pattern:  /email/template/image/{filename}
+    pattern:  /email/image/{folderKey}/{filename}
     defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:serveImage"}
 
 # index with all the email-templates you configured in you implementation of WebViewServiceInterface

@@ -34,6 +34,7 @@ class Configuration implements ConfigurationInterface
 	        			->end()
 	        		->end()
 	        	->scalarNode	(AzineEmailExtension::TEMPLATE_IMAGE_DIR)				->defaultValue('%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/')		->info("absolute path to the image-folder containing the images used in your templates.")->end()
+	        	->variableNode(AzineEmailExtension::ALLOWED_IMAGES_FOLDERS)				->defaultValue(array())										->info("list of folders from which images are allowed to be embeded into emails")->end()
 	        	->arrayNode(AzineEmailExtension::NEWSLETTER)->info("newsletter configuration")
 	        		->addDefaultsIfNotSet()
                     ->children()

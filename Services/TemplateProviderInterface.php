@@ -47,6 +47,20 @@ interface TemplateProviderInterface {
 	public function getTemplateImageDir();
 
 	/**
+	 * Check if an image that should be embeded into an email is stored in an "allowed_images_folder" see config.yml
+	 * @param string the filesystem path to the file
+	 */
+	public function isfileIsAllowed($filePath);
+
+	/**
+	 * Get the filesystem-folder for the given key
+	 * @param string $md5
+	 * @return string the fs-folder | false
+	 */
+	public function getFolderFrom($key);
+
+
+	/**
 	 * Define for which emails you want to make the web-view available and for which not.
 	 * @param string $template the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
 	 * @return boolean

@@ -313,11 +313,15 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 				$params[$key] = $value;
 
 			// if the current value is an existing file from the image-folder, embed it
-			} else if(is_string($value) && strpos($value, $this->templateProvider->getTemplateImageDir()) === 0){
-				$encodedImage = $this->cachedEmbedImage($value);
-				if($encodedImage != null){
-					$id = $message->embed($encodedImage);
-					$params[$key] = $id;
+			} else if(is_string($value) && is_file($value)){
+
+				// check if the file is from an allowed folder
+				if($this->templateProvider->isfileIsAllowed($value) !== false){
+					$encodedImage = $this->cachedEmbedImage($value);
+					if($encodedImage != null){
+						$id = $message->embed($encodedImage);
+						$params[$key] = $id;
+					}
 				}
 
 				//if the current value is a generated image
@@ -343,6 +347,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 	 */
 	private function cachedEmbedImage($filePath){
 		$encodedImage = null;
+		$filePath = realpath($filePath);
 		if(!array_key_exists($filePath, $this->imageCache)){
 			if(is_file($filePath)){
 

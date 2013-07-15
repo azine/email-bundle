@@ -197,6 +197,12 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	private $templateImageDir;
 
 	/**
+	 * List of directories from which images are allowed to be embeded into emails
+	 * @var array of string
+	 */
+	private $allowedImageFolders = array();
+
+	/**
 	 * @var UrlGeneratorInterface
 	 */
 	private $router;
@@ -227,7 +233,18 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	public function __construct(UrlGeneratorInterface $router, Translator $translator, array $parameters){
 		$this->router = $router;
 		$this->translator = $translator;
-		$this->templateImageDir = $parameters[AzineEmailExtension::TEMPLATE_IMAGE_DIR];
+		$templateImageDir = realpath($parameters[AzineEmailExtension::TEMPLATE_IMAGE_DIR]);
+		if($this->templateImageDir !== false){
+			$this->templateImageDir = $templateImageDir."/";
+		}
+
+		foreach ($parameters[AzineEmailExtension::ALLOWED_IMAGES_FOLDERS] as $nextFolder){
+			$imageFolder = realpath($nextFolder);
+			if($imageFolder !== false){
+				$this->allowedImageFolders[md5($imageFolder)] = $imageFolder."/";
+			}
+		}
+		$this->allowedImageFolders[md5($this->templateImageDir)] = $this->templateImageDir;
 	}
 
 	/**
@@ -345,18 +362,50 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	 */
 	public function makeImagePathsWebRelative(array $emailVars, $locale){
 
-		$templateImageDir = $this->getTemplateImageDir();
-
 		foreach ($emailVars as $key => $value){
-			if(is_string($value) && strpos($value, $templateImageDir) === 0 && strlen($value) > strlen($templateImageDir)){
-				$filename = substr($value, strrpos($value,"/")+1);
-				$newValue = $this->getRouter()->generate("azine_email_serve_template_image", array('filename' => $filename, '_locale' => $locale));
-				$emailVars[$key] = $newValue;
+			if(is_string($value) && is_file($value)){
+
+				// check if the file is in an allowed_images_folder
+				$folderKey = $this->isfileIsAllowed($value);
+				if($folderKey !== false){
+
+					// replace the fs-path with the web-path
+					$filename = substr($value, strrpos($value,"/")+1);
+					$newValue = $this->getRouter()->generate("azine_email_serve_template_image", array('folderKey' => $folderKey, 'filename' => $filename, '_locale' => $locale));
+					$emailVars[$key] = $newValue;
+				}
 			} else if (is_array($value)){
+
 				$emailVars[$key] = $this->makeImagePathsWebRelative($value, $locale);
 			}
 		}
 		return $emailVars;
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::isfileIsAllowed()
+	 */
+	public function isfileIsAllowed($filePath){
+		$filePath = realpath($filePath);
+		foreach ($this->allowedImageFolders as $key => $nextFolder){
+			if(strpos($filePath, $nextFolder) === 0){
+				return $key;
+				break;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::getFolderFrom()
+	 */
+	public function getFolderFrom($key){
+		if(array_key_exists($key, $this->allowedImageFolders)){
+			return $this->allowedImageFolders[$key];
+		}
+		return false;
 	}
 
 

@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Controller;
 
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 use Azine\EmailBundle\Services\ExampleTemplateProvider;
@@ -153,12 +155,16 @@ class AzineEmailTemplateController extends ContainerAware{
 	 * @param string $filename
 	 * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
 	 */
-	public function serveImageAction($filename){
-		$fullPath = $this->getTemplateProviderService()->getTemplateImageDir().$filename;
-		$response = BinaryFileResponse::create($fullPath);
-		$response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
-		$response->headers->set("Content-Type", "image");
-		return $response;
+	public function serveImageAction($folderKey, $filename){
+		$folder = $this->getTemplateProviderService()->getFolderFrom($folderKey);
+		if($folder !== false){
+			$fullPath = $folder.$filename;
+			$response = BinaryFileResponse::create($fullPath);
+			$response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
+			$response->headers->set("Content-Type", "image");
+			return $response;
+		}
+		return new FileNotFoundException($filename);
 	}
 
 	/**
