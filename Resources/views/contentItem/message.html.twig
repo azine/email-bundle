@@ -5,5 +5,5 @@
 	{{ notification.content }}
 </p>
 {% if goToUrl is defined %}
-<span><a href="{{ goToUrl }}" target="_msg">{{ 'content.items.go.to.message.link.text' | trans({}, 'AzineEmailBundle') }}</a></span>
+<span><a href="{{ goToUrl }}" target="_msg">{{ 'content.items.go.to.message.link.text' | trans({}) }}</a></span>
 {% endif %}

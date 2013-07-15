@@ -4,5 +4,5 @@
 {{ notification.content }}
 
 {% if goToUrl is defined %}
-{{ 'content.items.go.to.message.link.text' | trans({}, 'AzineEmailBundle') }} : {{ goToUrl }}
+{{ 'content.items.go.to.message.link.text' | trans({}) }} : {{ goToUrl }}
 {% endif %}

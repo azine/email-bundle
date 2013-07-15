@@ -49,10 +49,10 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
 		if($template == self::NOTIFICATIONS_TEMPLATE){
 			$newVars['%someUrl%'] = "http://example.com"; 				//$this->router->generate("your_route", $routeParamArray, UrlGeneratorInterface::ABSOLUTE_URL);
 			$newVars['%someOtherUrl%'] = "http://example.com/other";	//$this->router->generate("your_route", $routeParamArray, UrlGeneratorInterface::ABSOLUTE_URL);
-			$newVars['subject'] = $this->getTranslator()->trans("example.templateProvider.your.notification.subject", array(), 'AzineEmailBundle');
+			$newVars['subject'] = $this->getTranslator()->trans("example.templateProvider.your.notification.subject", array());
 		}
 		if($template == self::NEWSLETTER_TEMPLATE){
-			$newVars['subject'] = $this->getTranslator()->trans("example.templateProvider.your.newsletter.subject", array(), 'AzineEmailBundle');
+			$newVars['subject'] = $this->getTranslator()->trans("example.templateProvider.your.newsletter.subject", array());
 		}
 
 		// override some generic stuff needed for all templates

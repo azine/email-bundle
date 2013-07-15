@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2013-07-12T18:36:34Z" source-language="en" target-language="en" datatype="plaintext" original="not.available">
+  <file date="2013-07-15T14:29:58Z" source-language="en" target-language="en" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -53,12 +53,12 @@
         <target>List of configured email-templates</target>
       </trans-unit>
       <trans-unit id="4d119bddda41edaaf0bbe1b2f3525c6a1ba1beab" resname="web.view.index.send.html.email.to">
-        <jms:reference-file line="62">views/Webview/index.html.twig</jms:reference-file>
+        <jms:reference-file line="70">views/Webview/index.html.twig</jms:reference-file>
         <source>web.view.index.send.html.email.to</source>
         <target>Send a test email to</target>
       </trans-unit>
       <trans-unit id="b648f55c0b4fba8af07689419f0048e996bfb10f" resname="web.view.index.use.custom.email">
-        <jms:reference-file line="70">views/Webview/index.html.twig</jms:reference-file>
+        <jms:reference-file line="78">views/Webview/index.html.twig</jms:reference-file>
         <source>web.view.index.use.custom.email</source>
         <target>Use custom email</target>
       </trans-unit>
@@ -70,7 +70,7 @@
       <trans-unit id="34d8161fe6f01b8c8dc3c4f63b2873c01fdb9624" resname="web.view.mail.not.available.maybe.the.mail.was.not.sent.to.you.%username%.or.it.was.sent.a.long.time.ago">
         <jms:reference-file line="17">views/Webview/mail.not.available.html.twig</jms:reference-file>
         <source>web.view.mail.not.available.maybe.the.mail.was.not.sent.to.you.%username%.or.it.was.sent.a.long.time.ago</source>
-        <target>The email you are looking for could not be found. Either it was not sent to you (%username%) or it was too long ago.</target>
+        <target>Either it was not sent to you (%username%) or it was too long ago.</target>
       </trans-unit>
       <trans-unit id="d973239d70ac7787c2fee18547ce72a6a3b64252" resname="web.view.mail.not.available.page.description">
         <jms:reference-file line="7">views/Webview/mail.not.available.html.twig</jms:reference-file>
@@ -85,7 +85,7 @@
       <trans-unit id="d7d71fdee3d5b5e39071b8f249fe666e6426dd18" resname="web.view.mail.not.available.the.mail.you.are.looking.for.could.not.be.found">
         <jms:reference-file line="15">views/Webview/mail.not.available.html.twig</jms:reference-file>
         <source>web.view.mail.not.available.the.mail.you.are.looking.for.could.not.be.found</source>
-        <target>web.view.mail.not.available.the.mail.you.are.looking.for.could.not.be.found</target>
+        <target>The email you are looking for could not be found.</target>
       </trans-unit>
       <trans-unit id="16436544bd8f52d687bfdf6d2a863b55b39b032c" resname="web.view.mail.not.available.title">
         <jms:reference-file line="14">views/Webview/mail.not.available.html.twig</jms:reference-file>

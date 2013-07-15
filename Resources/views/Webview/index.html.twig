@@ -1,6 +1,6 @@
 <!doctype html>
 <head>
-<title>{{ 'web.view.index.page.title' | trans({}, 'AzineEmailBundle') }}</title>
+<title>{{ 'web.view.index.page.title' | trans({}) }}</title>
 <style type="text/css">
 .button{
 	background: none repeat scroll 0 0 #003E6D;
@@ -67,7 +67,7 @@
 			<br/>
 		{% endfor %}
 
-		{{ 'web.view.index.send.html.email.to' | trans({}, 'AzineEmailBundle') }} :
+		{{ 'web.view.index.send.html.email.to' | trans({}) }} :
 		{% for next in emails %}
 			<a class="button" href="{{ path('azine_email_send_test_email',{'email': next.accountEmail, 'template' : template.templateId}) }}">{{ next.accountDescription }}</a>
 		{% endfor %}
@@ -75,7 +75,7 @@
 		<span class="custom">
 			<a style="display: inline-block;" id="customEmail" class="button"
 				href="#"
-				origHref="{{ path('azine_email_send_test_email',{'template' : template.templateId}) }}">{{ 'web.view.index.use.custom.email' | trans({}, 'AzineEmailBundle') }} :</a>
+				origHref="{{ path('azine_email_send_test_email',{'template' : template.templateId}) }}">{{ 'web.view.index.use.custom.email' | trans({}) }} :</a>
 			<input style="width: 200px; display: inline-block;" id="customEmailField" type="text" value="{{ customEmail }}">
 		</span>
 
