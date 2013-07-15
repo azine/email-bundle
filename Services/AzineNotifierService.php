@@ -468,21 +468,32 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * Get the interval in days between newsletter mailings
 	 */
 	protected function getNewsletterInterval(){
-		return $this->configParameter[AzineEmailExtension::NEWSLETTER_INTERVAL];
+		return $this->configParameter[AzineEmailExtension::NEWSLETTER."_".AzineEmailExtension::NEWSLETTER_INTERVAL];
 	}
 
 	/**
 	 * Get the time of the day when the newsletter should be sent.
+	 * @return string Time of the day in the format HH:mm
 	 */
 	protected function getNewsletterSendTime(){
-		return $this->configParameter[AzineEmailExtension::NEWSLETTER_SEND_TIME];
+		return $this->configParameter[AzineEmailExtension::NEWSLETTER."_".AzineEmailExtension::NEWSLETTER_SEND_TIME];
 	}
 
 	/**
-	 * Get the DateTime at which the last newsletter mailing probably has taken place. (Calculated: send-time-today - interval in days)
+	 * Get the DateTime at which the last newsletter mailing probably has taken place, if a newsletter is sent today.
+	 * (Calculated: send-time-today - interval in days)
+	 * @return \DateTime
 	 */
 	protected function getDateTimeOfLastNewsletter(){
 		return new \DateTime($this->getNewsletterInterval()." days ago ".$this->getNewsletterSendTime());
+	}
+
+	/**
+	 * Get the DateTime at which the next newsletter mailing will take place, if a newsletter is sent today.
+	 * (Calculated: send-time-today + interval in days)
+	 */
+	protected function getDateTimeOfNextNewsletter(){
+		return new \DateTime("+".$this->getNewsletterInterval()." days  ".$this->getNewsletterSendTime());
 	}
 
 }
