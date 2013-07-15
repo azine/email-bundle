@@ -90,17 +90,30 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		$newVars["azBlue"] 					= $azBlue;
 		$newVars["blackColor"]				= $blackColor;
 		$newVars["lightGray"]				= $lightGray;
+		$newVars["bodyBackgroundColor"]		= "#fdfbfa";
+		$newVars["contentBackgroundColor"]  = "#f2f1f0";
+		$fontFamily							= "Arial, Helvetica, sans-serif";
+		$newVars["fontFamily"]				= $fontFamily;
+		$newVars["emailWidth"]				= 640;
+		$newVars["shadowWidth"]				= 10;
+		$newVars["contentWidth"]			= 620;
+		$newVars["footerBackgroundColor"]   = "#434343";
 
 		// add html-styles for your html-emails
 		// css does not work in html-emails, so all styles need to be
 		// embeded directly into the html-elements
-		$newVars["h2Style"]					= "style='padding:0; margin:0; font:bold 24px Arial; color:$azBlue; text-decoration:none;'";
-		$newVars["h3Style"]					= "style='margin:12px 0 5px 0; font:bold 18px Arial; padding:0; color:$azGreen; text-decoration:none;'";
+		$newVars["h2Style"]					= "style='padding:0; margin:0; font:bold 24px $fontFamily; color:$azBlue; text-decoration:none;'";
+		$newVars["h3Style"]					= "style='margin:12px 0 5px 0; font:bold 18px $fontFamily; padding:0; color:$azGreen; text-decoration:none;'";
 		$newVars["h4Style"]					= "style='padding:0; margin:0 0 20px 0; color:$blackColor; font-size:14px; text-decoration:none;'";
-		$newVars["smallGreyStyle"]			= "style='color: grey; font: Arial, Helvetica, sans-serif 11px;'";
-		$newVars["salutationStyle"]			= "style='color:$azBlue; font:bold 16px Arial;'";
+		$newVars["txtH1Style"]				= "////////////////////////////////////////////////////////////////////////////////";
+		$newVars["txtH2Style"]				= "================================================================================";
+		$newVars["txtH3Style"]				= "--------------------------------------------------------------------------------";
+		$newVars["txtH4Style"]				= "''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''";
+		$newVars["txtHR"]					= "________________________________________________________________________________";
+		$newVars["smallGreyStyle"]			= "style='color: grey; font: $fontFamily 11px;'";
+		$newVars["salutationStyle"]			= "style='color:$azBlue; font:bold 16px $fontFamily;'";
 		$newVars["dateStyle"]				= "style='padding:0; margin:5px 0; color:$blackColor; font-weight:bold; font-size:12px;'";
-		$newVars["smallerTextStyle"]		= "style='font: normal 13px/18px Arial, Helvetica, sans-serif;'";
+		$newVars["smallerTextStyle"]		= "style='font: normal 13px/18px $fontFamily;'";
 
 		return $newVars;
 	}
@@ -145,17 +158,19 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		$snippets = array();
 
 		// define some vars that are used several times
-		$lightGray = $vars["lightGray"];;
-		$blackColor = $vars["blackColor"];
-		$upLinkTitle = $this->getTranslator($emailLocale)->trans("html.email.go.to.top.link.label", array(), 'messages', $emailLocale);
+		$lightGray	= $vars["lightGray"];;
+		$blackColor	= $vars["blackColor"];
+		$upLinkTitle= $this->getTranslator($emailLocale)->trans("html.email.go.to.top.link.label", array(), 'messages', $emailLocale);
+		$fontFamily	= $vars["fontFamily"];
+
 
 		// create and add html-elements for easy reuse in the twig-templates
 		$snippets["linkToTop"] 		= "<a href='#top' style='text-decoration:none;color:$blackColor' title='$upLinkTitle'>Λ</a>";
-		$snippets["tableOpen"]		= "<table width='640' border='0' align='center' cellpadding='0' cellspacing='0'  style='font: normal 14px/18px Arial, Helvetica, sans-serif;'>";
-		$snippets["topShadow"]		= $snippets["tableOpen"]."<tr><td colspan='3' width='640'><img src='".$vars["top_shadow_png"]."' alt='' style='vertical-align: bottom;'/></td></tr>";
+		$snippets["tableOpen"]		= "<table width='".$vars["emailWidth"]."' border='0' align='center' cellpadding='0' cellspacing='0'  style='font: normal 14px/18px $fontFamily;'>";
+		$snippets["topShadow"]		= $snippets["tableOpen"]."<tr><td colspan='3' width='".$vars["emailWidth"]."'><img src='".$vars["top_shadow_png"]."' alt='' style='vertical-align: bottom;'/></td></tr>";
 		$snippets["leftShadow"]		= "<tr><td width='10' style='border-right: 1px solid $lightGray; background-image: url(\"".$vars["left_shadow_png"]."\");'>&nbsp;</td>";
 		$snippets["rightShadow"]	= "<td width='10' style='border-left: 1px solid $lightGray; background-image: url(\"".$vars["right_shadow_png"]."\");'>&nbsp;</td></tr>";
-		$snippets["bottomShadow"]	= "	<tr><td colspan='3' width='640'><img src='".$vars["bottom_shadow_png"]."' alt='' style='vertical-align: top;'/></td></tr></table>";
+		$snippets["bottomShadow"]	= "	<tr><td colspan='3' width='".$vars["emailWidth"]."'><img src='".$vars["bottom_shadow_png"]."' alt='' style='vertical-align: top;'/></td></tr></table>";
 		$snippets["linkToTopRow"]	= $snippets["leftShadow"]."<td width='610' bgcolor='white' style='text-align: right; padding: 5px 5px 0; border-top: 1px solid $lightGray;'>".$snippets["linkToTop"]."</td>".$snippets["rightShadow"];
 		$snippets["cellSeparator"]	= "</td>".$snippets["rightShadow"].$snippets["bottomShadow"].$snippets["topShadow"].$snippets["linkToTopRow"].$snippets["leftShadow"]."<td bgcolor='white' width='580' align='left' valign='top' style='padding:10px 20px 20px 20px;'>";
 

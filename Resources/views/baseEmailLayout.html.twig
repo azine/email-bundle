@@ -6,40 +6,42 @@
 		<meta name="description" content="{% block description %}{% endblock %}" >
 		<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	</head>
-	<body style=" color: black; margin:0; font: normal 12px/18px Arial, Helvetica, sans-serif; background-color: #fdfbfa;">
-		<table width="640" border="0" align="center" cellpadding="0" cellspacing="0" style="font: normal 12px/18px Arial, Helvetica, sans-serif;">
+	<body style=" color: {{ blackColor }}; margin:0; font: normal 12px/18px {{ fontFamily }}; background-color: {{ bodyBackgroundColor }};">
+		<table width="{{ emailWidth }}" border="0" align="center" cellpadding="0" cellspacing="0" style="font: normal 12px/18px {{ fontFamily }};">
+			{% block linkToWebView %}
+			{% if( azineEmailWebViewToken is defined) %}
 			<tr>
 				<td>&nbsp;</td>
-				<td style="text-align: center;">&nbsp;<br>
-				{% block linkToWebView %}
-				{% if( azineEmailWebViewToken is defined) %}
-						<span {{ smallGreyStyle }}>
-							{{ 'html.email.head.link.to.web.view.text.%url%' | trans({'%url%' : url('azine_email_webview', {'token' : azineEmailWebViewToken, '_locale' : emailLocale })}, 'AzineEmailBundle') | raw }}
-						</span>
-				{% endif %}
-				{% endblock %}
-				<br>&nbsp;</td>
+				<td style="text-align: center;">
+					<span {{ smallGreyStyle }}>
+						{{ 'html.email.head.link.to.web.view.text.%url%' | trans({'%url%' : url('azine_email_webview', {'token' : azineEmailWebViewToken, '_locale' : emailLocale })}) | raw }}
+					</span>
+				</td>
+				<td>&nbsp;</td>
+				</tr>
+			{% endif %}
+			{% endblock %}{# end block  linkToWebView #}
+			<tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td bgcolor="{{ contentBackgroundColor }}">&nbsp;</td>
 				<td>&nbsp;</td>
 				</tr>
 			<tr>
-			<tr>
-				<td>&nbsp;</td>
-				<td bgcolor="#f2f1f0">&nbsp;</td>
-				<td>&nbsp;</td>
-				</tr>
-			<tr>
-				<td width="10">&nbsp;</td>
-				<td width="620" bgcolor="#f2f1f0" style="padding: 0px 20px;">
+				<td width="{{ shadowWidth }}">&nbsp;</td>
+				<td width="{{ contentWidth }}" bgcolor="{{ contentBackgroundColor }}" style="padding: 0px 20px;">
+					{% block logo %}
 			    	<a href="http://example.com" target="_blank" style="color: green; font-size: 72px; font-weight: bold; text-decoration: none;">
 			    		<img src="{{ logo_png }}" alt="azine" />
 			    	</a>
+			    	{% endblock %}{# end block logo #}
 			    </td>
-				<td width="10">&nbsp;</td>
+				<td width="{{ shadowWidth }}">&nbsp;</td>
 			</tr>
 	  	</table>
 	  	{{ topShadow }}
 	 	{{ leftShadow}}
-		    	<td width="620" bgcolor="white"  style="padding:10px 20px 20px 20px; border-top: 1px solid #EEEEEE;">
+		    	<td width="{{ contentWidth }}" bgcolor="white"  style="padding:10px 20px 20px 20px; border-top: 1px solid #EEEEEE;">
 	    		<a name="top" ></a>
 	  			{% block content %}
 	  				{% block contentHead %}
@@ -55,7 +57,7 @@
 						<br/>
 						<span style="color:#024d84;">the azine team</span>
 					</p>
-					{% endblock %}
+					{% endblock %}{# end block contentHead #}
 					{% if contentItems is defined %}
 {#
 the contentItems-array has the following structure
@@ -69,32 +71,39 @@ the first loop get's all the arrays, the second loop get's the template from the
 								{{ cellSeparator }}{# You can split your content into sections with the cellSepartor-variable. #}
 								{% include contentItemTemplate ~ '.html.twig' with contentItemParams %}
 			  				{% endfor %}
-			  			{% endfor %}
+			  			{% endfor %}{# end for contentItems #}
 			  		{% endif %}
-				{% endblock %}{# end main content #}
+				{% endblock %}{# end block content #}
 			    </td>
 		{{ rightShadow }}
 		{{ leftShadow}}
-	        	<td width="620" bgcolor="white" style="text-align:center;">
-	        		<a href="http://example.com" target="_blank" style="color: {{ azGreen }}; font-size: 36px; font-weight: bold; text-decoration: none; position:relative; top:1px;">
+	        	<td width="{{ contentWidth }}" bgcolor="white" style="text-align:center;">
+	        		{% block footerLogo %}
+	        		<a href="http://example.com" target="_blank" style="color: {{ azGreen }}; font: 36px bold; text-decoration: none; position:relative; top:1px;">
 			    		<img height="24" src="{{ logo_png }}" alt="azine" />
 			    	</a>
+			    	{% endblock %}{# end block footerLogo #}
 	            </td>
     	{{ rightShadow}}
 		{{ leftShadow}}
-            	<td width="620" align="center" valign="top" bgcolor="#434343" style="font: normal 12px/18px Arial; padding:10px 30px 30px 30px; border-top:3px solid #b1c800; text-align:center;" >
-            		<p style="color:white;">
+            	<td width="{{ contentWidth }}" align="center" valign="top" bgcolor="{{ footerBackgroundColor }}" style="font: normal 12px/18px {{ fontFamily }}; padding:10px 30px 30px 30px; border-top:3px solid #b1c800; text-align:center;" >
                 	{% block footerInfoText %}
+            		<p style="color:white;">
 	            		The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.
-                	{% endblock %}
             		</p>
+                	{% endblock %}{# end block footerInfoText #}
+            		{% block footerCopyrightText %}
+            		<p style="color:white;">
+            			&copy; 2013
+					</p>
+					{% endblock %}{# end block footerCopyrightText #}
                     <p style="color:#acacac;">
                     {% block footerLinks %}
 	               	    <a style="color:#acacac; text-decoration:none;" href="http://example.com#help">Help</a> |
 	                    <a style="color:#acacac; text-decoration:none;" href="http://example.com#tos">Terms of use</a> |
 	                    <a style="color:#acacac; text-decoration:none;" href="http://example.com#about">About</a> |
 	                    <a style="color:#acacac; text-decoration:none;" href="http://example.com#contact">Contact</a>
-					{% endblock %}<!-- end footerLinks -->
+					{% endblock %}{# end block footerLinks #}
                     </p>
 				</td>
 		{{ rightShadow}}
