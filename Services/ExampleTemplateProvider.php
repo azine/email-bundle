@@ -10,26 +10,33 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateProviderInterface {
 
 	// design your own templates for newsletter/notifications.
-	const NEWSLETTER_TEMPLATE 				= 'AzineEmailBundle::baseEmailLayout';
-	const NOTIFICATIONS_TEMPLATE			= 'AzineEmailBundle::baseEmailLayout';
-	const CONTENT_ITEM_MESSAGE_TEMPLATE		= 'AzineEmailBundle:contentItem:message';
-	const VIP_INFO_MAIL_TEMPLATE			= 'AcmeExampleEmailBundle:VIP:infoMail';
-	const SOME_OTHER_MAIL_TEMPLATE			= 'AcmeExampleEmailBundle:Foo:marMail';
+	const VIP_INFO_MAIL_TYPE			= 'vipInfoMail';
+	const VIP_INFO_MAIL_TEMPLATE		= 'AcmeExampleEmailBundle:VIP:infoMail';
+
+	const SOME_OTHER_MAIL_TYPE			= 'someOtherMail';
+	const SOME_OTHER_MAIL_TEMPLATE		= 'AcmeExampleEmailBundle:Foo:marMail';
 
 	/**
+	 * Override this function for your template(s)!
+	 *
 	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.AzineTemplateProvider::fillTemplatesArrayFor()
+	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::getTemplateFor()
 	 */
-	 protected function fillTemplatesArrayFor($type){
-		if ($type == TemplateProviderInterface::NEWSLETTER_TYPE){
-			$this->templateArray[$type] = self::NEWSLETTER_TEMPLATE;
+	public function getTemplateFor($type){
+		// this implementation uses the same template for all types.
+		// override this function with a more sophiticated logic
+		// if you need different templates for different email-types
+		if($type == self::SOME_OTHER_MAIL_TYPE){
+			return self::SOME_OTHER_MAIL_TEMPLATE;
 
-		} else if($type == TemplateProviderInterface::NOTIFICATION_TYPE) {
-				$this->templateArray[$type] = self::NOTIFICATIONS_TEMPLATE;
-		} else {
-			parent::fillTemplatesArrayFor($type);
+		} else if($type == self::VIP_INFO_MAIL_TYPE){
+			return self::VIP_INFO_MAIL_TEMPLATE;
+
 		}
-	 }
+
+		// use the parent templates for all other types
+		return parent::getTemplateFor($type);
+	}
 
 	/**
 	 * (non-PHPdoc)

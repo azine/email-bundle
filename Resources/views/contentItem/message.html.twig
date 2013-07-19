@@ -2,7 +2,7 @@
 <h4>{{ notification.title }}</h4>
 <span>{{ notification.created | date("j. F Y H:i") }}</span>
 <p>
-	{{ notification.content }}
+	{{ notification.content | nl2br }}
 </p>
 {% if goToUrl is defined %}
 <span><a href="{{ goToUrl }}" target="_msg">{{ 'content.items.go.to.message.link.text' | trans({}) }}</a></span>

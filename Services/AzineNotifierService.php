@@ -387,24 +387,36 @@ class AzineNotifierService implements NotifierServiceInterface {
 
 		} else if($notificationMode == RecipientInterface::NOTIFICATION_MODE_DAYLY){
 			$sendNotifications = ($timeDelta > $this->getDayInterval());
-
-
-		} else if($notificationMode == RecipientInterface::NOTIFICATION_MODE_NEVER){
-			$sendNotifications = false;
-			$this->markAllNotificationsAsSentFarInThePast($recipient);
-			return array();
 		}
 
-		$qb = $this->em->createQueryBuilder()
-			->select("n")
-			->from("Azine\EmailBundle\Entity\Notification", "n")
-			->andWhere("n.sent is null")
-			->andWhere("n.recipient_id = :recipientId")
-			->setParameter('recipientId', $recipient->getId())
-			->orderBy("n.template", "asc")
-			->orderBy("n.title", "asc");
-		$results = $qb->getQuery()->execute();
-		return $results;
+		// regularly sent notifications now
+		if($sendNotifications){
+			$qb = $this->em->createQueryBuilder()
+				->select("n")
+				->from("Azine\EmailBundle\Entity\Notification", "n")
+				->andWhere("n.sent is null")
+				->andWhere("n.recipient_id = :recipientId")
+				->setParameter('recipientId', $recipient->getId())
+				->orderBy("n.importance", "desc")
+				->orderBy("n.template", "asc")
+				->orderBy("n.title", "asc");
+			$notifications = $qb->getQuery()->execute();
+
+		// if notifications exist, that should be sent immediately, then send those now disregarding the users mailing-preferences.
+		} else {
+			$qb = $this->em->createQueryBuilder()
+				->select("n")
+				->from("Azine\EmailBundle\Entity\Notification", "n")
+				->andWhere("n.sent is null")
+				->andWhere("n.send_immediately = true")
+				->andWhere("n.recipient_id = :recipientId")
+				->setParameter('recipientId', $recipient->getId())
+				->orderBy("n.importance", "desc")
+				->orderBy("n.template", "asc")
+				->orderBy("n.title", "asc");
+			$notifications = $qb->getQuery()->execute();
+		}
+		return $notifications;
 	}
 
 	/**
@@ -432,7 +444,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 */
 	protected function setNotificationsAsSent(array $notifications){
 		foreach ($notifications as $notification){
-			//$notification->setSent(new \DateTime());
+			$notification->setSent(new \DateTime());
 			$this->em->persist($notification);
 		}
 		$this->em->flush();
@@ -448,20 +460,6 @@ class AzineNotifierService implements NotifierServiceInterface {
 			$this->templateStore[$templateId] = $this->twig->loadTemplate($templateId);
 		}
 		return $this->templateStore[$templateId];
-	}
-
-	/**
-	 * Mark all Notifications as sent long ago, as the recipient never want's to get any notifications.
-	 * @param RecipientInterface $recipient
-	 */
-	protected function markAllNotificationsAsSentFarInThePast(RecipientInterface $recipient){
-		$this->em->createQueryBuilder()
-			->update("Azine\EmailBundle\Entity\Notification", "n")
-			->set("sent", new \DateTime('1900-01-01'))
-			->andWhere("n.sent is null")
-			->andWhere("n.recipient_id = :recipientId")
-			->setParameter('recipientId', $recipient->getId());
-		$qb->getQuery()->execute();
 	}
 
 	/**
@@ -495,5 +493,54 @@ class AzineNotifierService implements NotifierServiceInterface {
 	protected function getDateTimeOfNextNewsletter(){
 		return new \DateTime("+".$this->getNewsletterInterval()." days  ".$this->getNewsletterSendTime());
 	}
+
+	/**
+	 * Convenience-function to add and save a Notification-entity
+	 *
+	 * @param integer $recipientId the ID of the recipient of this notification => see RecipientProvider.getRecipient($id)
+	 * @param string $title the title of the notification. depending on the recipients settings, multiple notifications are sent in one email.
+	 * @param string $content the content of the notification
+	 * @param string $template the twig-template to render the notification with
+	 * @param array $templateVars the parameters used in the twig-template, 'notification' => Notification and 'recipient' => RecipientInterface will be added to this array when rendering the twig-template.
+	 * @param integer $importance important messages are at the top of the notification-emails, un-important at the bottom.
+	 * @param boolean $sendImmediately whether or not to ignore the recipients mailing-preference and send the notification a.s.a.p.
+	 * @return Notification
+	 */
+	public function addNotification($recipientId, $title, $content, $template, $templateVars, $importance, $sendImmediately){
+		$notification = new Notification();
+		$notification->setRecipientId($recipientId);
+		$notification->setTitle($title);
+		$notification->setContent($content);
+		$notification->setTemplate($template);
+		$notification->setImportance($importance);
+		$notification->setSendImmediately($sendImmediately);
+		$notification->setVariables($templateVars);
+		$this->em->persist($notification);
+		return $notification;
+	}
+
+	/**
+	 * Convenience-function to add and save a Notification-entity for a message => see AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TYPE
+	 *
+	 * The following default are used:
+	 * $importance		= NORMAL
+	 * $sendImmediately	= fale
+	 * $template		= template for type AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TYPE
+	 * $templateVars	= only those from the template-provider
+	 *
+	 * @param integer $recipientId
+	 * @param string $title
+	 * @param string $content nl2br will be applied in the html-version of the email
+	 * @param string $goToUrl if this is supplied, a link "Go to message" will be added.
+	 */
+	public function addNotificationMessage($recipientId, $title, $content, $goToUrl = null){
+		$template = $this->templateProvider->getTemplateFor(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TYPE);
+		$templateVars = array();
+		if($goToUrl != null){
+			$templateVars['goToUrl'] = $goToUrl;
+		}
+		$this->addNotification($recipientId, $title, $content, $template, $this->templateProvider->addTemplateVariablesFor($template, $templateVars), Notification::IMPORTANCE_NORMAL, false);
+	}
+
 
 }

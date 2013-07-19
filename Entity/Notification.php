@@ -7,8 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Notification
  */
-class Notification
-{
+class Notification{
+	const IMPORTANCE_LOW = 1;
+	const IMPORTANCE_NORMAL = 2;
+	const IMPORTANCE_HIGH = 3;
 	/**
 	 * Initialize the created-date with "now"
 	 */
@@ -283,7 +285,7 @@ class Notification
     /**
      * Get variables
      *
-     * @return array 
+     * @return array
      */
     public function getVariables()
     {

@@ -15,28 +15,49 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class AzineTemplateProvider implements TemplateProviderInterface {
 
-	const BASE_TEMPLATE = 'AzineEmailBundle::baseEmailLayout';
-
+	const BASE_TEMPLATE 					= 'AzineEmailBundle::baseEmailLayout';
 	const NEWSLETTER_TEMPLATE 				= 'AzineEmailBundle::baseEmailLayout';
 	const NOTIFICATIONS_TEMPLATE			= 'AzineEmailBundle::baseEmailLayout';
+
+	const CONTENT_ITEM_MESSAGE_TYPE			= 'message';
 	const CONTENT_ITEM_MESSAGE_TEMPLATE		= 'AzineEmailBundle:contentItem:message';
+
+	const FOS_USER_PWD_RESETTING_TYPE		= "password-reset-email";
 	const FOS_USER_PWD_RESETTING_TEMPLATE	= "FOSUserBundle:Resetting:email";
+
+	const FOS_USER_REGISTRATION_TYPE		= "registration-confirmation-email";
 	const FOS_USER_REGISTRATION_TEMPLATE	= "FOSUserBundle:Registration:email";
 
 
 	/**
 	 * Override this function for your template(s)!
 	 *
-	 * @param $type type of email e.g. TemplateProviderInterface::NEWSLETTER_TYPE
-	 * @return the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
+	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::getTemplateFor()
 	 */
-	protected function fillTemplatesArrayFor($type){
+	public function getTemplateFor($type){
 		// this implementation uses the same template for all types.
 		// override this function with a more sophiticated logic
 		// if you need different templates for different email-types
+		if($type == self::CONTENT_ITEM_MESSAGE_TYPE){
+			return self::CONTENT_ITEM_MESSAGE_TEMPLATE;
 
-		// use the default template for all types
-		$this->templateArray[$type] = self::BASE_TEMPLATE;
+		} else if($type == self::NEWSLETTER_TYPE){
+			return self::NEWSLETTER_TEMPLATE;
+
+		} else if($type == self::NOTIFICATION_TYPE){
+			return self::NOTIFICATIONS_TEMPLATE;
+
+		} else if($type == self::FOS_USER_PWD_RESETTING_TYPE){
+			return self::FOS_USER_PWD_RESETTING_TEMPLATE;
+
+		} else if($type == self::FOS_USER_REGISTRATION_TYPE){
+			return self::FOS_USER_REGISTRATION_TEMPLATE;
+
+		}
+
+		// use the default template for all other types
+		return self::BASE_TEMPLATE;
 	}
 
 	/**
@@ -239,12 +260,6 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	 */
 	protected $snippetArrays = array();
 
-	/**
-	 * Array with templateIds for all types of emails in your application.
-	 * @var string
-	 */
-	protected $templateArray = array();
-
 	public function __construct(UrlGeneratorInterface $router, Translator $translator, array $parameters){
 		$this->router = $router;
 		$this->translator = $translator;
@@ -339,17 +354,6 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		}
 
 		return $vars;
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::getTemplateFor()
-	 */
-	public function getTemplateFor($type){
-		if(!array_key_exists($type, $this->templateArray)){
-			$this->fillTemplatesArrayFor($type);
-		}
-		return $this->templateArray[$type];
 	}
 
 	/**
