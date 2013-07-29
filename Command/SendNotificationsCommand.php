@@ -50,11 +50,11 @@ EOF
 		$failedAddresses = array();
 		$sentMails = $this->getContainer()->get('azine_email_notifier_service')->sendNotifications($failedAddresses);
 
-		$output->writeln(str_pad($sentMails, 4, " ", STR_PAD_LEFT)." emails have been sent.");
+		$output->writeln(date(\DateTime::RFC2822)." : ".str_pad($sentMails, 4, " ", STR_PAD_LEFT)." emails have been processed.");
 		if(sizeof($failedAddresses) > 0){
-			$output->writeln("The following email-addresses failed:");
+			$output->writeln(date(\DateTime::RFC2822)." : "."The following email-addresses failed:");
 			foreach ($failedAddresses as $address) {
-				$output->writeln($address);
+				$output->writeln("    ".$address);
 			}
 		}
 	}
