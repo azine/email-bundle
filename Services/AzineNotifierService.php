@@ -387,6 +387,11 @@ class AzineNotifierService implements NotifierServiceInterface {
 
 		} else if($notificationMode == RecipientInterface::NOTIFICATION_MODE_DAYLY){
 			$sendNotifications = ($timeDelta > $this->getDayInterval());
+
+		} else if($notificationMode == RecipientInterface::NOTIFICATION_MODE_NEVER){
+			$sendNotifications = false;
+			$this->markAllNotificationsAsSentFarInThePast($recipient);
+			return array();
 		}
 
 		// regularly sent notifications now
@@ -460,6 +465,20 @@ class AzineNotifierService implements NotifierServiceInterface {
 			$this->templateStore[$templateId] = $this->twig->loadTemplate($templateId);
 		}
 		return $this->templateStore[$templateId];
+	}
+
+	/**
+	 * Mark all Notifications as sent long ago, as the recipient never want's to get any notifications.
+	 * @param RecipientInterface $recipient
+	 */
+	protected function markAllNotificationsAsSentFarInThePast(RecipientInterface $recipient){
+		$this->em->createQueryBuilder()
+			->update("Azine\EmailBundle\Entity\Notification", "n")
+			->set("sent", new \DateTime('1900-01-01'))
+			->andWhere("n.sent is null")
+			->andWhere("n.recipient_id = :recipientId")
+			->setParameter('recipientId', $recipient->getId());
+		$qb->getQuery()->execute();
 	}
 
 	/**

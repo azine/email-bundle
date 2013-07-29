@@ -48,8 +48,12 @@ class AzineEmailExtension extends Extension
         $container->setAlias	($prefix.self::TEMPLATE_TWIG_SWIFT_MAILER,	$config[self::TEMPLATE_TWIG_SWIFT_MAILER]);
         $container->setParameter($prefix.'no_reply',	array(	'email' => 	$config[self::NO_REPLY][self::NO_REPLY_EMAIL_ADDRESS],
         														'name' => 	$config[self::NO_REPLY][self::NO_REPLY_EMAIL_NAME]));
-        $container->setParameter($prefix.self::TEMPLATE_IMAGE_DIR,			$config[self::TEMPLATE_IMAGE_DIR]);
-        $container->setParameter($prefix.self::ALLOWED_IMAGES_FOLDERS,		$config[self::ALLOWED_IMAGES_FOLDERS]);
+        $container->setParameter($prefix.self::TEMPLATE_IMAGE_DIR,			realpath($config[self::TEMPLATE_IMAGE_DIR]));
+        $allowedFolders = array();
+        foreach ($config[self::ALLOWED_IMAGES_FOLDERS] as $folder){
+        	$allowedFolders[] = realpath($folder);
+        }
+        $container->setParameter($prefix.self::ALLOWED_IMAGES_FOLDERS,		$allowedFolders);
         $container->setAlias	($prefix.self::NOTIFIER_SERVICE,			$config[self::NOTIFIER_SERVICE]);
 
         $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_INTERVAL,		$config[self::NEWSLETTER][self::NEWSLETTER_INTERVAL]);
