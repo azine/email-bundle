@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Controller;
 
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -89,21 +91,18 @@ class AzineEmailTemplateController extends ContainerAware{
 
 		// find email recipients, template & params
 		$sentEmail = $this->getSentEmailForToken($token);
-		$currentUser = $this->getUser();
 
 		// check if the sent email is available
-		if($sentEmail != null && $currentUser != null){
-
-
-			$recipients = $sentEmail->getRecipients();
-			$template = $sentEmail->getTemplate();
-			$emailVars = $sentEmail->getVariables();
-
-			// re-attach all entities to the EntityManager.
-			$this->reAttachAllEntities($emailVars);
+		if($sentEmail != null){
 
 			// check if the current user is allowed to see the email
-			if ($recipients == null || array_search($currentUser->getEmail(), $recipients) !== false || $currentUser->hasRole("ROLE_ADMIN")){
+			if ($this->userIsAllowedToSeeThisMail($sentEmail)){
+
+				$template = $sentEmail->getTemplate();
+				$emailVars = $sentEmail->getVariables();
+
+				// re-attach all entities to the EntityManager.
+				$this->reAttachAllEntities($emailVars);
 
 				// remove the web-view-token from the param-array
 				unset($emailVars[$this->getTemplateProviderService()->getWebViewTokenId()]);
@@ -111,6 +110,11 @@ class AzineEmailTemplateController extends ContainerAware{
 				// render & return email
 				$response = $this->renderResponse("$template.html.twig", $emailVars);
 				return $response;
+
+			// if the user is not allowed to see this mail
+			} else {
+				$msg = $this->container->get('translator')->trans('web.pre.view.test.mail.access.denied');
+				throw new AccessDeniedException($msg);
 			}
 		}
 
@@ -120,6 +124,37 @@ class AzineEmailTemplateController extends ContainerAware{
 		$response->setStatusCode(404);
 
 		return $response;
+	}
+
+	/**
+	 * Check if the user is allowed to see the email.
+	 * => the mail is public or the user is among the recipients or the user is an admin.
+	 *
+	 * @param SentEmail $mail
+	 * @return boolean
+	 */
+	private function userIsAllowedToSeeThisMail(SentEmail $mail){
+		$currentUser = $this->getUser();
+		$recipients = $mail->getRecipients();
+
+		// it is a public email
+		if($recipients == null)
+			return true;
+
+		// it is not a public email, but no user is logged in
+		if($currentUser == null)
+			return false;
+
+		// the user is among the recipients
+		if(array_search($currentUser->getEmail(), $recipients) !== false)
+			return true;
+
+		// the user is admin
+		if($currentUser->hasRole("ROLE_ADMIN"))
+			return true;
+
+		// any other case
+		return false;
 	}
 
 	/**
