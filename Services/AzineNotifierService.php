@@ -472,12 +472,13 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @param RecipientInterface $recipient
 	 */
 	protected function markAllNotificationsAsSentFarInThePast(RecipientInterface $recipient){
-		$this->em->createQueryBuilder()
+		$qb = $this->em->createQueryBuilder()
 			->update("Azine\EmailBundle\Entity\Notification", "n")
-			->set("sent", new \DateTime('1900-01-01'))
+			->set("n.sent", ":farInThePast")
 			->andWhere("n.sent is null")
 			->andWhere("n.recipient_id = :recipientId")
-			->setParameter('recipientId', $recipient->getId());
+			->setParameter('recipientId', $recipient->getId())
+			->setParameter('farInThePast', new \DateTime('1900-01-01'));
 		$qb->getQuery()->execute();
 	}
 
