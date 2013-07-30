@@ -313,6 +313,21 @@ that are older than the number of days you defined in `azine_email_web_view_rete
 
 You can configure a cron-job to call this command.
 
+#### Deleting failed mail-files from spool-folder
+Some emails you want to send might fail and if you configured the swiftmailer to use file spooling,
+the spool-files for these mails will stay in you spool-folder named `*.message.sending`.
+
+Running the `swiftmailer:spool:send` command will try to send those files again, but if sending
+fails repeatedly, you might end up with a spool-folder filled with mail-files that will allways fail.
+
+To delete those files, you can use the `emails:clear-and-log-failures` command from this package.
+
+Add a cron-job to do this for your application once per day, or if you have a lot of failing messages,
+once per hour.
+
+Using the `date` parameter for the command, you can define the duration during which the
+mailer should attempt to send those mails, before they are deleted by this command.
+
 ## TWIG-Filter textWrap
 This bundle also adds a twig filter that allows you to wrap text using the php 
 function wordwrap. It defaults to a line width of 75 chars.
