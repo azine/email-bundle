@@ -92,15 +92,10 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
 	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::saveWebViewFor()
 	 */
-	public function saveWebViewFor($template){
-
-		// implement your own rules here
-		if($template == self::VIP_INFO_MAIL_TEMPLATE){
-			return false;
-		}
-
-		// the parent function returns true for all templates except the FOSUserBundle:Resetting:email* and FOSUserBundle:Registration:email* templates.
-		return parent::saveWebViewFor($template);
+	public function getTemplatesToExcludeFromWebView(){
+		$exclude = parent::getTemplatesToExcludeFromWebView();
+		$exclude[] = self::VIP_INFO_MAIL_TEMPLATE;
+		return $exclude;
 	}
 
 

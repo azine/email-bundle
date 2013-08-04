@@ -199,15 +199,26 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	}
 
 	/**
-	 * Override this function to define which emails you want to make the web-view available and for which not.
 	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::saveWebViewFor()
 	 */
 	public function saveWebViewFor($template){
-		if($template == self::FOS_USER_PWD_RESETTING_TEMPLATE || $template == self::FOS_USER_REGISTRATION_TEMPLATE){
+		if(array_search($template, $this->getTemplatesToExcludeFromWebView()) === false ){
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Override this function to define which emails you want to make the web-view available and for which not.
+	 *
+	 * @return array of string => the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
+	 */
+	protected function getTemplatesToExcludeFromWebView(){
+		$exlude = array();
+		$exlude[] = self::FOS_USER_PWD_RESETTING_TEMPLATE;
+		$exlude[] = self::FOS_USER_REGISTRATION_TEMPLATE;
+		return $exlude;
 	}
 
 	/**
