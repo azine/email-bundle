@@ -337,13 +337,16 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$recipientParams[self::CONTENT_ITEMS] = array_merge($recipientContentItems, $generalContentItems);
 		$recipientParams['_locale'] = $recipient->getPreferredLocale();
 
+		if(sizeof($recipientParams[self::CONTENT_ITEMS]) == 0){
+			$this->logger->warning("The newsletter for ".$recipient->getDisplayName()." <".$recipient->getEmail()."> has not been sent. It would have been empty.", $params);
+			return $recipient->getEmail();
+		}
 
 		// render and send the email with the right wrapper-template
 		$sent = $this->mailer->sendSingleEmail($recipient->getEmail(), $recipient->getDisplayName(), $recipientParams, $wrapperTemplate.".txt.twig", $recipient->getPreferredLocale());
 
 		if($sent){
 			// save that this recipient has recieved the newsletter
-			//$this->setNotificationsAsSent($notifications);
 			return null;
 
 		} else {
