@@ -117,6 +117,12 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		// create the message
 		$message = \Swift_Message::newInstance();
 
+		// add the from-email for the footer-text
+		if(!array_key_exists('fromEmail', $params)){
+			$params['fromEmail'] = $from != null ? $from : $this->noReplyEmail;
+			$params['fromName'] = $fromName != null ? $fromName : $this->noReplyName;
+		}
+
 		// check if this email should be stored for web-view
 		if($this->templateProvider->saveWebViewFor($template)){
 			// keep a copy of the vars for the web-view
@@ -128,7 +134,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 
 		// recursively add all template-variables for the wrapper-templates and contentItems
 		$params = $this->templateProvider->addTemplateVariablesFor($template, $params);
-
 
 		// recursively attach all messages in the array
 		$this->embedImages($message, $params);

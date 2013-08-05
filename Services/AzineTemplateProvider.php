@@ -203,7 +203,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::saveWebViewFor()
 	 */
 	public function saveWebViewFor($template){
-		if(array_search($template, $this->getTemplatesToExcludeFromWebView()) === false ){
+		if(array_search($template, $this->getTemplatesToExcludeFromWebView()) !== false ){
 			return false;
 		}
 		return true;

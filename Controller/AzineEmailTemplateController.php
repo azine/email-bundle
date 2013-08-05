@@ -57,6 +57,13 @@ class AzineEmailTemplateController extends ContainerAware{
 		// add the styles
 		$emailVars = $this->getTemplateProviderService()->addTemplateVariablesFor($template, $emailVars);
 
+		// add the from-email for the footer-text
+		if(!array_key_exists('fromEmail', $emailVars)){
+			$noReply = $this->container->getParameter('azine_email_no_reply');
+			$emailVars['fromEmail'] = $noReply['email'];
+			$emailVars['fromName'] = $noReply['name'];
+		}
+
 		// set the emailLocale for the templates
 		$locale = $this->container->get('request')->getLocale();
 		$emailVars['emailLocale'] = $locale;
@@ -261,9 +268,6 @@ class AzineEmailTemplateController extends ContainerAware{
 
 		// get the email-vars for email-sending => absolute fs-paths to images
 		$emailVars = $this->container->get('azine_email_web_view_service')->getDummyVarsFor($template);
-
-		// generate a token for the web-view for all test-mails
-		$emailVars[$this->getTemplateProviderService()->getWebViewTokenId()] = SentEmail::getNewToken();
 
 		// send the mail
 		$sent = $this->container->get("azine_email_template_twig_swift_mailer")->sendSingleEmail($email, "", $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), "test@examle.com", "Test Mail from AzineEmailBundle");
