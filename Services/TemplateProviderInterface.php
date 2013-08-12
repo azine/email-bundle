@@ -76,5 +76,14 @@ interface TemplateProviderInterface {
 	 */
 	public function getWebViewTokenId();
 
+	/**
+	 * Get the url-query-parameters for campaign identification.
+	 * If you work with GoogleAnalytics take a look at this page: https://support.google.com/analytics/answer/1033867
+	 *
+	 * @param String $templateId (without ending) as key and params to render the template as value
+	 * @param array $template parameters already loaded
+	 * @return array of (string => string)
+	 */
+	public function getCampaignParamsFor($templateId, array $params = null);
 
 }

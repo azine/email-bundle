@@ -123,8 +123,12 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 			$params['fromName'] = $fromName != null ? $fromName : $this->noReplyName;
 		}
 
+		// get the baseTemplate. => templateId without the ending.
+		$templateBaseId = substr($template, 0, strrpos($template, ".", -6));
+
+
 		// check if this email should be stored for web-view
-		if($this->templateProvider->saveWebViewFor($template)){
+		if($this->templateProvider->saveWebViewFor($templateBaseId)){
 			// keep a copy of the vars for the web-view
 			$webViewParams = $params;
 
@@ -133,7 +137,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		}
 
 		// recursively add all template-variables for the wrapper-templates and contentItems
-		$params = $this->templateProvider->addTemplateVariablesFor($template, $params);
+		$params = $this->templateProvider->addTemplateVariablesFor($templateBaseId, $params);
 
 		// recursively attach all messages in the array
 		$this->embedImages($message, $params);
@@ -147,7 +151,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		}
 
 		// recursively add snippets for the wrapper-templates and contentItems
-		$params = $this->templateProvider->addTemplateSnippetsWithImagesFor($template, $params, $emailLocale);
+		$params = $this->templateProvider->addTemplateSnippetsWithImagesFor($templateBaseId, $params, $emailLocale);
 
 		// add the emailLocale (used for web-view)
 		$params['emailLocale'] = $emailLocale;
@@ -161,6 +165,13 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		$message->addPart($textBody, 'text/plain');
 
 		$htmlBody = $twigTemplate->renderBlock('body_html', $params);
+
+		$campaignParams = $this->templateProvider->getCampaignParamsFor($templateBaseId, $params);
+
+		if(sizeof($campaignParams) > 0){
+			$htmlBody = $this->addCampaignParamsToAllUrls($htmlBody, $campaignParams);
+		}
+
 		$message->setBody($htmlBody, 'text/html');
 
 		// remove unused/unreferenced embeded items from the message
@@ -220,8 +231,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 			// store the email
 			$sentEmail = new SentEmail();
 			$sentEmail->setToken($params[$this->templateProvider->getWebViewTokenId()]);
-			$templateId = substr($template, 0, strrpos($template, ".", -6));
-			$sentEmail->setTemplate($templateId);
+			$sentEmail->setTemplate($templateBaseId);
 			$sentEmail->setSent(new \DateTime());
 
 			// recursively add all template-variables for the wrapper-templates and contentItems
@@ -248,6 +258,31 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		}
 
 		return $messagesSent;
+	}
+
+	private function addCampaignParamsToAllUrls($htmlBody, $campaignParams){
+
+		$urlPattern = '/(href=[\'|"])(http[s]?\:\/\/\S*)([\'|"])/';
+
+		$filteredHtmlBody = preg_replace_callback($urlPattern, function($matches) use ($campaignParams){
+																	$start = $matches[1];
+																	$url = $matches[2];
+																	$end = $matches[3];
+
+																	$urlParams = http_build_query($campaignParams);
+
+																	if(strpos($url,"?") === false){
+																		$urlParams = "?".$urlParams;
+																	} else {
+																		$urlParams = "&".$urlParams;
+																	}
+
+																	$replacement = $start.$url.$urlParams.$end;
+																	return $replacement;
+
+																}, $htmlBody);
+
+		return $filteredHtmlBody;
 	}
 
 	/**

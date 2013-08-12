@@ -88,6 +88,24 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
 	}
 
 	/**
+	 * Override this function to define the campaign-parameters you like
+	 * If you use GoogleAnalytics, look at this page https://support.google.com/analytics/answer/1033867
+	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.AzineTemplateProvider::getCampaignParamsFor()
+	 */
+	protected function getCampaignParamsFor($templateId, array $params = null){
+
+		//if($templateId == "AcmeFooBundle:bar:mail.template"){
+		//	$params['channel'] = "foo-bar-channel";
+		//	$params['date'] = "a-long-long-long-time-ago";
+		//} else {
+		$params = parent::getCampaignParamsFor($templateId, $recipient);
+		//}
+		return $params;
+	}
+
+
+	/**
 	 * Override this function to define which emails you want to make the web-view available and for which not.
 	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::saveWebViewFor()

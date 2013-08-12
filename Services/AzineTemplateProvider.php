@@ -199,6 +199,24 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	}
 
 	/**
+	 * Override this function to define your own campaign-parameters
+	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::getCampaignParamsFor()
+	 */
+	public function getCampaignParamsFor($templateId, array $params = null){
+
+		if($templateId == self::NEWSLETTER_TEMPLATE){
+			return array("channel" => "newsletter", "date" => date("y-m-d"));
+
+		} else 	if($templateId == self::NOTIFICATIONS_TEMPLATE){
+			return array("channel" => "mailnotify", "date" => date("y-m-d"));
+
+		}
+
+		return array();
+	}
+
+	/**
 	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::saveWebViewFor()
 	 */
