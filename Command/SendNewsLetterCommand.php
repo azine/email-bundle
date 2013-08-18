@@ -18,7 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
  * Send Newsletter via email
  * @author dominik
  */
-class SendNewsletterCommand extends ContainerAwareCommand{
+class SendNewsLetterCommand extends ContainerAwareCommand{
 
 
 	/**

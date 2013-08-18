@@ -68,7 +68,8 @@ EOF
 			->delete("AzineEmailBundle:SentEmail","s")
 			->where("s.sent < :sent")
 			->setParameter("sent", $date);
-		$result = $sentEmails->getQuery()->execute();
+		$q = $sentEmails->getQuery();
+		$result = $q->execute();
 
 		$output->writeln($result." SentEmails have been deleted that were older than ".$date->format("Y-m-d H:i:s"));
 	}

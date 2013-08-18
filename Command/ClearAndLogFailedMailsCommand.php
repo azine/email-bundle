@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Command;
 
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
+
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 use Symfony\Component\Console\Output\Output;
@@ -80,6 +82,11 @@ EOF
 			$finder->date($date);
 		}
 
+		if($finder->count() == 0){
+			$output->writeln("No failed-message-filess found in '$spoolPath' for retry.");
+			return;
+		}
+
 		foreach ($finder as $failedFile) {
 			// rename the file, so no other process tries to find it
 			$tmpFilename = $failedFile.'.finalretry';
@@ -105,7 +112,7 @@ EOF
 		}
 
 		// write the failure to the log
-		if(empty($failedRecipients)){
+		if(!empty($failedRecipients)){
 			/** @var $logger LoggerInterface */
 			$logger = $this->getContainer()->get("logger");
 			$logger->warning("<error>Failed to send an email to : ".implode(", ", $failedRecipients)."</error>");

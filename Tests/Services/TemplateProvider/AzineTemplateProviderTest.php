@@ -3,7 +3,7 @@ namespace Azine\EmailBundle\Tests\Services\TemplateProvider;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
 
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 
