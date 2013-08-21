@@ -5,6 +5,8 @@ use Azine\EmailBundle\Entity\RecipientInterface;
 
 /**
  * This Service compiles and renders the emails to be sent.
+ * This class is only an example. Implement your own!
+ * @codeCoverageIgnoreStart
  * @author Dominik Businger
  */
 class ExampleNotifierService extends AzineNotifierService {

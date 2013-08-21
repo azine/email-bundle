@@ -4,9 +4,8 @@ namespace Azine\EmailBundle\Services;
 
 /**
  * This is an example how to override the AzineWebViewSerive.
- *
+ * @codeCoverageIgnoreStart
  * @author dominik
- *
  */
 class ExampleWebViewService extends AzineWebViewService
 {

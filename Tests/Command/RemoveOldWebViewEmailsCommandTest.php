@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Tests\Command;
 
+use Azine\EmailBundle\Tests\AzineQueryMock;
+
 use Doctrine\ORM\EntityManager;
 
 use Azine\EmailBundle\Command\RemoveOldWebViewEmailsCommand;

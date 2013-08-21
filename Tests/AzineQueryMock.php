@@ -1,5 +1,5 @@
 <?php
-namespace Azine\EmailBundle\Tests\Command;
+namespace Azine\EmailBundle\Tests;
 
 use Doctrine\ORM\AbstractQuery;
 

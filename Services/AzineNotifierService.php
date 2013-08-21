@@ -43,7 +43,6 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$recipientParams = array();
 		$recipientParams['recipient'] = $recipient;
 		$recipientParams['mode'] = $recipient->getNotificationMode();
-		$recipientParams['modeAsText'] = $recipient->getNotificationModeAsText();
 		return $recipientParams;
 	}
 
@@ -56,6 +55,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 	protected function getGeneralVarsForNewsletter(){
 		$vars = array();
 		$vars['recipientCount'] = sizeof($this->recipientProvider->getNewsletterRecipientIDs());
+		return $vars;
 	}
 
 	/**
@@ -86,6 +86,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$contentItems = array();
 
 		//$contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate', $recipientSpecificTemplateParams);
+		$contentItems[] = array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE, array('notification' => array('title' => 'SampleMessage', 'created' => new \DateTime('1 hour ago'), 'content' => 'Sample Text. Lorem Ipsum.')));
 
 		return $contentItems;
 	}
@@ -208,7 +209,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$recipientIds = $this->getNotificationRecipientIds();
 
 		// get the template to be used to wrap arround the notifications.
-		$wrapperTemplate = $this->templateProvider->getTemplateFor(TemplateProviderInterface::NOTIFICATION_TYPE);
+		$wrapperTemplate = $this->templateProvider->getTemplateFor(TemplateProviderInterface::NOTIFICATIONS_TYPE);
 
 		// get vars that are the same for all recipients of this notification-mail-batch
 		$params = $this->getVarsForNotificationsEmail();
@@ -456,18 +457,6 @@ class AzineNotifierService implements NotifierServiceInterface {
 			$this->em->persist($notification);
 		}
 		$this->em->flush();
-	}
-
-	/**
-	 * @param string $name
-	 * @param string $format
-	 * @var \Twig_Template
-	 */
-	protected function getTwigTemplate($templateId){
-		if(!array_key_exists($templateId, $this->templateStore)){
-			$this->templateStore[$templateId] = $this->twig->loadTemplate($templateId);
-		}
-		return $this->templateStore[$templateId];
 	}
 
 	/**

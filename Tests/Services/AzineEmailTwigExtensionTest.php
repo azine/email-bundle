@@ -1,6 +1,6 @@
 <?php
 
-namespace Azine\EmailBundle\Tests\Services\TwigExtension;
+namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 
@@ -16,6 +16,8 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase {
 
 		$filter = $filters["textWrap"];
 		$this->assertTrue($filter instanceof \Twig_Filter_Method, "Twig_Filter_Method expected as filter for textWrap.");
+
+		$this->assertEquals('azine_email_bundle_twig_extension', $twigExtension->getName());
 	}
 
 	public function testTextWrap(){

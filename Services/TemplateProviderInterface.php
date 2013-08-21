@@ -9,13 +9,13 @@ namespace Azine\EmailBundle\Services;
 interface TemplateProviderInterface {
 
 	const NEWSLETTER_TYPE = 'newsletter';
-	const NOTIFICATION_TYPE = 'notification';
+	const NOTIFICATIONS_TYPE = 'notification';
 
 	/**
 	 * Get the twig template that should be used for the email.
 	 * The returned twig-template must contain the blocks "subject" "body_text" and "body_html"
 	 *
-	 * @param string $type the type of email to render. Either TemplateProviderInterface::NEWSLETTER_TYPE, TemplateProviderInterface::NOTIFICATION_TYPE or any type from your own TemplateProviderInterface implementation
+	 * @param string $type the type of email to render. Either TemplateProviderInterface::NEWSLETTER_TYPE, TemplateProviderInterface::NOTIFICATIONS_TYPE or any type from your own TemplateProviderInterface implementation
 	 * @return string the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
 	 */
 	public function getTemplateFor($type);
@@ -50,7 +50,7 @@ interface TemplateProviderInterface {
 	 * Check if an image that should be embeded into an email is stored in an "allowed_images_folder" see config.yml
 	 * @param string the filesystem path to the file
 	 */
-	public function isfileIsAllowed($filePath);
+	public function isFileAllowed($filePath);
 
 	/**
 	 * Get the filesystem-folder for the given key

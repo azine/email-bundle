@@ -35,6 +35,6 @@ class AzineEmailTwigExtension extends \Twig_Extension
 	 */
 	public function getName()
 	{
-		return 'azine_email_bundle';
+		return 'azine_email_bundle_twig_extension';
 	}
 }

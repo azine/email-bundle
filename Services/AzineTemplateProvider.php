@@ -16,8 +16,8 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 class AzineTemplateProvider implements TemplateProviderInterface {
 
 	const BASE_TEMPLATE 					= 'AzineEmailBundle::baseEmailLayout';
-	const NEWSLETTER_TEMPLATE 				= 'AzineEmailBundle::baseEmailLayout';
-	const NOTIFICATIONS_TEMPLATE			= 'AzineEmailBundle::baseEmailLayout';
+	const NEWSLETTER_TEMPLATE 				= 'AzineEmailBundle::newsletterEmailLayout';
+	const NOTIFICATIONS_TEMPLATE			= 'AzineEmailBundle::notificationsEmailLayout';
 
 	const CONTENT_ITEM_MESSAGE_TYPE			= 'message';
 	const CONTENT_ITEM_MESSAGE_TEMPLATE		= 'AzineEmailBundle:contentItem:message';
@@ -45,7 +45,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		} else if($type == self::NEWSLETTER_TYPE){
 			return self::NEWSLETTER_TEMPLATE;
 
-		} else if($type == self::NOTIFICATION_TYPE){
+		} else if($type == self::NOTIFICATIONS_TYPE){
 			return self::NOTIFICATIONS_TEMPLATE;
 
 		} else if($type == self::FOS_USER_PWD_RESETTING_TYPE){
@@ -78,7 +78,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		$newVars = array();
 
 		// add template-specific stuff.
-		if($template == $this->getTemplateFor(self::NOTIFICATION_TYPE)){
+		if($template == $this->getTemplateFor(self::NOTIFICATIONS_TYPE)){
 			$newVars['subject'] = "Your notifications sent by AzineEmailBundle";
 		}
 
@@ -354,7 +354,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	 */
 	public function addTemplateSnippetsWithImagesFor($template, array $vars, $emailLocale, $forWebView = false){
 		$channel = $forWebView ? "webView" : "email";
-		$templateKey = $channel.$template;
+		$templateKey = $channel.$template.$emailLocale;
 
 		if(!array_key_exists($templateKey, $this->snippetArrays)){
 			$this->snippetArrays[$templateKey] = $this->getSnippetArrayFor($template, $vars, $emailLocale);
@@ -414,7 +414,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 			if(is_string($value) && is_file($value)){
 
 				// check if the file is in an allowed_images_folder
-				$folderKey = $this->isfileIsAllowed($value);
+				$folderKey = $this->isFileAllowed($value);
 				if($folderKey !== false){
 
 					// replace the fs-path with the web-path
@@ -432,9 +432,9 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 
 	/**
 	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::isfileIsAllowed()
+	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::isFileAllowed()
 	 */
-	public function isfileIsAllowed($filePath){
+	public function isFileAllowed($filePath){
 		$filePath = realpath($filePath);
 		foreach ($this->allowedImageFolders as $key => $nextFolder){
 			if(strpos($filePath, $nextFolder) === 0){

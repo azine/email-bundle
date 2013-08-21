@@ -170,6 +170,9 @@ no_reply:
   email: "no-reply@example.com"
   name: "notification daemon"
 image_dir: "%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/"
+allowed_images_folders:
+  - "%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/"
+  - "%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/"
 
 EOF;
         $parser = new Parser();

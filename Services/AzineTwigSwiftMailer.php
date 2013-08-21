@@ -2,8 +2,6 @@
 namespace Azine\EmailBundle\Services;
 
 
-use Azine\EmailBundle\Controller\AzineEmailTemplateController;
-
 use Doctrine\ORM\EntityManager;
 
 use Azine\EmailBundle\Entity\SentEmail;
@@ -16,8 +14,6 @@ use Monolog\Logger;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-use FOS\UserBundle\Mailer\MailerInterface;
-
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
 
 
@@ -25,7 +21,7 @@ use FOS\UserBundle\Mailer\TwigSwiftMailer;
  * This Service is used to send html-emails with embeded images
  * @author Dominik Businger
  */
-class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, TemplateTwigSwiftMailerInterface {
+class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftMailerInterface {
 	/**
 	 * @var Translator
 	 */
@@ -126,7 +122,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		// get the baseTemplate. => templateId without the ending.
 		$templateBaseId = substr($template, 0, strrpos($template, ".", -6));
 
-
 		// check if this email should be stored for web-view
 		if($this->templateProvider->saveWebViewFor($templateBaseId)){
 			// keep a copy of the vars for the web-view
@@ -178,7 +173,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 		$message = $this->removeUnreferecedEmbededItemsFromMessage($message, $params, $htmlBody);
 
 		// change the locale back to the users locale
-		if($currentUserLocale != null){
+		if(isset($currentUserLocale) && $currentUserLocale != null){
 			$this->translator->setLocale($currentUserLocale);
 		}
 
@@ -356,7 +351,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements MailerInterface, T
 			} else if(is_string($value) && is_file($value)){
 
 				// check if the file is from an allowed folder
-				if($this->templateProvider->isfileIsAllowed($value) !== false){
+				if($this->templateProvider->isFileAllowed($value) !== false){
 					$encodedImage = $this->cachedEmbedImage($value);
 					if($encodedImage != null){
 						$id = $message->embed($encodedImage);
