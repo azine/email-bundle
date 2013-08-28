@@ -115,8 +115,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
 		// add the from-email for the footer-text
 		if(!array_key_exists('fromEmail', $params)){
-			$params['fromEmail'] = $from != null ? $from : $this->noReplyEmail;
-			$params['fromName'] = $fromName != null ? $fromName : $this->noReplyName;
+			$params['sendMailAccountName'] = $this->noReplyName;
+			$params['sendMailAccountAddress'] = $this->noReplyEmail;
 		}
 
 		// get the baseTemplate. => templateId without the ending.

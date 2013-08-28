@@ -92,7 +92,7 @@ the first loop get's all the arrays, the second loop get's the template from the
 	            		The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.
             		</p>
             		<p style="color:white;">
-            			Add "<a href="mailto:{{ fromName }}&lt;{{ fromEmail }}&gt;">{{ fromEmail }}</a>" to your address book to ensure delivery of azine emails.
+            			Add "<a href="mailto:{{ sendMailAccountName }}&lt;{{ sendMailAccountAddress }}&gt;">{{ sendMailAccountAddress }}</a>" to your address book to ensure delivery of azine emails.
             		</p>
                 	{% endblock %}{# end block footerInfoText #}
             		{% block footerCopyrightText %}
