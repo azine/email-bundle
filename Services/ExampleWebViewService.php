@@ -52,6 +52,10 @@ class ExampleWebViewService extends AzineWebViewService
 			$variables['contentItems'][] = array(ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE, $otherMailVars);
 		}
 
+		$variables['sendMailAccountName'] = "some name";
+		$variables['sendMailAccountAddress'] = "no-reply@email.com";
+
+
 		return $variables;
 	}
 

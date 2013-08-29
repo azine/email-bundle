@@ -43,6 +43,9 @@ class AzineWebViewService implements WebViewServiceInterface
 	 */
 	public function getDummyVarsFor($template){
 		$variables = array();
+		$variables['sendMailAccountName'] = "some name";
+		$variables['sendMailAccountAddress'] = "no-reply@email.com";
+
 		// override this method to provide dummy-variables
 		// to view rendered templates for emails that you didn't send yet
 		// or to send an email with dummy-variables to your test-account(s)
