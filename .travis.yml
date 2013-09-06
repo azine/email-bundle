@@ -1,25 +1,26 @@
 language: php
 
 php:
-  - 5.3.3
   - 5.3
   - 5.4
+  - 5.5
 
 env:
   - SYMFONY_VERSION=2.2.*
   - SYMFONY_VERSION=2.3.*
   - SYMFONY_VERSION=dev-master
 
-
 before_script: 
-    - composer install --dev
-    - composer require symfony/framework-bundle:${SYMFONY_VERSION} --prefer-source
-  
+  - composer self-update
+  - composer require symfony/framework-bundle:${SYMFONY_VERSION} --no-update --dev
+  - composer install --dev --prefer-source 
 
-script: phpunit -c app  vendor/azine/ --coverage-text
+script: phpunit --coverage-text
 
 notifications:
   email: travis@azine-it.ch
 
-
+matrix:
+  allow_failures:
+    - env: SYMFONY_VERSION=dev-master
 

@@ -13,6 +13,11 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 - send newsletters to the recipients which wish to recieve it.
 - view sent emails in a web-view in the browser, for the case the email isn't displayed well in the users email-client.
 
+[![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle)
+[![Total Downloads](https://poser.pugx.org/azine/email-bundle/downloads.png)](https://packagist.org/packages/azine/email-bundle)
+[![Latest Stable Version](https://poser.pugx.org/azine/email-bundle/v/stable.png)](https://packagist.org/packages/azine/email-bundle)
+
+
 ## Requirements
 
 ##### 1. Swift-Mailer with working configuration 
