@@ -23,8 +23,9 @@ interface WebViewServiceInterface {
 	/**
 	 * Get the dummy-content for the email to be rendered in the webPreView or sent to the test-account.
 	 * @param string $template : the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
+	 * @param string $locale : the locale for the templateVars
 	 * @return array with all the content-variables needed to render the email. (the template variables from the TemplateProvider will be added later).
 	 */
-	public function getDummyVarsFor($template);
+	public function getDummyVarsFor($template, $locale);
 
 }

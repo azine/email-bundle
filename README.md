@@ -288,7 +288,7 @@ azine_email_bundle:
 The easiest way for you is to extend the `AzineWebViewService` and implement the three public functions
 - `public function getTemplatesForWebView()`
 - `public function getTestMailAccounts()`
-- `public function getDummyVarsFor($template)`
+- `public function getDummyVarsFor($template, $locale)`
 and maybe the 
 - `public function __constructor(...)` if you need any extra services to gather the dummy-data
 

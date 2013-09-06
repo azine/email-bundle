@@ -30,7 +30,7 @@ class AzineWebViewServiceTest extends \PHPUnit_Framework_TestCase {
  		$routerMock = $this->getMockRouter();
   		$webViewService = new AzineWebViewService($routerMock);
 
-  		$this->assertTrue(is_array($webViewService->getDummyVarsFor("some template")));
+  		$this->assertTrue(is_array($webViewService->getDummyVarsFor("some template", "de")));
 	}
 
 	public function testAddTestMailAccount(){

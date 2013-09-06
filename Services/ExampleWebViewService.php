@@ -31,7 +31,7 @@ class ExampleWebViewService extends AzineWebViewService
 		return $emails;
 	}
 
-	public function getDummyVarsFor($template){
+	public function getDummyVarsFor($template, $locale){
 		$variables = array();
 
 		// override this method to provide dummy-variables
