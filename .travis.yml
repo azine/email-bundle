@@ -12,7 +12,6 @@ env:
 
 
 before_script: 
-    - composer update --dev --prefer-source
     - composer install
     - composer require symfony/framework-bundle:${SYMFONY_VERSION} --prefer-source
   
