@@ -19,6 +19,7 @@
         "symfony/twig-bundle": ">=2.2",
         "swiftmailer/swiftmailer": ">=2.1",
         "doctrine/orm": ">=2.3",
+        "monolog/monolog": ">=1.6",
         "friendsofsymfony/user-bundle": "2.0.x-dev",
         "twig/extensions": "1.0.*"        
     },
