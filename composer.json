@@ -17,6 +17,7 @@
         "symfony/console": ">=2.1",
         "symfony/finder": ">=2.1",
         "swiftmailer/swiftmailer": ">=2.1",
+        "doctrine/orm": ">=2.3",
         "friendsofsymfony/user-bundle": "2.0.x-dev",
         "twig/extensions": "1.0.*"        
     },
