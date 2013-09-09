@@ -1,8 +1,3 @@
-!!!DO NOT YET USE THIS BUNDLE!!!
-===================================
-So far it is completely without unit-test. Work is in progress!
-
-
 Azine Email Bundle
 ==================
 
