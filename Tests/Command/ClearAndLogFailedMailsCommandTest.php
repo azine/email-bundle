@@ -80,7 +80,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase{
 		$tester = new CommandTester($command);
 		$tester->execute(array(''));
 		$display = $tester->getDisplay();
-		$this->assertContains("No failed-message-filess found", $display);
+		$this->assertContains("No failed-message-files found", $display);
 	}
 
 

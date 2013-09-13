@@ -83,7 +83,7 @@ EOF
 		}
 
 		if($finder->count() == 0){
-			$output->writeln("No failed-message-filess found in '$spoolPath' for retry.");
+			$output->writeln("No failed-message-files found in '$spoolPath' for retry.");
 			return;
 		}
 
