@@ -189,11 +189,4 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 		$azineMailer->sendResettingEmailMessage($user);
 
 	}
-
-	private static function getMethod($name) {
-		$class = new \ReflectionClass("Azine\EmailBundle\Services\AzineWebViewService");
-		$method = $class->getMethod($name);
-		$method->setAccessible(true);
-		return $method;
-	}
 }
