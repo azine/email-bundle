@@ -2,11 +2,6 @@
 
 {% block body_text %}
 {% autoescape false %}
-{% block linkToWebView %}
-{% if( azineEmailWebViewToken is defined) %}
-{{ 'txt.email.head.link.to.web.view.text.%url%' | trans({'%url%' : url('azine_email_webview', {'token' : azineEmailWebViewToken, '_locale' : emailLocale })}) | raw }}
-{% endif %}
-{% endblock %}
 
 {% block content %}
 {% block contentHead %}
@@ -50,6 +45,15 @@ The Symfony-Bundle this email was created with is brought to you by Azine IT Ser
 Add "{{ sendMailAccountAddress }}" to your address book to ensure delivery of azine emails.
 {% endblock %}
 
+{% block linkToWebView %}
+{% if( azineEmailWebViewToken is defined) %}
+{{ txtHR }}
+
+{{ 'txt.email.head.link.to.web.view.text.%url%' | trans({'%url%' : url('azine_email_webview', {'token' : azineEmailWebViewToken, '_locale' : emailLocale })}) | raw }}
+
+{{ txtHR }}
+{% endif %}
+{% endblock %}
 {% block footerLinks %}
 
 - Help         : http://example.com#help
