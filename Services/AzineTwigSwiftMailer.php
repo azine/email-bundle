@@ -113,6 +113,14 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 		// create the message
 		$message = \Swift_Message::newInstance();
 
+		// set the from-Name & -Emali to the default ones if not given
+		if($from == null){
+			$from = $this->noReplyEmail;
+		}
+		if($fromName == null){
+			$fromName = $this->noReplyName;
+		}
+
 		// add the from-email for the footer-text
 		if(!array_key_exists('fromEmail', $params)){
 			$params['sendMailAccountName'] = $this->noReplyName;
@@ -428,10 +436,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 	 * @return boolean true if the mail was sent successfully, else false
 	 */
 	public function sendSingleEmail($to, $toName, $params, $template, $emailLocale, $from = null, $fromName = null){
-		if($from == null){
-			$from = $this->noReplyEmail;
-			$fromName = $this->noReplyName;
-		}
 		$failedRecipients = array();
 		$this->sendEmail($failedRecipients, $from, $fromName, $to, $toName, null, null, null, null, null, null, $params, $template, array(), $emailLocale);
 
