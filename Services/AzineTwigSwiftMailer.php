@@ -105,13 +105,16 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 	 * @param string $template twig-template to render, needs to have "body_text", "body_html" and "subject" blocks
 	 * @param array $attachments associative array of attachmentNames and files (url or data) (if the attachmentName for an attachment is less than 5 chars long, the original file-name is used)
 	 * @param string $emailLocale two-char locale for the rendering of the email
+	 * @param \Swift_Message $message instance of \Swift_Message that can be accessed by reference after sending the email.
 	 * @throws FileException
 	 * @return number of sent messages
 	 */
-	public function sendEmail(&$failedRecipients, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null){
+	public function sendEmail(&$failedRecipients, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null, \Swift_Message &$message = null){
 
 		// create the message
-		$message = \Swift_Message::newInstance();
+		if($message == null){
+			$message = \Swift_Message::newInstance();
+		}
 
 		// set the from-Name & -Emali to the default ones if not given
 		if($from == null){
@@ -433,11 +436,12 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 	 * @param array $params
 	 * @param string $template
 	 * @param string $emailLocale
+	 * @param \Swift_Message $message instance of \Swift_Message that can be accessed by reference after sending the email.
 	 * @return boolean true if the mail was sent successfully, else false
 	 */
-	public function sendSingleEmail($to, $toName, $params, $template, $emailLocale, $from = null, $fromName = null){
+	public function sendSingleEmail($to, $toName, $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null){
 		$failedRecipients = array();
-		$this->sendEmail($failedRecipients, $from, $fromName, $to, $toName, null, null, null, null, null, null, $params, $template, array(), $emailLocale);
+		$this->sendEmail($failedRecipients, $from, $fromName, $to, $toName, null, null, null, null, null, null, $params, $template, array(), $emailLocale, $message);
 
 		return sizeof($failedRecipients) == 0;
 	}

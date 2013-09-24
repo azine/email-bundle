@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Controller;
 
+use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
+
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
@@ -271,7 +273,31 @@ class AzineEmailTemplateController extends ContainerAware{
 		$emailVars = $this->container->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale);
 
 		// send the mail
-		$sent = $this->container->get("azine_email_template_twig_swift_mailer")->sendSingleEmail($email, "", $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), "test@examle.com", "Test Mail from AzineEmailBundle");
+		$message = \Swift_Message::newInstance();
+		$sent = $this->getAzineMailer()->sendSingleEmail($email, "Test Recipient", $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), "test@examle.com", "Test Mail from AzineEmailBundle", $message);
+
+		$spamReport = $this->getSpamIndexReport($message);
+		$spamInfo = "";
+		if(is_array($spamReport)){
+			if($spamReport['curlHttpCode'] == 200 && $spamReport['success']){
+				$spamScore = $spamReport['score'];
+				$spamInfo = "SpamScore: $spamScore! \n".$spamReport['report'];
+			} else {
+				$spamInfo = "Getting the spam-info failed.
+							 HttpCode: ".$spamReport['curlHttpCode']."
+							 SpamReportMsg: ".$spamReport['message']."
+							 cURL-Error: ".$result['curlError'];
+
+			}
+
+			if($spamScore <= 2){
+				$this->container->get('session')->getFlashBag()->add('info', $spamInfo);
+			} else if($spamScore > 2 && $spamScore < 5){
+				$this->container->get('session')->getFlashBag()->add('warn', $spamInfo);
+			} else {
+				$this->container->get('session')->getFlashBag()->add('error', $spamInfo);
+			}
+		}
 
 		// inform about sent/failed emails
 		if($sent){
@@ -282,7 +308,55 @@ class AzineEmailTemplateController extends ContainerAware{
 			$this->container->get('session')->getFlashBag()->add('warn', $msg);
 		}
 
+
 		// show the index page again.
 		return new RedirectResponse($this->container->get('router')->generate('azine_email_template_index', array('customEmail' => $email)));
+	}
+
+	/**
+	 * Make an RESTful call to http://spamcheck.postmarkapp.com/filter to test the emails-spam-index.
+	 * See http://spamcheck.postmarkapp.com/doc
+	 * @return array TestResult array('success', 'message', 'curlHttpCode', 'curlError', ['score', 'report'])
+	 */
+	public function getSpamIndexReport(\Swift_Message $message, $report = 'long'){
+
+		// check if cURL is loaded/available
+		if (!function_exists('curl_init')){
+			return array(	"success" => false,
+							"message" => "No Spam-Check done. cURL module is not available.",
+							"curlHttpCode" => "-",
+							"curlError" => "-");
+		}
+
+		$ch = curl_init("http://spamcheck.postmarkapp.com/filter");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POST, true);
+		$data = array("email" => $message->toString(), "options" => $report);
+		//$data = array("email" => json_encode(array_filter($raw_email)), "options" => $report);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Accept: application/json"));
+
+		$result = json_decode(curl_exec($ch), true);
+		$error = curl_error($ch);
+		$result['curlHttpCode'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
+
+		if(strlen($error) > 0){
+			$result['curlError'] = $error;
+		}
+
+		if(!array_key_exists("message", $result)){
+			$result['message'] = "-";
+		}
+
+		return $result;
+
+	}
+
+	/**
+	 * @return AzineTwigSwiftMailer
+	 */
+	private function getAzineMailer(){
+		return $this->container->get("azine_email_template_twig_swift_mailer");
 	}
 }
