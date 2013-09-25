@@ -188,10 +188,10 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		// create and add html-elements for easy reuse in the twig-templates
 		$snippets["linkToTop"] 		= "<a href='#top' style='text-decoration:none;color:$blackColor' title='$upLinkTitle'>Λ</a>";
 		$snippets["tableOpen"]		= "<table width='".$vars["emailWidth"]."' border='0' align='center' cellpadding='0' cellspacing='0'  style='font: normal 14px/18px $fontFamily;'>";
-		$snippets["topShadow"]		= $snippets["tableOpen"]."<tr><td colspan='3' width='".$vars["emailWidth"]."'><img src='".$vars["top_shadow_png"]."' alt='' style='vertical-align: bottom;'/></td></tr>";
+		$snippets["topShadow"]		= $snippets["tableOpen"]."<tr><td colspan='3' width='".$vars["emailWidth"]."'><img width='".$vars["emailWidth"]."' height='10' src='".$vars["top_shadow_png"]."' alt='' style='vertical-align: bottom;'/></td></tr>";
 		$snippets["leftShadow"]		= "<tr><td width='10' style='border-right: 1px solid $lightGray; background-image: url(\"".$vars["left_shadow_png"]."\");'>&nbsp;</td>";
 		$snippets["rightShadow"]	= "<td width='10' style='border-left: 1px solid $lightGray; background-image: url(\"".$vars["right_shadow_png"]."\");'>&nbsp;</td></tr>";
-		$snippets["bottomShadow"]	= "	<tr><td colspan='3' width='".$vars["emailWidth"]."'><img src='".$vars["bottom_shadow_png"]."' alt='' style='vertical-align: top;'/></td></tr></table>";
+		$snippets["bottomShadow"]	= "	<tr><td colspan='3' width='".$vars["emailWidth"]."'><img src='".$vars["bottom_shadow_png"]."' width='".$vars["emailWidth"]."' height='10' alt='' style='vertical-align: top;'/></td></tr></table>";
 		$snippets["linkToTopRow"]	= $snippets["leftShadow"]."<td width='610' bgcolor='white' style='text-align: right; padding: 5px 5px 0; border-top: 1px solid $lightGray;'>".$snippets["linkToTop"]."</td>".$snippets["rightShadow"];
 		$snippets["cellSeparator"]	= "</td>".$snippets["rightShadow"].$snippets["bottomShadow"].$snippets["topShadow"].$snippets["linkToTopRow"].$snippets["leftShadow"]."<td bgcolor='white' width='580' align='left' valign='top' style='padding:10px 20px 20px 20px;'>";
 
