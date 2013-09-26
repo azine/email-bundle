@@ -11,8 +11,9 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase {
 	public function testFilters(){
 		$twigExtension = new AzineEmailTwigExtension();
 		$filters = $twigExtension->getFilters();
-		$this->assertEquals(1, sizeof($filters), "There should only be one filter.");
-		$this->assertEquals("textWrap", key($filters), "The filter should be called textWrap.");
+		$this->assertEquals(2, sizeof($filters), "There should only be one filter.");
+		$this->assertTrue(array_key_exists("textWrap", $filters),"The filter textWrap should exist.");
+		$this->assertTrue(array_key_exists("urlEncodeText", $filters),"The filter urlEncodeText should exist.");
 
 		$filter = $filters["textWrap"];
 		$this->assertTrue($filter instanceof \Twig_Filter_Method, "Twig_Filter_Method expected as filter for textWrap.");
@@ -42,5 +43,37 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase {
 		$nlIndex = strpos($wrapped, "\n");
 		$this->assertLessThanOrEqual(100, $nlIndex);
 		$this->assertGreaterThan(90, $nlIndex);
+	}
+
+	public function testUrlEncodeText(){
+		$twigExtension = new AzineEmailTwigExtension();
+
+		$percent = "%";
+		$amp = "&";
+		$backslash = "\\";
+		$lineBreak = "
+";
+
+		$textWithSpecialChars = "blabla $percent $amp $backslash $lineBreak blabla $percent $amp $backslash $lineBreak ";
+
+		$textUrlEncoded = $twigExtension->urlEncodeText($textWithSpecialChars);
+
+		$this->assertFalse(strpos($textUrlEncoded, $amp));
+		$this->assertFalse(strpos($textUrlEncoded, $backslash));
+		$this->assertFalse(strpos($textUrlEncoded, $lineBreak));
+
+		$this->assertStringCount("%0D%0A", $textUrlEncoded, 2);
+		$this->assertStringCount("%20", $textUrlEncoded, 10);
+		$this->assertStringCount("%26", $textUrlEncoded, 2);
+		$this->assertStringCount("%5C", $textUrlEncoded, 2);
+		$this->assertStringCount("%25", $textUrlEncoded, 2);
+		$this->assertStringCount("%", $textUrlEncoded, 20);
+
+	}
+
+	private function assertStringCount($needle, $haystack, $expectedCount){
+		$count = 0;
+		str_replace($needle, "--", $haystack, $count);
+		$this->assertEquals($expectedCount, $count, "Found $needle $count times instead of $expectedCount");
 	}
 }

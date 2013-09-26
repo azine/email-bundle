@@ -15,7 +15,23 @@ class AzineEmailTwigExtension extends \Twig_Extension
 	public function getFilters()	{
 		return array(
 			'textWrap' => new \Twig_Filter_Method($this, 'textWrap'),
+			'urlEncodeText' => new \Twig_Filter_Method($this, 'urlEncodeText', array('is_safe' => array('html'))),
 		);
+	}
+
+	public function urlEncodeText($text){
+		$text = str_replace("%","%25", $text);
+		$text = str_replace(array(	"\n",
+									" ",
+									"&",
+									"\\",
+								),
+							array(	"%0D%0A",
+									"%20",
+									"%26",
+									"%5C",
+								), $text);
+		return $text;
 	}
 
 	/**
