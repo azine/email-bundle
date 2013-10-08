@@ -64,12 +64,12 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 *
 	 * E.g. a list of featured events or news-articles.
 	 *
-	 * @return array of templatesIds (without ending) as key and params to render the template as value. => array('AzineEmailBundle:contentItem:message',array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...));
+	 * @return array of templatesIds (without ending) as key and params to render the template as value. => array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...));
 	 */
 	protected function getNonRecipientSpecificNewsletterContentItems(){
 		$contentItems = array();
 
-		//$contentItems[] = array('AcmeBundle:foo:barSameForAllRecipientsTemplate', $templateParams);
+		//$contentItems[] = array('AcmeBundle:foo:barSameForAllRecipientsTemplate' => $templateParams);
 
 		return $contentItems;
 	}
@@ -80,13 +80,13 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 *
 	 * E.g. a list of the recipients latest activites.
 	 *
-	 * @return array of templatesIds (without ending) as key and params to render the template as value. => array('AzineEmailBundle:contentItem:message',array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...));
+	 * @return array of templatesIds (without ending) as key and params to render the template as value. => array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...));
 	 */
 	protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient){
 		$contentItems = array();
 
-		//$contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate', $recipientSpecificTemplateParams);
-		$contentItems[] = array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE, array('notification' => array('title' => 'SampleMessage', 'created' => new \DateTime('1 hour ago'), 'content' => 'Sample Text. Lorem Ipsum.')));
+		//$contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate' => $recipientSpecificTemplateParams);
+		//$contentItems[] = array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'SampleMessage', 'created' => new \DateTime('1 hour ago'), 'content' => 'Sample Text. Lorem Ipsum.')));
 
 		return $contentItems;
 	}

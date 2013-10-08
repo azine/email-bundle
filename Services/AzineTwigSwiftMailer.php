@@ -439,7 +439,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 	 * @param \Swift_Message $message instance of \Swift_Message that can be accessed by reference after sending the email.
 	 * @return boolean true if the mail was sent successfully, else false
 	 */
-	public function sendSingleEmail($to, $toName, $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null){
+	public function sendSingleEmail($to, $toName, array $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null){
 		$failedRecipients = array();
 		$this->sendEmail($failedRecipients, $from, $fromName, $to, $toName, null, null, null, null, null, null, $params, $template, array(), $emailLocale, $message);
 

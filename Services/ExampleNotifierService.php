@@ -32,7 +32,7 @@ class ExampleNotifierService extends AzineNotifierService {
 
 		// $templateParams = array('title' => 'foo bar');
 		// $templateParams = array_merge($this->getSomeMoreParamsForTheNewsletter(), $templateParams)
-		// $contentItems[] = array('AcmeBundle:foo:barSameForAllRecipientsTemplate', $templateParams);
+		// $contentItems[] = array('AcmeBundle:foo:barSameForAllRecipientsTemplate' => $templateParams);
 
 		return $contentItems;
 	}
@@ -46,7 +46,7 @@ class ExampleNotifierService extends AzineNotifierService {
 
 		// $recipientSpecificTemplateParams = array('title' => 'foo bar');
 		// $recipientSpecificTemplateParams = array_merge($this->getSomeMoreParamsForTheNewsletterForThisRecipient($recipient), $recipientSpecificTemplateParams)
-		// $contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate', $recipientSpecificTemplateParams);
+		// $contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate' => $recipientSpecificTemplateParams);
 
 		return $contentItems;
 	}
