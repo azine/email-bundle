@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Tests\Services;
 
+use Azine\EmailBundle\Services\ExampleNotifierService;
+
 use Azine\EmailBundle\Entity\Notification;
 
 use Azine\EmailBundle\Services\TemplateProviderInterface;
@@ -102,7 +104,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		$mocks['logger']->expects($this->once())->method("error"); // see sendSingleEmailCallBack, one mail-address fails
 
 
- 		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
+ 		$notifier = new ExampleNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
  		$sentMails = $notifier->sendNewsletter($failedAddresses);
  		$this->assertEquals(1, sizeof($failedAddresses));
  		$this->assertEquals(sizeof($recipientIds)-1, $sentMails);
@@ -115,7 +117,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		return true;
  	}
 
-	public function testSendNotifications(){
+	public function testSendNotificationsAzineNotifierService(){
 		$failedAddresses = array();
 		$recipientIds = array(11,12,13,14);
 		$mocks = $this->getMockSetup();
@@ -171,10 +173,67 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
 		$sentMails = $notifier->sendNotifications($failedAddresses);
 		$this->assertEquals(1, sizeof($failedAddresses));
-		$this->assertEquals(sizeof($recipientIds)-1, $sentMails);
+		$this->assertEquals(sizeof($recipientIds)-sizeof($failedAddresses), $sentMails);
 
 	}
 
+	public function testSendNotificationsExampleNotifier(){
+		$failedAddresses = array();
+		$recipientIds = array(11,12,13,14);
+		$mocks = $this->getMockSetup();
+		$this->mockRecipients($mocks['recipientProvider'], $recipientIds);
+		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(TemplateProviderInterface::NOTIFICATIONS_TYPE)->will($this->returnValue(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE));
+		$mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method("sendSingleEmail")->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
+
+		$notification = new Notification();
+		$notification->setContent("bla bla");
+		$notification->setCreated(new \DateTime());
+		$notification->setImportance(0);
+		$notification->setTemplate(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE);
+		$notification->setVariables(array('blabla' => 'blablaValue'));
+		$notification->setTitle("a title");
+
+		$notificationsQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
+		$notificationsQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock(array($notification))));
+		$notificationsQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
+		$notificationsQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
+		$notificationsQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
+		$notificationsQueryBuilderMock->expects($this->any())->method("orderBy")->will($this->returnSelf());
+
+		$notificationsRecipientQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
+		$recipientQueryResult = array(array('recipient_id' => 11),array('recipient_id' => 12),array('recipient_id' => 13),array('recipient_id' => 14),);
+		$notificationsRecipientQueryBuilderMock->expects($this->once())->method("getQuery")->will($this->returnValue(new AzineQueryMock($recipientQueryResult)));
+		$notificationsRecipientQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
+		$notificationsRecipientQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
+		$notificationsRecipientQueryBuilderMock->expects($this->any())->method("distinct")->will($this->returnSelf());
+
+		$maxSentQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
+		$maxSentQueryResult = array(array(1 => "@0"));
+		$maxSentQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock($maxSentQueryResult)));
+		$maxSentQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
+		$maxSentQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
+		$maxSentQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
+
+		$queryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
+		$queryBuilderMock->expects($this->any())->method("select")->will($this->returnValueMap(array(
+				array("max(n.sent)", $maxSentQueryBuilderMock),
+				array("n.recipient_id", $notificationsRecipientQueryBuilderMock),
+				array("n", $notificationsQueryBuilderMock)
+		)));
+
+		$mocks['entityManager']->expects($this->exactly(9))->method("createQueryBuilder")->will($this->returnValue($queryBuilderMock));
+
+		$mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method("sendSingleEmail");
+		$mocks['logger']->expects($this->never())->method("warning");
+		$mocks['logger']->expects($this->once())->method("error"); // see sendSingleEmailCallBack, one mail-address fails
+
+
+		$notifier = new ExampleNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
+		$sentMails = $notifier->sendNotifications($failedAddresses);
+		$this->assertEquals(1, sizeof($failedAddresses));
+		$this->assertEquals(sizeof($recipientIds)-1, $sentMails);
+
+	}
 
  	private function mockRecipients(\PHPUnit_Framework_MockObject_MockObject $mock, array $ids){
  		$valueMap = array();
