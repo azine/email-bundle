@@ -95,7 +95,7 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
 	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.AzineTemplateProvider::getCampaignParamsFor()
 	 */
-	protected function getCampaignParamsFor($templateId, array $params = null){
+	public function getCampaignParamsFor($templateId, array $params = null){
 
 		//if($templateId == "AcmeFooBundle:bar:mail.template"){
 		//	$params['channel'] = "foo-bar-channel";

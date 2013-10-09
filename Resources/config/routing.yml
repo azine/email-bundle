@@ -26,3 +26,6 @@ azine_email_send_test_email:
     pattern:  /admin/email/send-test-email-for/{template}/to/{email}
     defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:sendTestEmail", email: null}
     
+azine_email_test_sent_email_spam_score:
+    pattern:  /admin/email/test-sent-email-spam-score
+    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:checkSpamScoreOfSentEmail" }

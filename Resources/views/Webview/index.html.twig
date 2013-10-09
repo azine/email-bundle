@@ -1,6 +1,7 @@
 <!doctype html>
 <head>
 <title>{{ 'web.view.index.page.title' | trans({}) }}</title>
+<link type="text/css" rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" >
 <style type="text/css">
 .button{
 	background: none repeat scroll 0 0 #003E6D;
@@ -53,7 +54,7 @@
 	{% for message in flashes %}
 	<div id="flash" class="row">
 		<div class="eleven columns centered alert-box {{ key }}" id="{{ key }}-block">
-			{{ message | trans | nl2br }}
+			{{ message | trans({}) | nl2br }}
 			<a href="" class="close">&times;</a>
 		</div>
 	</div>
@@ -82,6 +83,14 @@
 		<br>
 	</p>
 {% endfor %}
+
+<hr/>
+<form action="{{ path('azine_email_test_sent_email_spam_score') }}" method="POST" class="azine_email_check_spam_score">
+	<textarea rows="10" cols="80" placeholder="{{ 'web.view.index.paste.email.source.here' | trans({}) }}" name="emailSource" id="emailSource"></textarea>
+	<input type="submit" value="{{ 'web.view.index.check.spam.score' | trans({}) }}" class="button">
+</form>
+<div id="spamScoreDialog" title="{{ "web.view.index.spam.score.result" | trans({}) }}"></div>
+
 {% set jqueryVersion = "1.9.1" %}
 {% set jqueryUIVersion = "1.10.2" %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/{{ jqueryVersion }}/jquery.min.js"></script>
@@ -96,14 +105,41 @@
 			});
 		});
 		$('.custom input').each(function(){
-				$(this).blur(function(){
-					var email = $(this).val();
-					$(".custom input").each(function(){
-						$(this).attr("value", email);
-						$(this).val(email);
-					});
+			$(this).blur(function(){
+				var email = $(this).val();
+				$(".custom input").each(function(){
+					$(this).attr("value", email);
+					$(this).val(email);
 				});
 			});
+		});
+		$("form").submit(function(){
+			$('html, body, div, p, a, textarea').css("cursor", "wait");
+			$.post('{{ path("azine_email_test_sent_email_spam_score") | raw }}', { 'emailSource' : $('#emailSource').val() },
+			        function(response){
+					    $('html, body, div, p, a, textarea').css("cursor", "auto");
+
+						var report = response['result'];
+						report = report.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+'<br />'+'$2');
+		        		$("#spamScoreDialog").html(report);
+						$("#spamScoreDialog").dialog({
+														resizable: true,
+														width: 800,
+														modal: true,
+														buttons: {
+															"OK": function() {
+																$( this ).dialog( "close" );
+																$("#spamScoreDialog").html("");
+															},
+														}
+													});
+	                },
+	                "json")
+	                .error(function() {
+			    		$('html, body, div, p, a, textarea').css("cursor", "auto");
+	                });
+            return false;
+		});
    	 });
 </script>
 </body>

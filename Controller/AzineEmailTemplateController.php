@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Controller;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
 
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -276,7 +278,7 @@ class AzineEmailTemplateController extends ContainerAware{
 		$message = \Swift_Message::newInstance();
 		$sent = $this->getAzineMailer()->sendSingleEmail($email, "Test Recipient", $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), "test@examle.com", "Test Mail from AzineEmailBundle", $message);
 
-		$spamReport = $this->getSpamIndexReport($message);
+		$spamReport = $this->getSpamIndexReportForSwiftMessage($message);
 		$spamInfo = "";
 		if(is_array($spamReport)){
 			if($spamReport['curlHttpCode'] == 200 && $spamReport['success']){
@@ -318,8 +320,11 @@ class AzineEmailTemplateController extends ContainerAware{
 	 * See http://spamcheck.postmarkapp.com/doc
 	 * @return array TestResult array('success', 'message', 'curlHttpCode', 'curlError', ['score', 'report'])
 	 */
-	public function getSpamIndexReport(\Swift_Message $message, $report = 'long'){
+	public function getSpamIndexReportForSwiftMessage(\Swift_Message $message, $report = 'long'){
+		return $this->getSpamIndexReport($message->toString());
+	}
 
+	private function getSpamIndexReport($msgString, $report = 'long'){
 		// check if cURL is loaded/available
 		if (!function_exists('curl_init')){
 			return array(	"success" => false,
@@ -331,7 +336,7 @@ class AzineEmailTemplateController extends ContainerAware{
 		$ch = curl_init("http://spamcheck.postmarkapp.com/filter");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
-		$data = array("email" => $message->toString(), "options" => $report);
+		$data = array("email" => $msgString, "options" => $report);
 		//$data = array("email" => json_encode(array_filter($raw_email)), "options" => $report);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Accept: application/json"));
@@ -358,5 +363,28 @@ class AzineEmailTemplateController extends ContainerAware{
 	 */
 	private function getAzineMailer(){
 		return $this->container->get("azine_email_template_twig_swift_mailer");
+	}
+
+	/**
+	 * Ajax action to check the spam-score for the pasted email-source
+	 */
+	public function checkSpamScoreOfSentEmailAction(){
+		$msgString = $this->container->get('request')->get('emailSource');
+		$spamReport = $this->getSpamIndexReport($msgString);
+		$spamInfo = "";
+		if(is_array($spamReport)){
+			if($spamReport['curlHttpCode'] == 200 && $spamReport['success']){
+				$spamScore = $spamReport['score'];
+				$spamInfo = "SpamScore: $spamScore! \n".$spamReport['report'];
+			} else {
+				$spamInfo = "Getting the spam-info failed.
+				HttpCode: ".$spamReport['curlHttpCode']."
+				SpamReportMsg: ".$spamReport['message']."
+				cURL-Error: ".$result['curlError'];
+
+			}
+		}
+
+		return new JsonResponse(array('result' => $spamInfo));
 	}
 }
