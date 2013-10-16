@@ -214,7 +214,11 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
 		// set the addresses
 		if($from){
-			$message->setFrom($this->noReplyEmail, $this->noReplyName);
+			$message->setFrom($from, $fromName);
+		}
+		if($replyTo){
+			$message->setReplyTo($replyTo, $replyToName);
+		} else if($from){
 			$message->setReplyTo($from, $fromName);
 		}
 		if($to){
