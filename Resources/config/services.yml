@@ -12,6 +12,8 @@ services:
           parameters:
             image_dir:  "%azine_email_image_dir%"
             allowed_images_folders: "%azine_email_allowed_images_folders%"
+            campaign_param_name: "%azine_email_campaign_param_name%"
+            campaign_keyword_param_name: "%azine_email_campaign_keyword_param_name%"
                         
     azine_email.example.notifier_service:
         class: Azine\EmailBundle\Services\AzineNotifierService

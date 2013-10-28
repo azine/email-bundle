@@ -96,14 +96,15 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
 	 * @see Azine\EmailBundle\Services.AzineTemplateProvider::getCampaignParamsFor()
 	 */
 	public function getCampaignParamsFor($templateId, array $params = null){
-
+		$campaignParams = array();
 		//if($templateId == "AcmeFooBundle:bar:mail.template"){
-		//	$params['channel'] = "foo-bar-channel";
-		//	$params['date'] = "a-long-long-long-time-ago";
+		//	$campaignParams[$this->campaignParamName] = "foo-bar-campaign";
+		//	$campaignParams[$this->campaignKeyWordParamName] = "keyword";
 		//} else {
-		$params = parent::getCampaignParamsFor($templateId, $recipient);
+			// get some other params
+			$campaignParams = parent::getCampaignParamsFor($templateId, $params);
 		//}
-		return $params;
+		return $campaignParams;
 	}
 
 

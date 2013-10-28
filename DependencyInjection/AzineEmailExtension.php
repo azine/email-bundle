@@ -28,6 +28,8 @@ class AzineEmailExtension extends Extension
 	const NEWSLETTER_SEND_TIME =		"send_time";
 	const WEB_VIEW_SERVICE =			"web_view_service";
 	const WEB_VIEW_RETENTION =			"web_view_retention";
+	const CAMPAIGN_PARAM_NAME =			"campaign_param_name";
+	const CAMPAIGN_KEYWORD_PARAM_NAME =	"campaign_keyword_param_name";
 	const PREFIX =						"azine_email_";
 
 
@@ -58,6 +60,9 @@ class AzineEmailExtension extends Extension
 
         $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_INTERVAL,		$config[self::NEWSLETTER][self::NEWSLETTER_INTERVAL]);
         $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_SEND_TIME,		$config[self::NEWSLETTER][self::NEWSLETTER_SEND_TIME]);
+
+        $container->setParameter($prefix.self::CAMPAIGN_PARAM_NAME,				$config[self::CAMPAIGN_PARAM_NAME]);
+        $container->setParameter($prefix.self::CAMPAIGN_KEYWORD_PARAM_NAME,		$config[self::CAMPAIGN_KEYWORD_PARAM_NAME]);
 
         $container->setAlias	($prefix.self::WEB_VIEW_SERVICE,			$config[self::WEB_VIEW_SERVICE]);
         $container->setParameter($prefix.self::WEB_VIEW_RETENTION,			$config[self::WEB_VIEW_RETENTION]);

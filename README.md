@@ -124,6 +124,12 @@ azine_email:
 
         # time of the day, when newsletters should be sent, 24h-format => e.g. 23:59
         send_time:            10:00
+        
+    # the parameter to be used do identify campaigns in urls
+    campaign_param_name:  pk_campaign # defaults work with piwik, but you can change them to work with adWords
+
+    # the parameter to be used do identify campaign-keywords in urls
+    campaign_keyword_param_name:  pk_kwd # defaults work with piwik, but you can change them to work with adWords
 
     # number of days that emails should be available in web-view
     web_view_retention:   90

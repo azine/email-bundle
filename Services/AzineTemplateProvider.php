@@ -206,10 +206,10 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	public function getCampaignParamsFor($templateId, array $params = null){
 
 		if($templateId == self::NEWSLETTER_TEMPLATE){
-			return array("channel" => "newsletter", "date" => date("y-m-d"));
+			return array($this->campaignParamName => "newsletter", $this->campaignKeyWordParamName => date("y-m-d"));
 
 		} else 	if($templateId == self::NOTIFICATIONS_TEMPLATE){
-			return array("channel" => "mailnotify", "date" => date("y-m-d"));
+			return array($this->campaignParamName => "mailnotify", $this->campaignKeyWordParamName => date("y-m-d"));
 
 		}
 
@@ -284,6 +284,16 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	protected $paramArrays = array();
 
 	/**
+	 * @var string
+	 */
+	protected $campaignKeyWordParamName;
+
+	/**
+	 * @var string
+	 */
+	protected $campaignParamName;
+
+	/**
 	 * Array to store all the arrays for the code snippets for all the different temlpates.
 	 * @var unknown_type
 	 */
@@ -304,6 +314,8 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 			}
 		}
 		$this->allowedImageFolders[md5($this->templateImageDir)] = $this->templateImageDir;
+		$this->campaignParamName = $parameters[AzineEmailExtension::CAMPAIGN_PARAM_NAME];
+		$this->campaignKeyWordParamName = $parameters[AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME];
 	}
 
 	/**

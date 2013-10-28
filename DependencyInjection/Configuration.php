@@ -42,8 +42,12 @@ class Configuration implements ConfigurationInterface
 	        			->scalarNode(AzineEmailExtension::NEWSLETTER_SEND_TIME)			->defaultValue('10:00')		->info("time of the day, when newsletters should be sent, 24h-format => e.g. 23:59")->end()
 	        		->end()
 	        	->end()
-	        	->scalarNode	(AzineEmailExtension::WEB_VIEW_RETENTION)			->defaultValue('90')		->info("number of days that emails should be available in web-view")->end()
-	        	->scalarNode	(AzineEmailExtension::WEB_VIEW_SERVICE)				->defaultValue('azine_email.example.web.view.service')			->info("the service-id of your implementation of the web view service to be used")->end()
+
+	        	->scalarNode	(AzineEmailExtension::CAMPAIGN_PARAM_NAME)				->defaultValue('pk_campaign')	->info("the parameter to be used do identify campaigns in urls")->end()
+	        	->scalarNode	(AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME)		->defaultValue('pk_kwd')		->info("the parameter to be used do identify campaign-keywords in urls")->end()
+
+	        	->scalarNode	(AzineEmailExtension::WEB_VIEW_RETENTION)				->defaultValue('90')			->info("number of days that emails should be available in web-view")->end()
+	        	->scalarNode	(AzineEmailExtension::WEB_VIEW_SERVICE)					->defaultValue('azine_email.example.web.view.service')			->info("the service-id of your implementation of the web view service to be used")->end()
 	        ;
 
         return $treeBuilder;

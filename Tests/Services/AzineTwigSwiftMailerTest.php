@@ -28,9 +28,11 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 		$mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue("azine.translation.mock"));
 
 		$imagesDir = realpath(__DIR__."/../../Resources/htmlTemplateImages/");
-		$mocks['templateProvider'] = new AzineTemplateProvider($mocks['router'], $mocks['translator'], array(AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
-																												AzineEmailExtension::TEMPLATE_IMAGE_DIR => $imagesDir
-																												));
+		$mocks['templateProvider'] = new AzineTemplateProvider($mocks['router'], $mocks['translator'], array(	AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
+																												AzineEmailExtension::TEMPLATE_IMAGE_DIR => $imagesDir,
+																												AzineEmailExtension::CAMPAIGN_PARAM_NAME => "pk_campaign",
+																												AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME => "pk_kwd",
+																											));
 		$this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
 

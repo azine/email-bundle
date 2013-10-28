@@ -21,10 +21,15 @@ class AzineTemplateProviderTest extends \PHPUnit_Framework_TestCase {
 		$routerMock = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
 		$routerMock->expects($this->any())->method('generate')->withAnyParameters()->will($this->returnCallback(array($this,'createRelativeUrl')));
 
-		$params = array(AzineEmailExtension::TEMPLATE_IMAGE_DIR => realpath(__DIR__."/../../Resources/htmlTemplateImages/"), AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array(realpath(__DIR__."/../../Resources/htmlTemplateImages/")));
+		$params = array(	AzineEmailExtension::TEMPLATE_IMAGE_DIR => realpath(__DIR__."/../../Resources/htmlTemplateImages/"),
+							AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array(realpath(__DIR__."/../../Resources/htmlTemplateImages/")),
+							AzineEmailExtension::CAMPAIGN_PARAM_NAME => "pk_campaign",
+							AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME => "pk_kwd",
+					);
 
 		return array('router' => $routerMock, "translator" => $translatorMock, 'params' => $params);
 	}
+
 
 	public function createRelativeUrl($routeName, $params){
 		if($routeName == "azine_email_serve_template_image"){
@@ -124,11 +129,11 @@ class AzineTemplateProviderTest extends \PHPUnit_Framework_TestCase {
 
 		$campaignParams1 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
 		$this->assertEquals(2, sizeof($campaignParams1));
-		$this->assertEquals("newsletter", $campaignParams1['channel']);
+		$this->assertEquals("newsletter", $campaignParams1["pk_campaign"]);
 
 		$campaignParams2 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE);
 		$this->assertEquals(2, sizeof($campaignParams2));
-		$this->assertEquals("mailnotify", $campaignParams2['channel']);
+		$this->assertEquals("mailnotify", $campaignParams2["pk_campaign"]);
 
 		$campaignParams3 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE);
 		$this->assertTrue(is_array($campaignParams3));
