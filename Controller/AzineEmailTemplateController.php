@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Controller;
 
+use Azine\EmailBundle\Services\AzineEmailTwigExtension;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
@@ -120,6 +122,13 @@ class AzineEmailTemplateController extends ContainerAware{
 
 				// render & return email
 				$response = $this->renderResponse("$template.html.twig", $emailVars);
+
+				$campaignParams = $this->getTemplateProviderService()->getCampaignParamsFor($template, $emailVars);
+
+				if(sizeof($campaignParams) > 0){
+					$response->setContent(AzineEmailTwigExtension::addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
+				}
+
 				return $response;
 
 			// if the user is not allowed to see this mail

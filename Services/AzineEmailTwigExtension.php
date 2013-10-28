@@ -53,4 +53,35 @@ class AzineEmailTwigExtension extends \Twig_Extension
 	{
 		return 'azine_email_bundle_twig_extension';
 	}
+
+	/**
+	 * Add the campaign-parameters to all URLs in the html
+	 * @param string $html
+	 * @param array $campaignParams
+	 * @return string
+	 */
+	public static 	function addCampaignParamsToAllUrls($html, $campaignParams){
+
+		$urlPattern = '/(href=[\'|"])(http[s]?\:\/\/\S*)([\'|"])/';
+
+		$filteredHtml = preg_replace_callback($urlPattern, function($matches) use ($campaignParams){
+																	$start = $matches[1];
+																	$url = $matches[2];
+																	$end = $matches[3];
+
+																	$urlParams = http_build_query($campaignParams);
+
+																	if(strpos($url,"?") === false){
+																		$urlParams = "?".$urlParams;
+																	} else {
+																		$urlParams = "&".$urlParams;
+																	}
+
+																	$replacement = $start.$url.$urlParams.$end;
+																	return $replacement;
+
+																}, $html);
+
+		return $filteredHtml;
+	}
 }

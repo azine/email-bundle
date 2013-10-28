@@ -175,7 +175,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 		$campaignParams = $this->templateProvider->getCampaignParamsFor($templateBaseId, $params);
 
 		if(sizeof($campaignParams) > 0){
-			$htmlBody = $this->addCampaignParamsToAllUrls($htmlBody, $campaignParams);
+			$htmlBody = AzineEmailTwigExtension::addCampaignParamsToAllUrls($htmlBody, $campaignParams);
 		}
 
 		$message->setBody($htmlBody, 'text/html');
@@ -268,31 +268,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 		}
 
 		return $messagesSent;
-	}
-
-	private function addCampaignParamsToAllUrls($htmlBody, $campaignParams){
-
-		$urlPattern = '/(href=[\'|"])(http[s]?\:\/\/\S*)([\'|"])/';
-
-		$filteredHtmlBody = preg_replace_callback($urlPattern, function($matches) use ($campaignParams){
-																	$start = $matches[1];
-																	$url = $matches[2];
-																	$end = $matches[3];
-
-																	$urlParams = http_build_query($campaignParams);
-
-																	if(strpos($url,"?") === false){
-																		$urlParams = "?".$urlParams;
-																	} else {
-																		$urlParams = "&".$urlParams;
-																	}
-
-																	$replacement = $start.$url.$urlParams.$end;
-																	return $replacement;
-
-																}, $htmlBody);
-
-		return $filteredHtmlBody;
 	}
 
 	/**
