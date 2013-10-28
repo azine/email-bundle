@@ -118,12 +118,13 @@ class AzineEmailTemplateController extends ContainerAware{
 				$this->reAttachAllEntities($emailVars);
 
 				// remove the web-view-token from the param-array
-				unset($emailVars[$this->getTemplateProviderService()->getWebViewTokenId()]);
+				$templateProvider = $this->getTemplateProviderService();
+				unset($emailVars[$templateProvider->getWebViewTokenId()]);
 
 				// render & return email
 				$response = $this->renderResponse("$template.html.twig", $emailVars);
 
-				$campaignParams = $this->getTemplateProviderService()->getCampaignParamsFor($template, $emailVars);
+				$campaignParams = $templateProvider->getCampaignParamsFor($template, $emailVars);
 
 				if(sizeof($campaignParams) > 0){
 					$response->setContent(AzineEmailTwigExtension::addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
