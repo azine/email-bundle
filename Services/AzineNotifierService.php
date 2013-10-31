@@ -528,6 +528,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$notification->setSendImmediately($sendImmediately);
 		$notification->setVariables($templateVars);
 		$this->em->persist($notification);
+		$this->em->flush($notification);
 		return $notification;
 	}
 
