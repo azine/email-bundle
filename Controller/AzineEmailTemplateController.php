@@ -338,16 +338,16 @@ class AzineEmailTemplateController extends ContainerAware{
 		// check if cURL is loaded/available
 		if (!function_exists('curl_init')){
 			return array(	"success" => false,
-							"message" => "No Spam-Check done. cURL module is not available.",
 							"curlHttpCode" => "-",
-							"curlError" => "-");
+							"curlError" => "-",
+							"message" => "No Spam-Check done. cURL module is not available.",
+					);
 		}
 
 		$ch = curl_init("http://spamcheck.postmarkapp.com/filter");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		$data = array("email" => $msgString, "options" => $report);
-		//$data = array("email" => json_encode(array_filter($raw_email)), "options" => $report);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Accept: application/json"));
 
@@ -362,6 +362,10 @@ class AzineEmailTemplateController extends ContainerAware{
 
 		if(!array_key_exists("message", $result)){
 			$result['message'] = "-";
+		}
+
+		if(!$result['success'] && strpos($msgString, "Content-Transfer-Encoding: base64") !== false){
+			$result['message'] = $result['message']."\n\nRemoving the base64-Encoded Mime-Parts might help.";
 		}
 
 		return $result;
@@ -389,8 +393,8 @@ class AzineEmailTemplateController extends ContainerAware{
 			} else {
 				$spamInfo = "Getting the spam-info failed.
 				HttpCode: ".$spamReport['curlHttpCode']."
-				SpamReportMsg: ".$spamReport['message']."
-				cURL-Error: ".$result['curlError'];
+				cURL-Error: ".$result['curlError']."
+				SpamReportMsg: ".$spamReport['message'];
 
 			}
 		}
