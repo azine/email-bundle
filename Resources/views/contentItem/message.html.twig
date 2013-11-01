@@ -1,3 +1,5 @@
+{% autoescape false %}
+{% spaceless %}
 {# variables stored in the array that is stored in the "notification.variables" entity field in the database will be available here. => e.g. goToUrl #}
 <h4>{{ notification.title }}</h4>
 <span>{{ notification.created | date("j. F Y H:i") }}</span>
@@ -7,3 +9,5 @@
 {% if goToUrl is defined %}
 <span><a href="{{ goToUrl }}" target="_msg">{{ 'content.items.go.to.message.link.text' | trans({}) }}</a></span>
 {% endif %}
+{% endspaceless %}
+{% endautoescape %}
