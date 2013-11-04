@@ -29,12 +29,12 @@
       </trans-unit>
       <trans-unit id="5830417c0a11c62b3d0a1c70c7bbee336b9bb195" resname="html.email.head.link.to.web.view.text.%url%">
         <source>html.email.head.link.to.web.view.text.%url%</source>
-        <target><![CDATA[If this email is not diplayed nicely in your email client, take a look at the <a href="%url%">web-version</a>. ]]></target>
+        <target><![CDATA[If this email is not displayed nicely in your email client, take a look at the <a href="%url%">web-version</a>. ]]></target>
         <jms:reference-file line="17">Resources/views/baseEmailLayout.html.twig</jms:reference-file>
       </trans-unit>
       <trans-unit id="4a37a6d25203364276a96bb0ec6f15734864c7d5" resname="txt.email.head.link.to.web.view.text.%url%">
         <source>txt.email.head.link.to.web.view.text.%url%</source>
-        <target>If this email is not diplayed nicely in your email client, take a look at the web-version: %url%</target>
+        <target>If this email is not displayed nicely in your email client, take a look at the web-version: %url%</target>
         <jms:reference-file line="52">Resources/views/baseEmailLayout.txt.twig</jms:reference-file>
       </trans-unit>
       <trans-unit id="0a0c6567d2a92d788b25a9d4a0040974fce9bd71" resname="web.pre.view.test.mail.access.denied">
