@@ -1,7 +1,7 @@
 <!doctype html>
 <head>
 <title>{{ 'web.view.index.page.title' | trans({}) }}</title>
-<link type="text/css" rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" >
+<link type="text/css" rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" >
 <style type="text/css">
 .button{
 	background: none repeat scroll 0 0 #003E6D;
@@ -114,11 +114,12 @@
 			});
 		});
 		$("form").submit(function(){
-			$('html, body, div, p, a, textarea').css("cursor", "wait");
+			$('body').append('<div id="grayLayer" class="ui-widget-overlay ui-front">&nbsp;</div>');
+			$('#grayLayer').css("cursor", "wait");
 			$.post('{{ path("azine_email_test_sent_email_spam_score") | raw }}', { 'emailSource' : $('#emailSource').val() },
 			        function(response){
-					    $('html, body, div, p, a, textarea').css("cursor", "auto");
-
+					    $('#grayLayer').css("cursor", "auto");
+					    $('#grayLayer').remove();
 						var report = response['result'];
 						report = report.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+'<br />'+'$2');
 		        		$("#spamScoreDialog").html(report);
