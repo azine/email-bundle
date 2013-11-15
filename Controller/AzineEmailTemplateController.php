@@ -286,7 +286,7 @@ class AzineEmailTemplateController extends ContainerAware{
 
 		// send the mail
 		$message = \Swift_Message::newInstance();
-		$sent = $this->getAzineMailer()->sendSingleEmail($email, "Test Recipient", $emailVars['subject'], $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), "test@examle.com", "Test Mail from AzineEmailBundle", $message);
+		$sent = $this->getAzineMailer()->sendSingleEmail($email, "Test Recipient", $emailVars['subject'], $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName']." (Test)", $message);
 
 		$spamReport = $this->getSpamIndexReportForSwiftMessage($message);
 		$spamInfo = "";

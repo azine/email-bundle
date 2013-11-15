@@ -54,7 +54,8 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @return string
 	 */
 	public function getRecipientSpecificNotificationsSubject($contentItems, RecipientInterface $recipient) {
-		return $this->translatorService->transChoice("_az.email.notifications.subject.%count%", sizeof($contentItems));
+		$count = sizeof($contentItems);
+		return $this->translatorService->transChoice("_az.email.notifications.subject.%count%", $count, array('%count%' => $count));
 	}
 
 	/**
@@ -368,6 +369,8 @@ class AzineNotifierService implements NotifierServiceInterface {
 		} else {
 			$generalContentItems = array();
 		}
+
+		// merge the recipient-specific and the general content items. recipient-specific first/at the top!
 		$recipientParams[self::CONTENT_ITEMS] = array_merge($recipientContentItems, $generalContentItems);
 		$recipientParams['_locale'] = $recipient->getPreferredLocale();
 

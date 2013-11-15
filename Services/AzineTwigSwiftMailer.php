@@ -410,8 +410,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
     	// get the subject from the template
     	// => make sure the subject block exists in your fos-templates (FOSUserBundle:Registration:email.txt.twig & FOSUserBundle:Resetting:email.txt.twig)
-    	$twigTemplate = $this->loadTemplate($template);
-    	$subject = $twigTemplate->renderBlock('subject', $params);
+    	$twigTemplate = $this->loadTemplate($templateName);
+    	$subject = $twigTemplate->renderBlock('subject', $context);
 
     	return $this->sendSingleEmail($toEmail, null, $subject, $context, $templateName, $this->translator->getLocale());
     }
