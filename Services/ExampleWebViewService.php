@@ -54,6 +54,7 @@ class ExampleWebViewService extends AzineWebViewService
 
 		$variables['sendMailAccountName'] = "some name";
 		$variables['sendMailAccountAddress'] = "no-reply@email.com";
+		$variables['subject'] = "some dummy subject";
 
 
 		return $variables;

@@ -1,5 +1,6 @@
 <?php
 namespace Azine\EmailBundle\Services;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 
@@ -44,6 +45,16 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$recipientParams['recipient'] = $recipient;
 		$recipientParams['mode'] = $recipient->getNotificationMode();
 		return $recipientParams;
+	}
+
+	/**
+	 * Get the subject for the notifications-email to send. Override this function to implement your custom subject-lines.
+	 * @param array of array $contentItems
+	 * @param RecipientInterface $recipient
+	 * @return string
+	 */
+	public function getRecipientSpecificNotificationsSubject($contentItems, RecipientInterface $recipient) {
+		return $this->translatorService->transChoice("_az.email.notifications.subject.%count%", sizeof($contentItems));
 	}
 
 	/**
@@ -92,6 +103,19 @@ class AzineNotifierService implements NotifierServiceInterface {
 	}
 
 	/**
+	 * Override this function to use a custom subject line for each newsletter-recipient.
+	 *
+	 * @param $generalContentItems array of content items. => e.g. array of array('templateID' => array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...))
+	 * @param $recipientContentItems array of content items. => e.g. array of array('templateID' => array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...))
+	 * @param $params array the array with all general template-params, including the item with the key 'subject' containing the default-subject
+	 * @param $recipient RecipientInterface
+	 * @return the subject line
+	 */
+	public function getRecipientSpecificNewsletterSubject(array $generalContentItems, array $recipientContentItems, array $params, RecipientInterface $recipient){
+	    return $params['subject'];
+	}
+
+	/**
 	 * Get the number of seconds in a "one-hour-interval"
 	 * @return number of seconds to consider as an hour.
 	 */
@@ -112,7 +136,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		// this is because if the last run started 24h. ago, then the notifications
 		// for any recipient have been send after that and would be skipped until the next run.
 		// if your cron-job runs every minute, this is not needed.
-		return 60*60*24 - 3*60;
+		return 60 * 60 * 24 - 3 * 60;
 	}
 
 	/**
@@ -121,19 +145,16 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @param TemplateTwigSwiftMailerInterface $mailer
 	 * @param \Twig_Environment $twig
 	 * @param Logger $logger
+	 * @param UrlGeneratorInterface $router
+	 * @param EntityManager $entityManager
 	 * @param TemplateProviderInterface $templateProvider
 	 * @param RecipientProviderInterface $recipientProvider
+	 * @param Translator $translatorService
 	 * @param array $parameters
 	 */
-	public function __construct(	TemplateTwigSwiftMailerInterface $mailer,
-									\Twig_Environment $twig,
-									Logger $logger,
-									UrlGeneratorInterface $router,
-									EntityManager $entityManager,
-									TemplateProviderInterface $templateProvider,
-									RecipientProviderInterface $recipientProvider,
-									array $parameters
-								){
+	public function __construct(TemplateTwigSwiftMailerInterface $mailer, \Twig_Environment $twig, Logger $logger, UrlGeneratorInterface $router,
+			EntityManager $entityManager, TemplateProviderInterface $templateProvider, RecipientProviderInterface $recipientProvider,
+			Translator $translatorService, array $parameters) {
 
 		$this->mailer = $mailer;
 		$this->twig = $twig;
@@ -142,15 +163,13 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$this->em = $entityManager;
 		$this->templateProvider = $templateProvider;
 		$this->recipientProvider = $recipientProvider;
+		$this->translatorService = $translatorService;
 		$this->configParameter = $parameters;
 	}
 
-
-
-
-//////////////////////////////////////////////////////////////////////////
-/* You probably don't need to change or override any of the stuff below */
-//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	/* You probably don't need to change or override any of the stuff below */
+	//////////////////////////////////////////////////////////////////////////
 
 	const CONTENT_ITEMS = 'contentItems';
 	/**
@@ -199,6 +218,12 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @var array
 	 */
 	protected $configParameter;
+
+	/**
+	 * The translator
+	 * @var Translator
+	 */
+	protected $translatorService;
 
 	/**
 	 * (non-PHPdoc)
@@ -272,8 +297,10 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$params['recipient'] = $recipient;
 		$params['_locale'] = $recipient->getPreferredLocale();
 
+		$subject = $this->getRecipientSpecificNotificationsSubject($contentItems, $recipient);
+
 		// send the email with the right wrapper-template
-		$sent = $this->mailer->sendSingleEmail($recipient->getEmail(), $recipient->getDisplayName(), $params, $wrapperTemplateName.".txt.twig", $recipient->getPreferredLocale());
+		$sent = $this->mailer->sendSingleEmail($recipient->getEmail(), $recipient->getDisplayName(), $subject, $params, $wrapperTemplateName . ".txt.twig", $recipient->getPreferredLocale());
 
 		if($sent){
 			// save the updated notifications
@@ -296,8 +323,14 @@ class AzineNotifierService implements NotifierServiceInterface {
 		// get the wrapper-template and its variables
 		$wrapperTemplate = $this->templateProvider->getTemplateFor(TemplateProviderInterface::NEWSLETTER_TYPE);
 
+		// params array for all recipients
+		$params = array();
+
+		// set a default subject
+		$params['subject'] = $this->translatorService->trans("_az.email.newsletter.subject");
+
 		// get the the non-recipient-specific contentItems of the newsletter
-		$params[self::CONTENT_ITEMS] = $this->getNonRecipientSpecificNewsletterContentItems( array());
+		$params[self::CONTENT_ITEMS] = $this->getNonRecipientSpecificNewsletterContentItems($params);
 
 		// get recipientIds for the newsletter
 		$recipientIds = $this->recipientProvider->getNewsletterRecipientIDs();
@@ -343,8 +376,10 @@ class AzineNotifierService implements NotifierServiceInterface {
 			return $recipient->getEmail();
 		}
 
+		$subject = $this->getRecipientSpecificNewsletterSubject($generalContentItems, $recipientContentItems, $params, $recipient);
+
 		// render and send the email with the right wrapper-template
-		$sent = $this->mailer->sendSingleEmail($recipient->getEmail(), $recipient->getDisplayName(), $recipientParams, $wrapperTemplate.".txt.twig", $recipient->getPreferredLocale());
+		$sent = $this->mailer->sendSingleEmail($recipient->getEmail(), $recipient->getDisplayName(), $subject, $recipientParams, $wrapperTemplate.".txt.twig", $recipient->getPreferredLocale());
 
 		if($sent){
 			// save that this recipient has recieved the newsletter

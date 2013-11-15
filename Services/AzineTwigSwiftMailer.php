@@ -88,33 +88,17 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 	}
 
 	/**
-	 * This send the txt- and html-email rendered from the $template using the parameters in $params
-	 *
-	 * @param array $failedRecipients modified by reference, so after the function returns, the array contains the failed email-addresses.
-	 * @param String $from Email
-	 * @param String $fromName
-	 * @param String or array $to Email
-	 * @param String or null $toName if $to is an array, $toName will be ignored
-	 * @param String or array $cc Email
-	 * @param String or null $ccName if $cc is an array, $ccName will be ignored
-	 * @param String or array $bcc Email
-	 * @param String or null $bccName if $bcc is an array, $bccName will be ignored
-	 * @param String or array $replyTo Email
-	 * @param String or null $replyToName
-	 * @param array $params associative array of variables for the twig-template
-	 * @param string $template twig-template to render, needs to have "body_text", "body_html" and "subject" blocks
-	 * @param array $attachments associative array of attachmentNames and files (url or data) (if the attachmentName for an attachment is less than 5 chars long, the original file-name is used)
-	 * @param string $emailLocale two-char locale for the rendering of the email
-	 * @param \Swift_Message $message instance of \Swift_Message that can be accessed by reference after sending the email.
-	 * @throws FileException
-	 * @return number of sent messages
+	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.TemplateTwigSwiftMailerInterface::sendEmail()
 	 */
-	public function sendEmail(&$failedRecipients, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null, \Swift_Message &$message = null){
+	public function sendEmail(&$failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null, \Swift_Message &$message = null){
 
 		// create the message
 		if($message == null){
 			$message = \Swift_Message::newInstance();
 		}
+
+		$message->setSubject($subject);
 
 		// set the from-Name & -Emali to the default ones if not given
 		if($from == null){
@@ -164,9 +148,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
 		// render the email parts
 		$twigTemplate = $this->loadTemplate($template);
-		$subject = $twigTemplate->renderBlock('subject', $params);
-		$message->setSubject($subject);
-
 		$textBody = $twigTemplate->renderBlock('body_text', $params);
 		$message->addPart($textBody, 'text/plain');
 
@@ -407,20 +388,12 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 	}
 
 	/**
-	 * Convenience function to send one email, no attachments, x recipient
-	 * @param string or array of strings $to => email-addresses
-	 * @param string $toName will be ignored it $to is an array
-	 * @param string $from defaults to azine's mailer
-	 * @param string $fromName defaults to azine's mailer
-	 * @param array $params
-	 * @param string $template
-	 * @param string $emailLocale
-	 * @param \Swift_Message $message instance of \Swift_Message that can be accessed by reference after sending the email.
-	 * @return boolean true if the mail was sent successfully, else false
+	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.TemplateTwigSwiftMailerInterface::sendSingleEmail()
 	 */
-	public function sendSingleEmail($to, $toName, array $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null){
+	public function sendSingleEmail($to, $toName, $subject, array $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null){
 		$failedRecipients = array();
-		$this->sendEmail($failedRecipients, $from, $fromName, $to, $toName, null, null, null, null, null, null, $params, $template, array(), $emailLocale, $message);
+		$this->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, null, null, null, null, null, null, $params, $template, array(), $emailLocale, $message);
 
 		return sizeof($failedRecipients) == 0;
 	}
@@ -433,8 +406,13 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * @param string $toEmail
 	 * @return boolean true if the mail was sent successfully, else false
      */
-    protected function sendMessage($templateName, $context, $fromEmail, $toEmail)
-    {
-    	return $this->sendSingleEmail($toEmail, null, $context, $templateName, $this->translator->getLocale());
+    protected function sendMessage($templateName, $context, $fromEmail, $toEmail){
+
+    	// get the subject from the template
+    	// => make sure the subject block exists in your fos-templates (FOSUserBundle:Registration:email.txt.twig & FOSUserBundle:Resetting:email.txt.twig)
+    	$twigTemplate = $this->loadTemplate($template);
+    	$subject = $twigTemplate->renderBlock('subject', $params);
+
+    	return $this->sendSingleEmail($toEmail, null, $subject, $context, $templateName, $this->translator->getLocale());
     }
 }

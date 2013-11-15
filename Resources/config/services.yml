@@ -25,6 +25,7 @@ services:
           entityManager:      "@doctrine.orm.entity_manager"
           templateProvider:   "@azine_email_template_provider"
           recipientProvider:  "@azine_email_recipient_provider"
+          translatorService:  "@translator.default"
           parameters:
             newsletter_interval : "%azine_email_newsletter_interval%"
             newsletter_send_time: "%azine_email_newsletter_send_time%"

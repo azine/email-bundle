@@ -25,6 +25,15 @@ class ExampleNotifierService extends AzineNotifierService {
 
 	/**
 	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNotificationsSubject()
+	 */
+	public function getRecipientSpecificNotificationsSubject($contentItems, RecipientInterface $recipient) {
+		return parent::getRecipientSpecificNotificationsSubject($contentItems, $recipient);
+	}
+
+
+	/**
+	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.AzineNotifierService::getNonRecipientSpecificNewsletterContentItems()
 	 */
 	protected function getNonRecipientSpecificNewsletterContentItems(){
@@ -36,6 +45,16 @@ class ExampleNotifierService extends AzineNotifierService {
 
 		return $contentItems;
 	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterSubject()
+	 */
+	public function getRecipientSpecificNewsletterSubject(array $generalContentItems, array $recipientContentItems, array $params, RecipientInterface $recipient){
+		return parent::getRecipientSpecificNewsletterSubject($generalContentItems, $recipientContentItems, $params, $recipient);
+	}
+
+
 
 	/**
 	 * (non-PHPdoc)

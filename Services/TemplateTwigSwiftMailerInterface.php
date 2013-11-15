@@ -12,6 +12,7 @@ interface TemplateTwigSwiftMailerInterface {
 	 * This send the txt- and html-email rendered from the $template using the parameters in $params
 	 *
 	 * @param array $failedRecipients modified by reference, so after the function returns, the array contains the failed email-addresses.
+	 * @param string $subject
 	 * @param String $from Email
 	 * @param String $fromName
 	 * @param String or array $to Email
@@ -30,12 +31,13 @@ interface TemplateTwigSwiftMailerInterface {
 	 * @throws FileException
 	 * @return number of sent messages
 	 */
-	public function sendEmail(&$failedRecipients, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null, \Swift_Message &$message = null);
+	public function sendEmail(&$failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null, \Swift_Message &$message = null);
 
 	/**
 	 * Convenience function to send one email, no attachments, x recipient
 	 * @param string or array of strings $to => email-addresses
 	 * @param string $toName will be ignored it $to is an array
+	 * @param string $subject
 	 * @param array $params
 	 * @param string $template
 	 * @param string $emailLocale
@@ -44,6 +46,6 @@ interface TemplateTwigSwiftMailerInterface {
 	 * @param \Swift_Message $message instance of \Swift_Message that can be accessed by reference after sending the email.
 	 * @return boolean true if the mail was sent successfully, else false
 	 */
-	public function sendSingleEmail($to, $toName, array $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null);
+	public function sendSingleEmail($to, $toName, $subject, array $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null);
 
 }

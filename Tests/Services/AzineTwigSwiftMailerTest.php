@@ -99,7 +99,8 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
   		$params = array("aKey" => "aValue");
   		$template = AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig";
   		$emailLocale = "en";
-  		$azineMailer->sendSingleEmail($to, $toName, $params, $template, $emailLocale);
+  		$subject = "custom subject";
+  		$azineMailer->sendSingleEmail($to, $toName, $subject, $params, $template, $emailLocale);
 
  	}
 
