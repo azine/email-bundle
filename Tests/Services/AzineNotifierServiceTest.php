@@ -47,6 +47,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 			'entityManager' => $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock(),
 			'templateProvider' => $this->getMockBuilder("Azine\EmailBundle\Services\TemplateProviderInterface")->disableOriginalConstructor()->getMock(),
 			'recipientProvider' => $this->getMockBuilder("Azine\EmailBundle\Services\RecipientProviderInterface")->disableOriginalConstructor()->getMock(),
+			'translator' => $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock(),
 			'parameters' => array(
 								AzineEmailExtension::NEWSLETTER."_".AzineEmailExtension::NEWSLETTER_INTERVAL => '7',
 								AzineEmailExtension::NEWSLETTER."_".AzineEmailExtension::NEWSLETTER_SEND_TIME => '09:00'
@@ -58,7 +59,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  	public function testAddNotification(){
  		$mocks = $this->getMockSetup();
  		$mocks['entityManager']->expects($this->once())->method('persist');
- 		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
+ 		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
 
 		$n = $notifier->addNotification("12", "title", "content", "template", array("templateVars"), 1, false);
 
@@ -76,7 +77,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		$mocks['entityManager']->expects($this->once())->method('persist');
  		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TYPE)->will($this->returnValue(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE));
  		$mocks['templateProvider']->expects($this->once())->method("addTemplateVariablesFor")->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE, array('goToUrl' => $goToUrl))->will($this->returnValue(array_merge(array('goToUrl' => $goToUrl), $templateVars)));
- 		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
+ 		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
 
  		$notifier->addNotificationMessage("12", "some title", "some content with \nline breaks.", $goToUrl);
 
@@ -85,7 +86,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		$mocks['entityManager']->expects($this->once())->method('persist');
  		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TYPE)->will($this->returnValue(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE));
  		$mocks['templateProvider']->expects($this->once())->method("addTemplateVariablesFor")->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE, array())->will($this->returnValue($templateVars));
- 		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
+ 		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
 
  		$notifier->addNotificationMessage("12", "some title", "some content with \nline breaks.");
  	}
@@ -104,7 +105,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		$mocks['logger']->expects($this->once())->method("error"); // see sendSingleEmailCallBack, one mail-address fails
 
 
- 		$notifier = new ExampleNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
+ 		$notifier = new ExampleNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
  		$sentMails = $notifier->sendNewsletter($failedAddresses);
  		$this->assertEquals(1, sizeof($failedAddresses));
  		$this->assertEquals(sizeof($recipientIds)-1, $sentMails);
@@ -170,7 +171,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 		$mocks['logger']->expects($this->once())->method("error"); // see sendSingleEmailCallBack, one mail-address fails
 
 
-		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
+		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
 		$sentMails = $notifier->sendNotifications($failedAddresses);
 		$this->assertEquals(1, sizeof($failedAddresses));
 		$this->assertEquals(sizeof($recipientIds)-sizeof($failedAddresses), $sentMails);
@@ -228,7 +229,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 		$mocks['logger']->expects($this->once())->method("error"); // see sendSingleEmailCallBack, one mail-address fails
 
 
-		$notifier = new ExampleNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
+		$notifier = new ExampleNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
 		$sentMails = $notifier->sendNotifications($failedAddresses);
 		$this->assertEquals(1, sizeof($failedAddresses));
 		$this->assertEquals(sizeof($recipientIds)-1, $sentMails);
@@ -264,7 +265,7 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		$recipientIds = array(11,12,13,14);
  		$mocks['recipientProvider']->expects($this->once())->method("getNewsletterRecipientIDs")->will($this->returnValue($recipientIds));
 
-		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['parameters']);
+		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
 
  		// access the protected method and execute it
  		$returnValue = self::getMethod('getDateTimeOfLastNewsletter')->invokeArgs($notifier, array());

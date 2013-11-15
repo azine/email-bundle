@@ -17,9 +17,8 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 		$mocks['mailer']->expects($this->once())->method('send')->will($this->returnValue(1));
 		$mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
 		$mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
-		$baseTemplateMock = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
-		$baseTemplateMock->expects($this->exactly(3))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
-		$mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($baseTemplateMock));
+		$mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
+		$mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
 
 		$mocks['logger'] = $this->getMockBuilder("Monolog\Logger")->disableOriginalConstructor()->getMock();
 
@@ -89,6 +88,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 
  	public function testSendSingleEmail(){
  		$mocks = $this->getMockSetup();
+  		$mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
  		$mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
  		$mocks['router']->expects($this->exactly(6))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
@@ -106,6 +106,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 
 	public function testSendEmailWithEmailLocaleAndAttachment(){
 		$mocks = $this->getMockSetup();
+  		$mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
 		$mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
 		$mocks['router']->expects($this->exactly(6))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
@@ -122,16 +123,18 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 		$bccName = "BccName";
 		$replyTo = "replyTo@email.com";
 		$replyToName = "ReplyToName";
+		$subject = "some dummy test subject";
 		$params = array();
   		$template = AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig";
 		$attachments = array(__FILE__);
 		$emailLocale = "en";
 
-		$azineMailer->sendEmail($failedRecipients, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
+		$azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
 	}
 
 	public function testSendEmailWithOutEmailLocaleAndNoAttachment(){
 		$mocks = $this->getMockSetup();
+  		$mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
 		$mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
 		$mocks['router']->expects($this->exactly(6))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
@@ -148,17 +151,21 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 		$bccName = "BccName";
 		$replyTo = "replyTo@email.com";
 		$replyToName = "ReplyToName";
+		$subject = "some dummy test subject";
 		$params = array();
 		$template = AzineTemplateProvider::BASE_TEMPLATE.".txt.twig";
 		$attachments = array();
 		$emailLocale = null;
 
-		$azineMailer->sendEmail($failedRecipients, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
+		$azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
 	}
 
 	public function testSendConfirmationEmailMessage(){
  		$mocks = $this->getMockSetup();
   		$user = $this->getUserMock();
+
+  		// as the subject from FOS-templates is embeded in the twig-template, the render-block is called 3 instead of only 2 times
+  		$mocks['baseTemplateMock']->expects($this->exactly(3))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
 
  		$mocks['parameters']['template'] = array();
  		$mocks['parameters']['template']['confirmation'] = AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE.".txt.twig";
@@ -177,6 +184,9 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 	public function testSendResettingEmailMessage(){
 	 	$mocks = $this->getMockSetup();
 	  	$user = $this->getUserMock();
+
+	  	// as the subject from FOS-templates is embeded in the twig-template, the render-block is called 3 instead of only 2 times
+  		$mocks['baseTemplateMock']->expects($this->exactly(3))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
 
 	 	$mocks['parameters']['template'] = array();
 	 	$mocks['parameters']['template']['resetting'] = AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE.".txt.twig";
