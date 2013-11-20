@@ -79,11 +79,13 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @return array of templatesIds (without ending) as key and params to render the template as value. => array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...));
 	 */
 	protected function getNonRecipientSpecificNewsletterContentItems(){
+		// @codeCoverageIgnoreStart
 		$contentItems = array();
 
 		//$contentItems[] = array('AcmeBundle:foo:barSameForAllRecipientsTemplate' => $templateParams);
 
 		return $contentItems;
+		// @codeCoverageIgnoreEnd
 	}
 
 	/**
@@ -95,12 +97,14 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @return array of templatesIds (without ending) as key and params to render the template as value. => array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...));
 	 */
 	protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient){
+		// @codeCoverageIgnoreStart
 		$contentItems = array();
 
 		//$contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate' => $recipientSpecificTemplateParams);
 		//$contentItems[] = array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'SampleMessage', 'created' => new \DateTime('1 hour ago'), 'content' => 'Sample Text. Lorem Ipsum.')));
 
 		return $contentItems;
+		// @codeCoverageIgnoreEnd
 	}
 
 	/**
@@ -363,23 +367,16 @@ class AzineNotifierService implements NotifierServiceInterface {
 		// get the recipient-specific contentItems of the newsletter
 		$recipientContentItems = $this->getRecipientSpecificNewsletterContentItems($recipient);
 
-		// append the non-recipient-specific block to the recipient-specific blocks => personal stuff first.
-		if(array_key_exists(self::CONTENT_ITEMS, $recipientParams)){
-			$generalContentItems = $recipientParams[self::CONTENT_ITEMS];
-		} else {
-			$generalContentItems = array();
-		}
-
 		// merge the recipient-specific and the general content items. recipient-specific first/at the top!
-		$recipientParams[self::CONTENT_ITEMS] = array_merge($recipientContentItems, $generalContentItems);
+		$recipientParams[self::CONTENT_ITEMS] = array_merge($recipientContentItems,  $params[self::CONTENT_ITEMS]);
 		$recipientParams['_locale'] = $recipient->getPreferredLocale();
 
 		if(sizeof($recipientParams[self::CONTENT_ITEMS]) == 0){
-			$this->logger->warning("The newsletter for ".$recipient->getDisplayName()." <".$recipient->getEmail()."> has not been sent. It would have been empty.", $params);
+			$this->logger->warning("The newsletter for '".$recipient->getDisplayName()." <".$recipient->getEmail().">' has not been sent. It would have been empty.", $params);
 			return $recipient->getEmail();
 		}
 
-		$subject = $this->getRecipientSpecificNewsletterSubject($generalContentItems, $recipientContentItems, $params, $recipient);
+		$subject = $this->getRecipientSpecificNewsletterSubject($params[self::CONTENT_ITEMS], $recipientContentItems, $params, $recipient);
 
 		// render and send the email with the right wrapper-template
 		$sent = $this->mailer->sendSingleEmail($recipient->getEmail(), $recipient->getDisplayName(), $subject, $recipientParams, $wrapperTemplate.".txt.twig", $recipient->getPreferredLocale());
@@ -413,6 +410,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 			->setParameter('recipientId', $recipient->getId());
 		$results = $qb->getQuery()->execute();
 		if($results[0][1] == null){
+			// the user has not received any notifications yet ever
 			$lastNotification = new \DateTime("@0");
 		} else {
 			$lastNotification = new \DateTime($results[0][1]);

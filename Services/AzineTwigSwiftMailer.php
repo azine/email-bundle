@@ -2,6 +2,8 @@
 namespace Azine\EmailBundle\Services;
 
 
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+
 use Doctrine\ORM\EntityManager;
 
 use Azine\EmailBundle\Entity\SentEmail;
@@ -179,7 +181,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 				if(file_exists($file)){
 					$attachment = \Swift_Attachment::fromPath($file);
 					if(strlen($fileName) >= 5 ){
-						$attachment->setName($fileName);
+						$attachment->setFilename($fileName);
 					}
 				} else {
 					throw new FileException("File not found: ".$file);
@@ -319,20 +321,38 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 				$params[$key] = $value;
 
 			// if the current value is an existing file from the image-folder, embed it
-			} else if(is_string($value) && is_file($value)){
+			} else if(is_string($value)){
+				if(is_file($value)){
 
-				// check if the file is from an allowed folder
-				if($this->templateProvider->isFileAllowed($value) !== false){
-					$encodedImage = $this->cachedEmbedImage($value);
-					if($encodedImage != null){
-						$id = $message->embed($encodedImage);
-						$params[$key] = $id;
+					// check if the file is from an allowed folder
+					if($this->templateProvider->isFileAllowed($value) !== false){
+						$encodedImage = $this->cachedEmbedImage($value);
+						if($encodedImage != null){
+							$id = $message->embed($encodedImage);
+							$params[$key] = $id;
+						}
 					}
+
+				// the $filePath isn't a regular file
+				} else {
+					// ignore the imageDir itself, but log all other directories and symlinks that were not embeded
+					if ($value != $this->templateProvider->getTemplateImageDir() ){
+						$this->logger->info("'$value' is not a regular file and will not be embeded in the email.");
+					}
+
+					// add a null-value to the cache for this path, so we don't try again.
+					$this->imageCache[$value] = null;
 				}
 
 				//if the current value is a generated image
 			} else if(is_resource($value) && stripos(get_resource_type($value), "gd") == 0){
-				$encodedImage = \Swift_Image::newInstance($value, "generatedImage".md5(time()).rand(0, 1000));
+				// get the image-data as string
+				ob_start();
+				imagepng($value);
+				$imageData = ob_get_clean();
+
+				// encode the image
+				$encodedImage = \Swift_Image::newInstance($imageData, "generatedImage".md5($imageData));
 				$id = $message->embed($encodedImage);
 				$params[$key] = $id;
 			} else {
@@ -361,26 +381,19 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 				$id = $image->getId();
 
 				// log an error if the image could not be embedded properly
-				if(	$id == $filePath ){		// $id and $value must not be the same => this happens if the file cannot be found/read
+				if( $id == $filePath ){		// $id and $value must not be the same => this happens if the file cannot be found/read
+					// @codeCoverageIgnoreStart
 					// log error
 					$this->logger->error('The image $value was not correctly embedded in the email.', array('image' => $filePath, 'resulting id' => $id));
 					// add a null-value to the cache for this path, so we don't try again.
 					$this->imageCache[$filePath] = null;
 
 				} else {
+					// @codeCoverageIgnoreEnd
 					// add the image to the cache
 					$this->imageCache[$filePath] = $image;
 				}
 
-			// the $filePath isn't a regular file
-			} else {
-				// ignore the imageDir itself, but log all other directories and symlinks that were not embeded
-				if ($filePath != $this->templateProvider->getTemplateImageDir() ){
-					$this->logger->info("'$filePath' is not a regular file and will not be embeded in the email.");
-				}
-
-				// add a null-value to the cache for this path, so we don't try again.
-				$this->imageCache[$filePath] = null;
 			}
 
 		}

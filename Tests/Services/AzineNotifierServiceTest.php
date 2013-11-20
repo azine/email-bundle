@@ -69,7 +69,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		$this->assertEquals(array("templateVars"), $n->getVariables());
  	}
 
-
  	public function testAddNotificationMessage(){
 		$goToUrl = "http://azine.email/this/is/a/url";
 		$templateVars = array('logo_png' => '/some/directory/logo.png', 'mainColor' => 'green');
@@ -118,6 +117,24 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		return true;
  	}
 
+ 	public function testSendNewsletter_NoContent(){
+ 		$failedAddresses = array();
+ 		$recipientIds = array(11,12,13,14);
+ 		$mocks = $this->getMockSetup();
+ 		$this->mockRecipients($mocks['recipientProvider'], $recipientIds);
+ 		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(TemplateProviderInterface::NEWSLETTER_TYPE)->will($this->returnValue(AzineTemplateProvider::NEWSLETTER_TEMPLATE));
+ 		$mocks['recipientProvider']->expects($this->once())->method("getNewsletterRecipientIDs")->will($this->returnValue($recipientIds));
+
+ 		$mocks['mailer']->expects($this->never())->method("sendSingleEmail");
+ 		$mocks['logger']->expects($this->exactly(4))->method("warning");
+ 		$mocks['logger']->expects($this->never())->method("error");
+
+ 		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
+ 		$sentMails = $notifier->sendNewsletter($failedAddresses);
+ 		$this->assertEquals(4, sizeof($failedAddresses), "Email-addresses failed unexpectedly:".print_r($failedAddresses,true));
+ 		$this->assertEquals(0, $sentMails, "Not the expected number of sent emails.");
+ 	}
+
 	public function testSendNotificationsAzineNotifierService(){
 		$failedAddresses = array();
 		$recipientIds = array(11,12,13,14);
@@ -164,9 +181,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 
 		$mocks['entityManager']->expects($this->exactly(9))->method("createQueryBuilder")->will($this->returnValue($queryBuilderMock));
 
-
-
-		$mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method("sendSingleEmail");
 		$mocks['logger']->expects($this->never())->method("warning");
 		$mocks['logger']->expects($this->once())->method("error"); // see sendSingleEmailCallBack, one mail-address fails
 
@@ -178,6 +192,54 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 
 	}
 
+	public function testSendNotificationsAzineNotifierService_NoNotifications(){
+		$failedAddresses = array();
+		$recipientIds = array(11,12,13,14);
+		$mocks = $this->getMockSetup();
+		$this->mockRecipients($mocks['recipientProvider'], $recipientIds);
+		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(TemplateProviderInterface::NOTIFICATIONS_TYPE)->will($this->returnValue(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE));
+		$mocks['mailer']->expects($this->never())->method("sendSingleEmail")->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
+
+		$notificationsQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
+		$notificationsQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock(array())));
+		$notificationsQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
+		$notificationsQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
+		$notificationsQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
+		$notificationsQueryBuilderMock->expects($this->any())->method("orderBy")->will($this->returnSelf());
+
+		$notificationsRecipientQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
+		$recipientQueryResult = array(array('recipient_id' => 11),array('recipient_id' => 12),array('recipient_id' => 13),array('recipient_id' => 14),);
+		$notificationsRecipientQueryBuilderMock->expects($this->once())->method("getQuery")->will($this->returnValue(new AzineQueryMock($recipientQueryResult)));
+		$notificationsRecipientQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
+		$notificationsRecipientQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
+		$notificationsRecipientQueryBuilderMock->expects($this->any())->method("distinct")->will($this->returnSelf());
+
+		$maxSentQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
+		$maxSentQueryResult = array(array(1 => "@0"));
+		$maxSentQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock($maxSentQueryResult)));
+		$maxSentQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
+		$maxSentQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
+		$maxSentQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
+
+		$queryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
+		$queryBuilderMock->expects($this->any())->method("select")->will($this->returnValueMap(array(
+				array("max(n.sent)", $maxSentQueryBuilderMock),
+				array("n.recipient_id", $notificationsRecipientQueryBuilderMock),
+				array("n", $notificationsQueryBuilderMock)
+		)));
+
+		$mocks['entityManager']->expects($this->exactly(9))->method("createQueryBuilder")->will($this->returnValue($queryBuilderMock));
+
+		$mocks['logger']->expects($this->never())->method("warning");
+		$mocks['logger']->expects($this->never())->method("error"); // see sendSingleEmailCallBack, one mail-address fails
+
+
+		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
+		$sentMails = $notifier->sendNotifications($failedAddresses);
+		$this->assertEquals(0, sizeof($failedAddresses), "Email-addresses failed unexpectedly:".print_r($failedAddresses,true));
+		$this->assertEquals(4, $sentMails, "Not the expected number of sent emails.");
+
+	}
 	public function testSendNotificationsExampleNotifier(){
 		$failedAddresses = array();
 		$recipientIds = array(11,12,13,14);
@@ -237,14 +299,16 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 	}
 
  	private function mockRecipients(\PHPUnit_Framework_MockObject_MockObject $mock, array $ids){
+ 		$notificationType = 0;
+ 		$notificationTypes = array(RecipientInterface::NOTIFICATION_MODE_IMMEDIATELY, RecipientInterface::NOTIFICATION_MODE_HOURLY, RecipientInterface::NOTIFICATION_MODE_DAYLY);
  		$valueMap = array();
  		foreach ($ids as $id) {
  			$recipientMock = $this->getMockBuilder("Azine\EmailBundle\Entity\RecipientInterface")->disableOriginalConstructor()->getMock();
  			$recipientMock->expects($this->any())->method("getEmail")->will($this->returnValue($id."mail@email.com"));
- 			$recipientMock->expects($this->any())->method("getDisplayName")->will($this->returnValue($id."display Name"));
+ 			$recipientMock->expects($this->any())->method("getDisplayName")->will($this->returnValue("DisplayName of $id"));
  			$recipientMock->expects($this->any())->method("getPreferredLocale")->will($this->returnValue("en"));
- 			$recipientMock->expects($this->any())->method("getNotificationMode")->will($this->returnValue(RecipientInterface::NOTIFICATION_MODE_DAYLY));
-
+ 			$recipientMock->expects($this->any())->method("getNotificationMode")->will($this->returnValue($notificationTypes[$notificationType%sizeof($notificationTypes)]));
+			$notificationType++;
  			$valueMap[] = array($id,$recipientMock);
  		}
 

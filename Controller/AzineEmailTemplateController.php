@@ -162,19 +162,22 @@ class AzineEmailTemplateController extends ContainerAware{
 		if($recipients == null)
 			return true;
 
-		// it is not a public email, but no user is logged in
-		if($currentUser == null)
-			return false;
+		// it is not a public email, and a user is logged in
+		if($currentUser != null){
 
-		// the user is among the recipients
-		if(array_search($currentUser->getEmail(), $recipients) !== false)
-			return true;
+			// the user is among the recipients
+			if(array_search($currentUser->getEmail(), $recipients) !== false)
+				return true;
 
-		// the user is admin
-		if($currentUser->hasRole("ROLE_ADMIN"))
-			return true;
+			// the user is admin
+			if($currentUser->hasRole("ROLE_ADMIN"))
+				return true;
+		}
 
-		// any other case
+		// not public email, but
+		// 		- there is no user, or
+		//		- the user is not among the recipients and
+		//		- the user not an admin-user either
 		return false;
 	}
 
