@@ -14,9 +14,11 @@ class NotificationTest extends \PHPUnit_Framework_TestCase
 
     	$c2 = $n->getCreated();
 
+    	sleep(1);
+
     	$this->assertNull($c1);
     	$this->assertNotNull($c2);
-    	$this->assertGreaterThanOrEqual(new \DateTime(), $c2);
+    	$this->assertGreaterThanOrEqual($c2, new \DateTime());
 
     }
 }
