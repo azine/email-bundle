@@ -49,7 +49,7 @@ EOF
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output){
 		$failedAddresses = array();
-		$output->writeln(date(\DateTime::RFC2822)." : ".str_pad($sentMails, 4, " ", STR_PAD_LEFT)." starting to send newsletter emails.");
+		$output->writeln(date(\DateTime::RFC2822)." : starting to send newsletter emails.");
 
 		$sentMails = $this->getContainer()->get('azine_email_notifier_service')->sendNewsletter($failedAddresses);
 
