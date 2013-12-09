@@ -144,7 +144,10 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase{
 		$transportMock->expects($msgCount)->method("send");
 
 		$containerMock->expects($this->once())->method('get')->will($this->returnValueMap(array(array('swiftmailer.transport.real', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $transportMock))));
-		$containerMock->expects($this->once())->method('getParameter')->will($this->returnValueMap(array(array('swiftmailer.spool.file.path', __DIR__."/mock.spool.path"))));
+		$containerMock->expects($this->exactly(2))->method('getParameter')->will($this->returnValueMap(array(
+																									array('swiftmailer.mailers', array('default_mailer' => 'a dummy value for a mailer')),
+																									array('swiftmailer.spool.default_mailer.file.path', __DIR__."/mock.spool.path"))
+																				));
 
 		return $containerMock;
 	}

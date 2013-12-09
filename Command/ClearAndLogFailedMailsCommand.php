@@ -62,7 +62,9 @@ EOF
 		}
 
 		try{
-			$spoolPath = $this->getContainer()->getParameter("swiftmailer.spool.file.path");
+			$mailers = $this->getContainer()->getParameter("swiftmailer.mailers");
+			$mailerName = key($mailers);
+			$spoolPath = $this->getContainer()->getParameter("swiftmailer.spool.$mailerName.file.path");
 		} catch (InvalidArgumentException $ex){
 			$output->writeln("\n\n\nCould not find file spool path. Is file-spooling configured in your config.yml for this environment?\n\n\n");
 			return;

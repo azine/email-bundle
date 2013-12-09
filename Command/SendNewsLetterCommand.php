@@ -49,9 +49,11 @@ EOF
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output){
 		$failedAddresses = array();
+		$output->writeln(date(\DateTime::RFC2822)." : ".str_pad($sentMails, 4, " ", STR_PAD_LEFT)." starting to send newsletter emails.");
+
 		$sentMails = $this->getContainer()->get('azine_email_notifier_service')->sendNewsletter($failedAddresses);
 
-		$output->writeln(date(\DateTime::RFC2822)." : ".str_pad($sentMails, 4, " ", STR_PAD_LEFT)." emails have been sent.");
+		$output->writeln(date(\DateTime::RFC2822)." : ".str_pad($sentMails, 4, " ", STR_PAD_LEFT)." newsletter emails have been sent.");
 		if(sizeof($failedAddresses) > 0){
 			$output->writeln(date(\DateTime::RFC2822)." : "."The following email-addresses failed:");
 			foreach ($failedAddresses as $address) {
