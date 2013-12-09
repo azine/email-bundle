@@ -33,7 +33,7 @@ class SendNewsLetterCommandTest extends \PHPUnit_Framework_TestCase{
 		$tester = new CommandTester($command);
 		$tester->execute(array(''));
 		$display = $tester->getDisplay();
-		$this->assertContains(AzineNotifierServiceMock::EMAIL_COUNT." emails have been sent.", $display);
+		$this->assertContains(AzineNotifierServiceMock::EMAIL_COUNT." newsletter emails have been sent.", $display);
 
 	}
 
@@ -47,7 +47,7 @@ class SendNewsLetterCommandTest extends \PHPUnit_Framework_TestCase{
 		$tester = new CommandTester($command);
 		$tester->execute(array(''));
 		$display = $tester->getDisplay();
-		$this->assertContains((AzineNotifierServiceMock::EMAIL_COUNT-1)." emails have been sent.", $display);
+		$this->assertContains((AzineNotifierServiceMock::EMAIL_COUNT-1)." newsletter emails have been sent.", $display);
 		$this->assertContains(AzineNotifierServiceMock::FAILED_ADDRESS, $display);
 
 	}
