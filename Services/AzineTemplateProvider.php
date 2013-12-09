@@ -187,7 +187,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 
 		// create and add html-elements for easy reuse in the twig-templates
 		$snippets["linkToTop"] 		= "<a href='#top' style='text-decoration:none;color:$blackColor' title='$upLinkTitle'>Λ</a>";
-		$snippets["tableOpen"]		= "<table width='".$vars["emailWidth"]."' border='0' align='center' cellpadding='0' cellspacing='0'  style='font: normal 14px/18px $fontFamily;'>";
+		$snippets["tableOpen"]		= "<table summary='box with shadows' width='".$vars["emailWidth"]."' border='0' align='center' cellpadding='0' cellspacing='0'  style='font: normal 14px/18px $fontFamily;'>";
 		$snippets["topShadow"]		= $snippets["tableOpen"]."<tr><td colspan='3' width='".$vars["emailWidth"]."'><img width='".$vars["emailWidth"]."' height='10' src='".$vars["top_shadow_png"]."' alt='' style='vertical-align: bottom;'/></td></tr>";
 		$snippets["leftShadow"]		= "<tr><td width='10' style='border-right: 1px solid $lightGray; background-image: url(\"".$vars["left_shadow_png"]."\");'>&nbsp;</td>";
 		$snippets["rightShadow"]	= "<td width='10' style='border-left: 1px solid $lightGray; background-image: url(\"".$vars["right_shadow_png"]."\");'>&nbsp;</td></tr>";
