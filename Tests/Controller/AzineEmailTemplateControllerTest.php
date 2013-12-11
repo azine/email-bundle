@@ -2,6 +2,8 @@
 namespace Azine\EmailBundle\Tests\Controller;
 
 
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 
 use Azine\EmailBundle\Entity\SentEmail;
@@ -30,6 +32,9 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 
 		} else if ($template == AzineTemplateProvider::NEWSLETTER_TEMPLATE.".html.twig"){
 			return new Response("newsletter-html <a href='http://testurl.com/'>bla</a>&nbsp;<a href='http://testurl.com/with/?param=1'>with param</a>:".print_r($params, true));
+
+		} else if ($template == AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig"){
+			return new Response("newsletter-text bla\n\n some url with param http://testurl.com/with/?param=1 in plain-text:".print_r($params, true));
 
 		} else if($template == "A")
 		throw new \Exception("unexpected template $template");
@@ -67,23 +72,52 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 				array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock)
 		)));
 
-
-
-
 		$controller = new AzineEmailTemplateController();
 		$controller->setContainer($containerMock);
 		$response = $controller->indexAction();
 	}
 
-// 	public function testWebPreViewAction(){
-//      // not yet implemented
-// 		$controller = new AzineEmailTemplateController();
-// 		$controller->setContainer($this->getMockSetup());
-// 		$response = $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
+ 	public function testWebPreViewAction(){
 
-// 		$response = $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE, "txt");
+		$requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->setMethods(array('getLocale'))->getMock();
+ 		$requestMock->expects($this->exactly(6))->method("getLocale")->will($this->returnValue("en"));
 
-// 	}
+ 		$webViewServiceMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineWebViewService")->disableOriginalConstructor()->getMock();
+		$webViewServiceMock->expects($this->exactly(3))->method("getDummyVarsFor")->will($this->returnValue(array()));
+
+ 		$twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
+		$twigMock->expects($this->exactly(3))->method("renderResponse")->will($this->returnCallback(array($this, 'renderResponseCallback')));
+
+		$emailVars = array();
+
+		$templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
+		$templateProviderMock->expects($this->exactly(3))->method('addTemplateVariablesFor')->will($this->returnValue($emailVars));
+		$templateProviderMock->expects($this->exactly(3))->method('makeImagePathsWebRelative')->will($this->returnValue($emailVars));
+		$templateProviderMock->expects($this->exactly(3))->method('addTemplateSnippetsWithImagesFor')->will($this->returnValue($emailVars));
+
+
+		$containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
+		$containerMock->expects($this->exactly(21))->method("get")->will($this->returnValueMap(array(
+				array('request', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestMock),
+				array('azine_email_web_view_service', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $webViewServiceMock),
+				array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
+				array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
+
+		)));
+		$containerMock->expects($this->exactly(3))->method("getParameter")->with("azine_email_no_reply")->will($this->returnValue("no-reply-email-mock@email.com"));
+
+ 		$controller = new AzineEmailTemplateController();
+ 		$controller->setContainer($containerMock);
+
+ 		$response = $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
+
+ 		$response = $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE, "html");
+
+ 		$response = $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE, "txt");
+ 		$this->assertEquals("text/plain", $response->headers->get("Content-Type"));
+ 		$this->assertNotContains("<!doctype", $response->getContent());
+
+ 	}
 
 	public function testWebViewAction_User_access_allowed(){
 		$token = "fdasdfasfafsadf";
@@ -344,10 +378,8 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 		$containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
 		$containerMock->expects($this->once())->method("getParameter")->with("azine_email_web_view_retention")->will($this->returnValue(123));
 		$containerMock->expects($this->exactly(2))->method("get")->will($this->returnValueMap(array(
-				//array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
 				array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
 				array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
-				//array('security.context', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $securityContextMock),
 		)));
 
 		$controller = new AzineEmailTemplateController();
@@ -357,16 +389,27 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 
 
 
-// 	public function testServeImageAction(){
-//      // not yet implemented
-// 		$folderKey = "fdasdfasfafsadf";
-// 		$fileName = "logo.png";
-// 		$container = $this->getMockSetup();
-// 		$controller = new AzineEmailTemplateController();
-// 		$controller->setContainer($container);
-// 		$response = $controller->serveImageAction($folderKey, $filename);
+ 	public function testServeImageAction(){
 
-// 	}
+ 		$folderKey = "asdfadfasfasfd";
+ 		$filename = "testImage.png";
+
+ 		$templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
+ 		$templateProviderMock->expects($this->exactly(1))->method('getFolderFrom')->with($folderKey)->will($this->returnValue(__DIR__."/"));
+
+ 		$containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
+ 		$containerMock->expects($this->exactly(1))->method("get")->will($this->returnValueMap(array(
+ 				array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock)
+ 					)));
+
+ 		$controller = new AzineEmailTemplateController();
+ 		$controller->setContainer($containerMock);
+ 		$response = $controller->serveImageAction($folderKey, $filename);
+
+ 		$this->assertEquals("image", $response->headers->get("Content-Type"));
+ 		$this->assertEquals('inline; filename="'.$filename.'"', $response->headers->get('Content-Disposition'));
+
+ 	}
 
 // 	public function testSendTestEmailAction(){
 //      // not yet implemented
@@ -378,8 +421,85 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 // 		//$response = $controller->sendTestEmailAction($template, $email);
 //	}
 
-// 	public function testCheckSpamScoreOfSentEmailAction(){
-//     // not yet implemented
-// 	}
+ 	public function testGetSpamIndexReportForSwiftMessage(){
+
+ 		$swiftMessage = new \Swift_Message();
+ 		$swiftMessage->setFrom("from@email.com");
+ 		$swiftMessage->setTo("to@email.com");
+ 		$swiftMessage->setSubject("a subject.");
+
+ 		$swiftMessage->addPart("Hello dude,
+================================================================================
+
+Add some content here
+
+This is just the default content-block.
+
+Best regards,
+the azine team
+
+________________________________________________________________________________
+azine ist ein Service von Azine IT Services AG
+© 2013 by Azine IT Services AG
+
+Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von azine Mails sicherzustellen.
+
+
+- Help / FAQs  :  https://some.host.com/app_dev.php/de/help
+- AGB          :  https://some.host.com/app_dev.php/de/terms
+- Über azine:  https://some.host.com/app_dev.php/de/about
+- Kontakt      :  https://some.host.com/app_dev.php/de/contact
+
+ 				", 'text/plain');
+ 		$swiftMessage->setBody("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>azine – </title><meta name=\"description\" content=\"azine – \" /><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /></head><body style=\" color: #484B4C; margin:0; font: normal 12px/18px Arial, Helvetica, sans-serif; background-color: #fdfbfa;\"><table summary=\"header and logo\" width=\"640\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" style=\"font: normal 12px/18px Arial, Helvetica, sans-serif;\"><tr><td>&nbsp;</td><td bgcolor=\"#f2f1f0\">&nbsp;</td><td>&nbsp;</td></tr><tr><td width=\"10\">&nbsp;</td><td width=\"620\" bgcolor=\"#f2f1f0\" style=\"padding: 0px 20px;\"><a href=\"http://azine\" target=\"_blank\" style=\"color: #9fb400; font-size: 55px; font-weight: bold; text-decoration: none;\"><img src=\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/logo.png\"  height=\"35\" width=\"169\" alt=\"azine\" /></a>
+			    	&nbsp;<br /><span style='font-size: 16px; color:#484B4C; margin: 0px; padding: 0px;'>IT-Rekrutierung von morgen... weil du die beste Besetzung verdienst.</span></td><td width=\"10\">&nbsp;</td></tr></table><table summary='box with shadows' width='640' border='0' align='center' cellpadding='0' cellspacing='0'  style='font: normal 14px/18px Arial, Helvetica, sans-serif;'><tr><td colspan='3' width='640'><img width='640' height='10' src='/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/topshadow.png' alt='' style='vertical-align: bottom;'/></td></tr><tr><td width='10' style='border-right: 1px solid #EEEEEE; background-image: url(\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/left-shadow.png\");'>&nbsp;</td><td width=\"620\" bgcolor=\"white\"  style=\"padding:10px 20px 20px 20px; border-top: 1px solid #EEEEEE;\"><a name=\"top\" ></a><span style='color:#024d84; font:bold 16px Arial;'>Hallo dude,</span><p>
+						Add some content here
+					</p><p>
+						This is just the default content-block.
+					</p><p>
+						Freundliche Grüsse und bis bald,
+						<br/><span style=\"color:#024d84;\">dein azine Team</span></p></td><td width='10' style='border-left: 1px solid #EEEEEE; background-image: url(\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/right-shadow.png\");'>&nbsp;</td></tr><tr><td width='10' style='border-right: 1px solid #EEEEEE; background-image: url(\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/left-shadow.png\");'>&nbsp;</td><td width=\"620\" bgcolor=\"white\" style=\"text-align:center;\"><a href=\"http://azine\" target=\"_blank\" style=\"color: #9fb400; font-size: 32px; font-weight: bold; text-decoration: none; position:relative; top:1px;\"><img height=\"24\" width=\"116\" src=\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/logo.png\" alt=\"azine\" /></a></td><td width='10' style='border-left: 1px solid #EEEEEE; background-image: url(\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/right-shadow.png\");'>&nbsp;</td></tr><tr><td width='10' style='border-right: 1px solid #EEEEEE; background-image: url(\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/left-shadow.png\");'>&nbsp;</td><td width=\"620\" align=\"center\" valign=\"top\" bgcolor=\"#434343\" style=\"font: normal 12px/18px Arial, Helvetica, sans-serif; padding:10px 30px 30px 30px; border-top:3px solid #b1c800; text-align:center;\" ><p style=\"color:white;\"><a href='https://some.host.com/app_dev.php/de/' style='text-decoration:none;'><span style='color: #9fb400; font-size:110%;'>azine</span></a> ist ein Service angeboten von Azine IT Services AG.
+					</p><p style=\"color:white;\">
+            			Füge \"<a style=\"color:#FFFFFF;\" href=\"mailto:azine &lt;no-reply@some.host.com&gt;\"><span style=\"color:#FFFFFF;\">no-reply@some.host.com</span></a>\" zu deinem Adressbuch hinzu, um den Empfang von <a href=\"http://azine\" style=\"color:white; text-decoration:none;\">azine</a> Mails sicherzustellen.
+            		</p><p style=\"color:#9fb400;\">
+                		&copy; 2013 by Azine IT Services AG
+                	</p><p style=\"color:#acacac;\"><a style=\"color:#acacac; text-decoration:none;\" href=\"https://some.host.com/app_dev.php/de/help\">Hilfe / FAQs</a> |
+                    <a style=\"color:#acacac; text-decoration:none;\" href=\"https://some.host.com/app_dev.php/de/terms\">AGB</a> |
+                    <a style=\"color:#acacac; text-decoration:none;\" href=\"https://some.host.com/app_dev.php/de/about\">Über azine</a> |
+                    <a style=\"color:#acacac; text-decoration:none;\" href=\"https://some.host.com/app_dev.php/de/contact\">Kontakt</a></p></td><td width='10' style='border-left: 1px solid #EEEEEE; background-image: url(\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/right-shadow.png\");'>&nbsp;</td></tr></table>
+<div id=\"sfwdt016a7f\" class=\"sf-toolbar\" style=\"display: none\"></div><script>/*<![CDATA[*/    Sfjs = (function() {        \"use strict\";        var noop = function() {},            profilerStorageKey = 'sf2/profiler/',            request = function(url, onSuccess, onError, payload, options) {                var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');                options = options || {};                xhr.open(options.method || 'GET', url, true);                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');                xhr.onreadystatechange = function(state) {                    if (4 === xhr.readyState && 200 === xhr.status) {                        (onSuccess || noop)(xhr);                    } else if (4 === xhr.readyState && xhr.status != 200) {                        (onError || noop)(xhr);                    }                };                xhr.send(payload || '');            },            hasClass = function(el, klass) {                return el.className.match(new RegExp('\\b' + klass + '\\b'));            },            removeClass = function(el, klass) {                el.className = el.className.replace(new RegExp('\\b' + klass + '\\b'), ' ');            },            addClass = function(el, klass) {                if (!hasClass(el, klass)) { el.className += \" \" + klass; }            },            getPreference = function(name) {                if (!window.localStorage) {                    return null;                }                return localStorage.getItem(profilerStorageKey + name);            },            setPreference = function(name, value) {                if (!window.localStorage) {                    return null;                }                localStorage.setItem(profilerStorageKey + name, value);            };        return {            hasClass: hasClass,            removeClass: removeClass,            addClass: addClass,            getPreference: getPreference,            setPreference: setPreference,            request: request,            load: function(selector, url, onSuccess, onError, options) {                var el = document.getElementById(selector);                if (el && el.getAttribute('data-sfurl') !== url) {                    request(                        url,                        function(xhr) {                            el.innerHTML = xhr.responseText;                            el.setAttribute('data-sfurl', url);                            removeClass(el, 'loading');                            (onSuccess || noop)(xhr, el);                        },                        function(xhr) { (onError || noop)(xhr, el); },                        options                    );                }                return this;            },            toggle: function(selector, elOn, elOff) {                var i,                    style,                    tmp = elOn.style.display,                    el = document.getElementById(selector);                elOn.style.display = elOff.style.display;                elOff.style.display = tmp;                if (el) {                    el.style.display = 'none' === tmp ? 'none' : 'block';                }                return this;            }        }    })();/*]]>*/</script><script>/*<![CDATA[*/    (function () {                Sfjs.load(            'sfwdt016a7f',            '/app_dev.php/_wdt/016a7f',            function(xhr, el) {                el.style.display = -1 !== xhr.responseText.indexOf('sf-toolbarreset') ? 'block' : 'none';                if (el.style.display == 'none') {                    return;                }                if (Sfjs.getPreference('toolbar/displayState') == 'none') {                    document.getElementById('sfToolbarMainContent-016a7f').style.display = 'none';                    document.getElementById('sfToolbarClearer-016a7f').style.display = 'none';                    document.getElementById('sfMiniToolbar-016a7f').style.display = 'block';                } else {                    document.getElementById('sfToolbarMainContent-016a7f').style.display = 'block';                    document.getElementById('sfToolbarClearer-016a7f').style.display = 'block';                    document.getElementById('sfMiniToolbar-016a7f').style.display = 'none';                }            },            function(xhr) {                if (xhr.status !== 0) {                    confirm('An error occurred while loading the web debug toolbar (' + xhr.status + ': ' + xhr.statusText + ').\n\nDo you want to open the profiler?') && (window.location = '/app_dev.php/_profiler/016a7f');                }            }        );    })();/*]]>*/</script>
+</body></html>", 'text/html');
+
+
+ 		$controller = new AzineEmailTemplateController();
+ 		$report = $controller->getSpamIndexReportForSwiftMessage($swiftMessage);
+
+ 		$this->assertArrayHasKey("success", $report, "success was expected in report.\n\n".print_r($report, true));
+ 		$this->assertArrayNotHasKey("curlError", $report, "curlError was not expected in report.\n\n".print_r($report, true));
+ 		$this->assertArrayHasKey("message", $report, "message was expected in report.\n\n".print_r($report, true));
+
+	}
+
+	public function testCheckSpamScoreOfSentEmailAction(){
+
+		$emailSource = file_get_contents(__DIR__."/sentEmail.txt");
+
+		$requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->setMethods(array('get'))->getMock();
+		$requestMock->expects($this->once())->method('get')->will($this->returnValue($emailSource));
+
+		$containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
+		$containerMock->expects($this->exactly(1))->method("get")->will($this->returnValueMap(array(
+				array('request', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestMock))));
+
+		$controller = new AzineEmailTemplateController();
+		$controller->setContainer($containerMock);
+		$jsonResponse = $controller->checkSpamScoreOfSentEmailAction();
+
+		$this->assertNotContains("Getting the spam-info failed.", $jsonResponse->getContent());
+		$this->assertContains("SpamScore", $jsonResponse->getContent());
+
+
+
+	}
 }
 
