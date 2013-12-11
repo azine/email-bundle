@@ -104,7 +104,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 				array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
 
 		)));
-		$containerMock->expects($this->exactly(3))->method("getParameter")->with("azine_email_no_reply")->will($this->returnValue("no-reply-email-mock@email.com"));
+		$containerMock->expects($this->exactly(3))->method("getParameter")->with("azine_email_no_reply")->will($this->returnValue(array('email' => "no-reply-email-mock@email.com", 'name' => 'no-reply-name')));
 
  		$controller = new AzineEmailTemplateController();
  		$controller->setContainer($containerMock);
