@@ -2,6 +2,14 @@
 namespace Azine\EmailBundle\Tests\Controller;
 
 
+use Azine\EmailBundle\Tests\FindInFileUtil;
+
+use Symfony\Component\Routing\RequestContext;
+
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+
+use Symfony\Component\HttpFoundation\Request;
+
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 use Azine\EmailBundle\Services\AzineTemplateProvider;
@@ -22,6 +30,14 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  *
  */
 class AzineEmailTemplateControllerTest extends WebTestCase {
+
+	/**
+	 * delete all files from spool-folder
+	 */
+	protected function setUp() {
+
+	}
+
 
 	public function renderResponseCallback($template, $params){
 		if($template == "AzineEmailBundle:Webview:index.html.twig" ){
@@ -146,7 +162,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 		$doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
 
 		$securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
-		$securityTokenMock->expects($this->once())->method('getUser')->will($this->returnValue($userMock));
+		$securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
 
 		$securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
 		$securityContextMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
@@ -192,22 +208,22 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 		$doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
 
 		$securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
-		$securityTokenMock->expects($this->once())->method('getUser')->will($this->returnValue(null));
+		$securityTokenMock->expects($this->never())->method('getUser');
 
 		$securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
-		$securityContextMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
+		$securityContextMock->expects($this->never())->method('getToken');
 
 		$templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 		$templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue("tokenId"));
 
 		$containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-		$containerMock->expects($this->exactly(5))->method("get")->will($this->returnValueMap(array(
+		$containerMock->expects($this->exactly(4))->method("get")->will($this->returnValueMap(array(
 				array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
 				array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
 				array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
 				array('security.context', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $securityContextMock),
 		)));
-		$containerMock->expects($this->once())->method("has")->with('security.context')->will($this->returnValue(true));
+		$containerMock->expects($this->never())->method("has");
 
 
 
@@ -242,7 +258,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 		$doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
 
 		$securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
-		$securityTokenMock->expects($this->once())->method('getUser')->will($this->returnValue($userMock));
+		$securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
 
 		$securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
 		$securityContextMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
@@ -335,7 +351,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 		$doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
 
 		$securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
-		$securityTokenMock->expects($this->once())->method('getUser')->will($this->returnValue($userMock));
+		$securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
 
 		$securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
 		$securityContextMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
@@ -411,15 +427,66 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 
  	}
 
-// 	public function testSendTestEmailAction(){
-//      // not yet implemented
-// 		$template = AzineTemplateProvider::NEWSLETTER_TEMPLATE;
-// 		$email = "some-adr@email.com";
-// 		$container = $this->getMockSetup();
-// 		$controller = new AzineEmailTemplateController();
-// 		$controller->setContainer($container);
-// 		//$response = $controller->sendTestEmailAction($template, $email);
-//	}
+ 	public function testServeImageAction_404(){
+
+ 		$folderKey = "asdfadfasfasfd";
+ 		$filename = "testImage.not.found.png";
+
+ 		$templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
+ 		$templateProviderMock->expects($this->exactly(1))->method('getFolderFrom')->with($folderKey)->will($this->returnValue(false));
+
+ 		$containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
+ 		$containerMock->expects($this->exactly(1))->method("get")->will($this->returnValueMap(array(
+ 				array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock)
+ 		)));
+
+ 		$controller = new AzineEmailTemplateController();
+ 		$controller->setContainer($containerMock);
+ 		$response = $controller->serveImageAction($folderKey, $filename);
+
+ 		$this->assertInstanceOf("Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException", $response, "404 error expected");
+
+ 	}
+
+ 	public function testSendTestEmailAction(){
+        if (null !== static::$kernel) {
+            static::$kernel->shutdown();
+        }
+
+        static::$kernel = static::createKernel(array());
+        static::$kernel->boot();
+        $container = static::$kernel->getContainer();
+
+        $spoolDir = $container->getParameter('swiftmailer.spool.default.file.path');
+
+		// delete all spooled mails from other tests
+        array_map('unlink', glob($spoolDir."/*.messag*"));
+
+        $context = new RequestContext('/app.php');
+        $context->setParameter('_locale', 'en');
+        $router = $container->get('router');
+        $router->setContext($context);
+ 		$to = md5(time()."to").'@email.non-existent.to.mail.domain.com';
+        $uri = $router->generate("azine_email_send_test_email", array('template' => AzineTemplateProvider::NEWSLETTER_TEMPLATE, 'email' => $to));
+        $container->set('request', Request::create($uri, "GET"));
+
+        $token = new UsernamePasswordToken("username", "password", "main");
+        $container->get('security.context')->setToken($token);
+
+ 		$controller = new AzineEmailTemplateController();
+ 		$controller->setContainer($container);
+ 		$response = $controller->sendTestEmailAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE, $to);
+
+ 		$this->assertEquals(302, $response->getStatusCode(), "Status-Code 302 expected.");
+ 		$uri = $router->generate("azine_email_template_index");
+ 		$this->assertContains("Redirecting to $uri", $response->getContent(), "Redirect expected.");
+
+		$findInFile = new FindInFileUtil();
+		$findInFile->excludeMode = false;
+		$findInFile->formats = array(".message");
+		$this->assertEquals(1, sizeof($findInFile->find($spoolDir, "This is just the default content-block.")));
+		$this->assertEquals(1, sizeof($findInFile->find($spoolDir, "Add some html content here")));
+}
 
  	public function testGetSpamIndexReportForSwiftMessage(){
 
@@ -488,7 +555,7 @@ Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von 
 		$requestMock->expects($this->once())->method('get')->will($this->returnValue($emailSource));
 
 		$containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-		$containerMock->expects($this->exactly(1))->method("get")->will($this->returnValueMap(array(
+		$containerMock->expects($this->once())->method("get")->will($this->returnValueMap(array(
 				array('request', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestMock))));
 
 		$controller = new AzineEmailTemplateController();
