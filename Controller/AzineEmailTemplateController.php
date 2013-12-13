@@ -1,6 +1,8 @@
 <?php
 namespace Azine\EmailBundle\Controller;
 
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+
 use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -155,12 +157,29 @@ class AzineEmailTemplateController extends ContainerAware{
 	 * @return boolean
 	 */
 	private function userIsAllowedToSeeThisMail(SentEmail $mail){
-		$currentUser = $this->getUser();
+
 		$recipients = $mail->getRecipients();
 
 		// it is a public email
-		if($recipients == null)
+		if($recipients == null){
 			return true;
+		}
+
+		// get the current user
+		$currentUser = null;
+		if (!$this->container->has('security.context')) {
+			// @codeCoverageIgnoreStart
+			throw new \LogicException('The SecurityBundle is not registered in your application.');
+			// @codeCoverageIgnoreEnd
+
+		} else {
+			$token = $this->container->get('security.context')->getToken();
+
+			// check if the token is not null and the user in the token an object
+			if($token instanceof TokenInterface && is_object($token->getUser())){
+				$currentUser = $token->getUser();
+			}
+		}
 
 		// it is not a public email, and a user is logged in
 		if($currentUser != null){
@@ -254,30 +273,8 @@ class AzineEmailTemplateController extends ContainerAware{
 	}
 
 	/**
-	 * Get current user
-	 * @throws \LogicException
-	 * @return User|null
-	 */
-	protected function getUser()
-	{
-		if (!$this->container->has('security.context')) {
-			throw new \LogicException('The SecurityBundle is not registered in your application.');
-		}
-
-		if (null === $token = $this->container->get('security.context')->getToken()) {
-			return null;
-		}
-
-		if (!is_object($user = $token->getUser())) {
-			return null;
-		}
-
-		return $user;
-	}
-
-	/**
 	 * Send a test-mail for the template to the given email-address
-	 * @param strin $template
+	 * @param string $template templateId without ending => AzineEmailBundle::baseEmailLayout (without .txt.twig)
 	 * @param string $email
 	 * @return \Symfony\Component\HttpFoundation\RedirectResponse
 	 */
@@ -289,7 +286,8 @@ class AzineEmailTemplateController extends ContainerAware{
 
 		// send the mail
 		$message = \Swift_Message::newInstance();
-		$sent = $this->getAzineMailer()->sendSingleEmail($email, "Test Recipient", $emailVars['subject'], $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName']." (Test)", $message);
+		$mailer = $this->container->get("azine_email_template_twig_swift_mailer");
+		$sent = $mailer->sendSingleEmail($email, "Test Recipient", $emailVars['subject'], $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName']." (Test)", $message);
 
 		$spamReport = $this->getSpamIndexReportForSwiftMessage($message);
 		$spamInfo = "";
@@ -340,11 +338,13 @@ class AzineEmailTemplateController extends ContainerAware{
 	private function getSpamIndexReport($msgString, $report = 'long'){
 		// check if cURL is loaded/available
 		if (!function_exists('curl_init')){
+			// @codeCoverageIgnoreStart
 			return array(	"success" => false,
 							"curlHttpCode" => "-",
 							"curlError" => "-",
 							"message" => "No Spam-Check done. cURL module is not available.",
 					);
+			// @codeCoverageIgnoreEnd
 		}
 
 		$ch = curl_init("http://spamcheck.postmarkapp.com/filter");
@@ -373,13 +373,6 @@ class AzineEmailTemplateController extends ContainerAware{
 
 		return $result;
 
-	}
-
-	/**
-	 * @return AzineTwigSwiftMailer
-	 */
-	private function getAzineMailer(){
-		return $this->container->get("azine_email_template_twig_swift_mailer");
 	}
 
 	/**
