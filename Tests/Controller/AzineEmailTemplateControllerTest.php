@@ -449,11 +449,18 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
  	}
 
  	public function testSendTestEmailAction(){
+
         if (null !== static::$kernel) {
             static::$kernel->shutdown();
         }
 
-        static::$kernel = static::createKernel(array());
+        try {
+	        static::$kernel = static::createKernel(array());
+        } catch (\RuntimeException $ex){
+        	$this->markTestSkipped("There does not seem to be a full application available (e.g. running tests on travis.org). So this test is skipped.");
+        	return;
+        }
+
         static::$kernel->boot();
         $container = static::$kernel->getContainer();
 
