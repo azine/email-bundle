@@ -225,7 +225,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 		$mocks = $this->getMockSetup();
   		$mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
 		$mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
-		$mocks['router']->expects($this->exactly(6))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
+		$mocks['router']->expects($this->exactly(0))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
 		$azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
 
@@ -246,7 +246,9 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 		$attachments = array();
 		$emailLocale = null;
 
-		$azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
+		$sentCount = $azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
+
+		$this->assertEquals(1, $sentCount, "One email should have been sent.");
 	}
 
 	public function testSendConfirmationEmailMessage(){

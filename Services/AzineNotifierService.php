@@ -238,17 +238,16 @@ class AzineNotifierService implements NotifierServiceInterface {
 		// get all recipientIds with pending notifications in the database, that are due to be sent
 		$recipientIds = $this->getNotificationRecipientIds();
 
-		// get the template to be used to wrap arround the notifications.
-		$wrapperTemplate = $this->templateProvider->getTemplateFor(TemplateProviderInterface::NOTIFICATIONS_TYPE);
-
 		// get vars that are the same for all recipients of this notification-mail-batch
 		$params = $this->getVarsForNotificationsEmail();
+
+		$notificationsTemplate = $this->configParameter[AzineEmailExtension::TEMPLATES."_".AzineEmailExtension::NOTIFICATIONS_TEMPLATE];
 
 
 		foreach ($recipientIds as $recipientId){
 
 			// send the mail for this recipient
-			$failedAddress = $this->sendNotificationsFor($recipientId, $wrapperTemplate, $params);
+			$failedAddress = $this->sendNotificationsFor($recipientId, $notificationsTemplate, $params);
 
 			if($failedAddress != null){
 				$failedAddresses[] = $failedAddress;
@@ -325,9 +324,6 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 */
 	public function sendNewsletter(array &$failedAddresses){
 
-		// get the wrapper-template and its variables
-		$wrapperTemplate = $this->templateProvider->getTemplateFor(TemplateProviderInterface::NEWSLETTER_TYPE);
-
 		// params array for all recipients
 		$params = array();
 
@@ -340,8 +336,10 @@ class AzineNotifierService implements NotifierServiceInterface {
 		// get recipientIds for the newsletter
 		$recipientIds = $this->recipientProvider->getNewsletterRecipientIDs();
 
+		$newsletterTemplate = $this->configParameter[AzineEmailExtension::TEMPLATES."_".AzineEmailExtension::NEWSLETTER_TEMPLATE];
+
 		foreach ($recipientIds as $recipientId){
-			$failedAddress = $this->sendNewsletterFor($recipientId, $params, $wrapperTemplate);
+			$failedAddress = $this->sendNewsletterFor($recipientId, $params, $newsletterTemplate);
 
 			if($failedAddress != null){
 				$failedAddresses[] = $failedAddress;
@@ -583,12 +581,12 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @param string $goToUrl if this is supplied, a link "Go to message" will be added.
 	 */
 	public function addNotificationMessage($recipientId, $title, $content, $goToUrl = null){
-		$template = $this->templateProvider->getTemplateFor(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TYPE);
+		$contentItemTemplate = $this->configParameter[AzineEmailExtension::TEMPLATES."_".AzineEmailExtension::CONTENT_ITEM_TEMPLATE];
 		$templateVars = array();
 		if($goToUrl != null){
 			$templateVars['goToUrl'] = $goToUrl;
 		}
-		$this->addNotification($recipientId, $title, $content, $template, $this->templateProvider->addTemplateVariablesFor($template, $templateVars), Notification::IMPORTANCE_NORMAL, false);
+		$this->addNotification($recipientId, $title, $content, $contentItemTemplate, $this->templateProvider->addTemplateVariablesFor($contentItemTemplate, $templateVars), Notification::IMPORTANCE_NORMAL, false);
 	}
 
 

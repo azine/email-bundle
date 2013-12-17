@@ -8,6 +8,8 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 - send newsletters to the recipients which wish to recieve it.
 - view sent emails in a web-view in the browser, for the case the email isn't displayed well in the users email-client.
 
+You can easily use it with transactional email services like mailgun.com.
+
 [![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle)
 [![Total Downloads](https://poser.pugx.org/azine/email-bundle/downloads.png)](https://packagist.org/packages/azine/email-bundle)
 [![Latest Stable Version](https://poser.pugx.org/azine/email-bundle/v/stable.png)](https://packagist.org/packages/azine/email-bundle)
@@ -124,7 +126,19 @@ azine_email:
 
         # time of the day, when newsletters should be sent, 24h-format => e.g. 23:59
         send_time:            10:00
-        
+
+    # templates configuration
+    templates:
+
+        # wrapper template id (without ending) for the newsletter
+        newsletter:           AzineEmailBundle::newsletterEmailLayout
+
+        # wrapper template id (without ending) for notifications
+        notifications:        AzineEmailBundle::notificationsEmailLayout
+
+        # template id (without ending) for notification content items
+        content_item:         AzineEmailBundle:contentItem:message
+
     # the parameter to be used do identify campaigns in urls
     campaign_param_name:  pk_campaign # defaults work with piwik, but you can change them to work with adWords
 
@@ -292,7 +306,7 @@ azine_email_bundle:
 
 #### Implement WebViewServiceInterface
 The easiest way for you is to extend the `AzineWebViewService` and implement the three public functions
-- `public function getTemplatesForWebView()`
+- `public function getTemplatesForWebPreView()`
 - `public function getTestMailAccounts()`
 - `public function getDummyVarsFor($template, $locale)`
 and maybe the 
@@ -343,4 +357,27 @@ function wordwrap. It defaults to a line width of 75 chars.
 or
 {{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
 ```
+
+
+## Use transactional email services e.g.e mailgun.com
+To send and track your emails with a transactional email service  
+like mailgun.com, postmarkapp.com or madrill.com, you can set 
+the swiftmailer configuration to use their smpt server to send
+emails.
+
+```
+// app/config/config.yml (or imported from your parameters.yml.dist)
+swiftmailer:
+    host:           "smtp.mailgun.org"
+    username:       "postmaster@acme.com"
+    password:       "your-secret-mailgun.com-password"
+    transport:      "smtp"
+    port:           "587"
+    encryption:     "tls"
+```
+
+PS: make sure your application is allowed to connect to the other 
+smpt. This might be blocked on shared hosting accounts. => ask 
+your admin to un-block it.
+
 

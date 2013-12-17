@@ -8,18 +8,6 @@ namespace Azine\EmailBundle\Services;
  */
 interface TemplateProviderInterface {
 
-	const NEWSLETTER_TYPE = 'newsletter';
-	const NOTIFICATIONS_TYPE = 'notification';
-
-	/**
-	 * Get the twig template that should be used for the email.
-	 * The returned twig-template must contain the blocks "subject" "body_text" and "body_html"
-	 *
-	 * @param string $type the type of email to render. Either TemplateProviderInterface::NEWSLETTER_TYPE, TemplateProviderInterface::NOTIFICATIONS_TYPE or any type from your own TemplateProviderInterface implementation
-	 * @return string the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
-	 */
-	public function getTemplateFor($type);
-
 	/**
 	 * Add all styles and variables that are required to render the layout of the html-email-template
 	 *

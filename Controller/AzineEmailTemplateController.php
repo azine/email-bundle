@@ -27,7 +27,7 @@ use Azine\EmailBundle\Services\TemplateProviderInterface;
 /**
  * This controller provides the following actions:
  *
- * index: view a list of all your templates with the option to send a test mail with "dummy"-data to an email-address of your choice (see WebViewServiceInterface::getTemplatesForWebView() & WebViewServiceInterface::getTestMailAccounts) .
+ * index: view a list of all your templates with the option to send a test mail with "dummy"-data to an email-address of your choice (see WebViewServiceInterface::getTemplatesForWebPreView() & WebViewServiceInterface::getTestMailAccounts) .
  * webPreView: shows the selected html- or txt-email-template filled with the dummy-data you defined (in the WebViewServiceInterface::getDummyVarsFor() function).
  * webView: shows an email that has been sent (and stored as SentEmail-entity in the database)
  * sendTestMail: sends an email filled with the dummy-data you defined to the selected email-address.
@@ -42,7 +42,7 @@ class AzineEmailTemplateController extends ContainerAware{
 	 */
 	public function indexAction(){
 		$customEmail = $this->container->get('request')->get('customEmail', 'custom@email.com');
-		$templates = $this->container->get('azine_email_web_view_service')->getTemplatesForWebView();
+		$templates = $this->container->get('azine_email_web_view_service')->getTemplatesForWebPreView();
 		$emails = $this->container->get('azine_email_web_view_service')->getTestMailAccounts();
 
 		return $this->container->get('templating')->renderResponse("AzineEmailBundle:Webview:index.html.twig",

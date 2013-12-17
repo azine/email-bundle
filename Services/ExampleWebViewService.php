@@ -10,7 +10,7 @@ namespace Azine\EmailBundle\Services;
 class ExampleWebViewService extends AzineWebViewService
 {
 
-	public function getTemplatesForWebView(){
+	public function getTemplatesForWebPreView(){
 		$templates = array();
 
 		// add your own templates here like this:

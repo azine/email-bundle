@@ -140,19 +140,6 @@ class AzineTemplateProviderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(0, sizeof($campaignParams3));
 	}
 
-	public function testGetTemplateFor() {
-		$mocks = $this->getMockSetup();
-		$templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-
-		$this->assertEquals(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE, $templateProvider->getTemplateFor(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TYPE));
-		$this->assertEquals(AzineTemplateProvider::NEWSLETTER_TEMPLATE, $templateProvider->getTemplateFor(AzineTemplateProvider::NEWSLETTER_TYPE));
-		$this->assertEquals(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE, $templateProvider->getTemplateFor(AzineTemplateProvider::NOTIFICATIONS_TYPE));
-		$this->assertEquals(AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE, $templateProvider->getTemplateFor(AzineTemplateProvider::FOS_USER_PWD_RESETTING_TYPE));
-		$this->assertEquals(AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE, $templateProvider->getTemplateFor(AzineTemplateProvider::FOS_USER_REGISTRATION_TYPE));
-		$this->assertEquals(AzineTemplateProvider::BASE_TEMPLATE, $templateProvider->getTemplateFor("some undefined string"));
-
-	}
-
 	public function testIsFileAllowed(){
 		$mocks = $this->getMockSetup();
 		$templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
@@ -206,9 +193,9 @@ class AzineTemplateProviderTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertFalse($templateProvider->saveWebViewFor(AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE));
 		$this->assertFalse($templateProvider->saveWebViewFor(AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE));
+		$this->assertFalse($templateProvider->saveWebViewFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE));
 		$this->assertTrue($templateProvider->saveWebViewFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE));
-		$this->assertTrue($templateProvider->saveWebViewFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE));
-		$this->assertTrue($templateProvider->saveWebViewFor("some other string"));
+		$this->assertFalse($templateProvider->saveWebViewFor("some other string"));
 
 	}
 

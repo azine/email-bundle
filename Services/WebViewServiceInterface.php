@@ -12,7 +12,7 @@ interface WebViewServiceInterface {
 	 * Get a list of templates that you would like to be able to preview and send test-mails for from the AzineEmailBundle:WebView:indexAction
 	 * @return array of associative arrays of strings
 	 */
-	public function getTemplatesForWebView();
+	public function getTemplatesForWebPreView();
 
 	/**
 	 * Get a list of email-addresses that you would like to be able to send test-mails with dummy-data from the AzineEmailBundle:WebView:indexAction

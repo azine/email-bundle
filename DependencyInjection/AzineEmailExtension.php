@@ -31,7 +31,10 @@ class AzineEmailExtension extends Extension
 	const CAMPAIGN_PARAM_NAME =			"campaign_param_name";
 	const CAMPAIGN_KEYWORD_PARAM_NAME =	"campaign_keyword_param_name";
 	const PREFIX =						"azine_email_";
-
+	const TEMPLATES =					"templates";
+	const NEWSLETTER_TEMPLATE =			"newsletter";
+	const NOTIFICATIONS_TEMPLATE =		"notifications";
+	const CONTENT_ITEM_TEMPLATE =		"content_item";
 
 
 	/**
@@ -58,8 +61,13 @@ class AzineEmailExtension extends Extension
         $container->setParameter($prefix.self::ALLOWED_IMAGES_FOLDERS,		$allowedFolders);
         $container->setAlias	($prefix.self::NOTIFIER_SERVICE,			$config[self::NOTIFIER_SERVICE]);
 
-        $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_INTERVAL,		$config[self::NEWSLETTER][self::NEWSLETTER_INTERVAL]);
-        $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_SEND_TIME,		$config[self::NEWSLETTER][self::NEWSLETTER_SEND_TIME]);
+        $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_INTERVAL,	$config[self::NEWSLETTER][self::NEWSLETTER_INTERVAL]);
+        $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_SEND_TIME,	$config[self::NEWSLETTER][self::NEWSLETTER_SEND_TIME]);
+
+        $container->setParameter($prefix.self::TEMPLATES."_".self::NEWSLETTER_TEMPLATE,	$config[self::TEMPLATES][self::NEWSLETTER_TEMPLATE]);
+        $container->setParameter($prefix.self::TEMPLATES."_".self::NOTIFICATIONS_TEMPLATE,	$config[self::TEMPLATES][self::NOTIFICATIONS_TEMPLATE]);
+        $container->setParameter($prefix.self::TEMPLATES."_".self::CONTENT_ITEM_TEMPLATE,	$config[self::TEMPLATES][self::CONTENT_ITEM_TEMPLATE]);
+
 
         $container->setParameter($prefix.self::CAMPAIGN_PARAM_NAME,				$config[self::CAMPAIGN_PARAM_NAME]);
         $container->setParameter($prefix.self::CAMPAIGN_KEYWORD_PARAM_NAME,		$config[self::CAMPAIGN_KEYWORD_PARAM_NAME]);

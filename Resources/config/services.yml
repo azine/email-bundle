@@ -29,6 +29,9 @@ services:
           parameters:
             newsletter_interval : "%azine_email_newsletter_interval%"
             newsletter_send_time: "%azine_email_newsletter_send_time%"
+            templates_newsletter:     "%azine_email_templates_newsletter%"
+            templates_notifications:  "%azine_email_templates_notifications%"
+            templates_content_item:   "%azine_email_templates_content_item%"
             
     azine_email.example.web_view_service:
         class: Azine\EmailBundle\Services\AzineWebViewService

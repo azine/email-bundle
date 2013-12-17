@@ -50,8 +50,11 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 			'translator' => $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock(),
 			'parameters' => array(
 								AzineEmailExtension::NEWSLETTER."_".AzineEmailExtension::NEWSLETTER_INTERVAL => '7',
-								AzineEmailExtension::NEWSLETTER."_".AzineEmailExtension::NEWSLETTER_SEND_TIME => '09:00'
-								),
+								AzineEmailExtension::NEWSLETTER."_".AzineEmailExtension::NEWSLETTER_SEND_TIME => '09:00',
+						        AzineEmailExtension::TEMPLATES."_".AzineEmailExtension::NEWSLETTER_TEMPLATE =>	AzineTemplateProvider::NEWSLETTER_TEMPLATE,
+						        AzineEmailExtension::TEMPLATES."_".AzineEmailExtension::NOTIFICATIONS_TEMPLATE =>	AzineTemplateProvider::NOTIFICATIONS_TEMPLATE,
+						        AzineEmailExtension::TEMPLATES."_".AzineEmailExtension::CONTENT_ITEM_TEMPLATE =>	AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE
+									),
 				);
 		return $mocks;
 	}
@@ -74,7 +77,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 		$templateVars = array('logo_png' => '/some/directory/logo.png', 'mainColor' => 'green');
  		$mocks = $this->getMockSetup();
  		$mocks['entityManager']->expects($this->once())->method('persist');
- 		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TYPE)->will($this->returnValue(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE));
  		$mocks['templateProvider']->expects($this->once())->method("addTemplateVariablesFor")->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE, array('goToUrl' => $goToUrl))->will($this->returnValue(array_merge(array('goToUrl' => $goToUrl), $templateVars)));
  		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
 
@@ -83,7 +85,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 
  		$mocks = $this->getMockSetup();
  		$mocks['entityManager']->expects($this->once())->method('persist');
- 		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TYPE)->will($this->returnValue(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE));
  		$mocks['templateProvider']->expects($this->once())->method("addTemplateVariablesFor")->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE, array())->will($this->returnValue($templateVars));
  		$notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['entityManager'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
 
@@ -95,7 +96,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		$recipientIds = array(11,12,13,14);
  		$mocks = $this->getMockSetup();
  		$this->mockRecipients($mocks['recipientProvider'], $recipientIds);
- 		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(TemplateProviderInterface::NEWSLETTER_TYPE)->will($this->returnValue(AzineTemplateProvider::NEWSLETTER_TEMPLATE));
  		$mocks['recipientProvider']->expects($this->once())->method("getNewsletterRecipientIDs")->will($this->returnValue($recipientIds));
  		$mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method("sendSingleEmail")->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
 
@@ -122,7 +122,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
  		$recipientIds = array(11,12,13,14);
  		$mocks = $this->getMockSetup();
  		$this->mockRecipients($mocks['recipientProvider'], $recipientIds);
- 		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(TemplateProviderInterface::NEWSLETTER_TYPE)->will($this->returnValue(AzineTemplateProvider::NEWSLETTER_TEMPLATE));
  		$mocks['recipientProvider']->expects($this->once())->method("getNewsletterRecipientIDs")->will($this->returnValue($recipientIds));
 
  		$mocks['mailer']->expects($this->never())->method("sendSingleEmail");
@@ -140,7 +139,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 		$recipientIds = array(11,12,13,14);
 		$mocks = $this->getMockSetup();
 		$this->mockRecipients($mocks['recipientProvider'], $recipientIds);
-		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(TemplateProviderInterface::NOTIFICATIONS_TYPE)->will($this->returnValue(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE));
 		$mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method("sendSingleEmail")->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
 
 		$notification = new Notification();
@@ -197,7 +195,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 		$recipientIds = array(11,12,13,14);
 		$mocks = $this->getMockSetup();
 		$this->mockRecipients($mocks['recipientProvider'], $recipientIds);
-		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(TemplateProviderInterface::NOTIFICATIONS_TYPE)->will($this->returnValue(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE));
 		$mocks['mailer']->expects($this->never())->method("sendSingleEmail")->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
 
 		$notificationsQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
@@ -245,7 +242,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 		$recipientIds = array(11,12,13,14);
 		$mocks = $this->getMockSetup();
 		$this->mockRecipients($mocks['recipientProvider'], $recipientIds);
-		$mocks['templateProvider']->expects($this->once())->method("getTemplateFor")->with(TemplateProviderInterface::NOTIFICATIONS_TYPE)->will($this->returnValue(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE));
 		$mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method("sendSingleEmail")->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
 
 		$notification = new Notification();

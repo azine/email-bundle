@@ -18,47 +18,9 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	const BASE_TEMPLATE 					= 'AzineEmailBundle::baseEmailLayout';
 	const NEWSLETTER_TEMPLATE 				= 'AzineEmailBundle::newsletterEmailLayout';
 	const NOTIFICATIONS_TEMPLATE			= 'AzineEmailBundle::notificationsEmailLayout';
-
-	const CONTENT_ITEM_MESSAGE_TYPE			= 'message';
 	const CONTENT_ITEM_MESSAGE_TEMPLATE		= 'AzineEmailBundle:contentItem:message';
-
-	const FOS_USER_PWD_RESETTING_TYPE		= "password-reset-email";
 	const FOS_USER_PWD_RESETTING_TEMPLATE	= "FOSUserBundle:Resetting:email";
-
-	const FOS_USER_REGISTRATION_TYPE		= "registration-confirmation-email";
 	const FOS_USER_REGISTRATION_TEMPLATE	= "FOSUserBundle:Registration:email";
-
-
-	/**
-	 * Override this function for your template(s)!
-	 *
-	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::getTemplateFor()
-	 */
-	public function getTemplateFor($type){
-		// this implementation uses the same template for all types.
-		// override this function with a more sophiticated logic
-		// if you need different templates for different email-types
-		if($type == self::CONTENT_ITEM_MESSAGE_TYPE){
-			return self::CONTENT_ITEM_MESSAGE_TEMPLATE;
-
-		} else if($type == self::NEWSLETTER_TYPE){
-			return self::NEWSLETTER_TEMPLATE;
-
-		} else if($type == self::NOTIFICATIONS_TYPE){
-			return self::NOTIFICATIONS_TEMPLATE;
-
-		} else if($type == self::FOS_USER_PWD_RESETTING_TYPE){
-			return self::FOS_USER_PWD_RESETTING_TEMPLATE;
-
-		} else if($type == self::FOS_USER_REGISTRATION_TYPE){
-			return self::FOS_USER_REGISTRATION_TEMPLATE;
-
-		}
-
-		// use the default template for all other types
-		return self::BASE_TEMPLATE;
-	}
 
 	/**
 	 * Override this function for your template(s)!
@@ -78,11 +40,11 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		$newVars = array();
 
 		// add template-specific stuff.
-		if($template == $this->getTemplateFor(self::NOTIFICATIONS_TYPE)){
+		if($template == self::NOTIFICATIONS_TEMPLATE){
 			$newVars['subject'] = "Your notifications sent by AzineEmailBundle";
 		}
 
-		if($template == $this->getTemplateFor(self::NEWSLETTER_TYPE)){
+		if($template == self::NEWSLETTER_TEMPLATE){
 			$newVars['subject'] = "Newsletter sent by AzineEmailBundle";
 		}
 
@@ -221,10 +183,10 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::saveWebViewFor()
 	 */
 	public function saveWebViewFor($template){
-		if(array_search($template, $this->getTemplatesToExcludeFromWebView()) !== false ){
-			return false;
+		if(array_search($template, $this->getTemplatesToStoreForWebView()) !== false ){
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -232,11 +194,10 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	 *
 	 * @return array of string => the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
 	 */
-	protected function getTemplatesToExcludeFromWebView(){
-		$exlude = array();
-		$exlude[] = self::FOS_USER_PWD_RESETTING_TEMPLATE;
-		$exlude[] = self::FOS_USER_REGISTRATION_TEMPLATE;
-		return $exlude;
+	protected function getTemplatesToStoreForWebView(){
+		$include = array();
+		$include[] = self::NEWSLETTER_TEMPLATE;
+		return $include;
 	}
 
 	/**

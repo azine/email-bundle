@@ -61,7 +61,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 		$requestMock->expects($this->once())->method('get')->will($this->returnValue("a-custom@email.com"));
 
 		$webViewServiceMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineWebViewService")->disableOriginalConstructor()->getMock();
-		$webViewServiceMock->expects($this->once())->method("getTemplatesForWebView")->will($this->returnValue(array(
+		$webViewServiceMock->expects($this->once())->method("getTemplatesForWebPreView")->will($this->returnValue(array(
 				array(	'url' 			=> "azine_email_web_preview/newsletter",
 						'description'	=> "Newsletter Template",
 						'formats' 		=> array('html','txt'),

@@ -16,7 +16,7 @@ class AzineWebViewServiceTest extends \PHPUnit_Framework_TestCase {
  		$routerMock = $this->getMockRouter();
   		$webViewService = new AzineWebViewService($routerMock);
 
-  		$this->assertTrue(is_array($webViewService->getTemplatesForWebView()));
+  		$this->assertTrue(is_array($webViewService->getTemplatesForWebPreView()));
  	}
 
 	public function testGetTestMailAccounts(){

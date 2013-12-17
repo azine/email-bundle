@@ -2,6 +2,10 @@
 
 namespace Azine\EmailBundle\DependencyInjection;
 
+use Azine\EmailBundle\Services\AzineTemplateProvider;
+
+use Azine\EmailBundle\Services\AzineNotifierService;
+
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -40,6 +44,15 @@ class Configuration implements ConfigurationInterface
                     ->children()
                        	->scalarNode(AzineEmailExtension::NEWSLETTER_INTERVAL)			->defaultValue('14')		->info("number of days between newsletters")->end()
 	        			->scalarNode(AzineEmailExtension::NEWSLETTER_SEND_TIME)			->defaultValue('10:00')		->info("time of the day, when newsletters should be sent, 24h-format => e.g. 23:59")->end()
+	        		->end()
+	        	->end()
+
+	        	->arrayNode(AzineEmailExtension::TEMPLATES)->info("templates configuration")
+	        		->addDefaultsIfNotSet()
+                    ->children()
+                       	->scalarNode(AzineEmailExtension::NEWSLETTER_TEMPLATE)		->defaultValue(AzineTemplateProvider::NEWSLETTER_TEMPLATE)				->info("wrapper template id (without ending) for the newsletter")->end()
+	        			->scalarNode(AzineEmailExtension::NOTIFICATIONS_TEMPLATE)	->defaultValue(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE)			->info("wrapper template id (without ending) for notifications")->end()
+	        			->scalarNode(AzineEmailExtension::CONTENT_ITEM_TEMPLATE)	->defaultValue(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE)	->info("template id (without ending) for notification content items")->end()
 	        		->end()
 	        	->end()
 
