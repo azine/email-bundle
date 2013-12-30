@@ -348,6 +348,31 @@ once per hour.
 Using the `date` parameter for the command, you can define the duration during which the
 mailer should attempt to send those mails, before they are deleted by this command.
 
+## Cron-Job examples
+Here are some examples how to configure your cronjobs to send the emails and cleanup periodically.
+
+```
+# Send a newsletter every friday:
+0 	10 	* 	* 	5 	/usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console emails:sendNewsletter -e prod >>/path/to/your/application/app/logs/cron.log 2>&1 
+
+# Send a newsletter every other friday:
+0 	10 	* 	* 	5 	[ `expr \`date +\%s\` / 86400 \% 2` -eq 0 ] && /usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console emails:sendNewsletter -e prod >>/path/to/your/application/app/logs/cron.log 2>&1 
+
+# Send notifications every minute:
+* 	* 	* 	* 	* 	/usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console emails:sendNotifications -e prod >>/path/to/your/application/app/logs/cron.log 2>&1 
+
+# Delete old web-view-emails every night:
+0 	3 	1 	* 	* 	/usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console emails:remove-old-web-view-emails -e prod >>/path/to/your/application/app/logs/cron.log 2>&1 
+
+# Try to re-send failed messages every night:
+1 	4 	* 	* 	* 	/usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console emails:clear-and-log-failures -e prod >>/path/to/your/application/app/logs/cron.log 2>&1 
+
+# If you are spooling emails, then call the send command of the swiftmailer every minute:
+* 	* 	* 	* 	* 	/usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console swiftmailer:spool:send --env=prod >>/path/to/your/application/app/logs/cron.log 2>&1 
+
+```
+
+
 ## TWIG-Filter textWrap
 This bundle also adds a twig filter that allows you to wrap text using the php 
 function wordwrap. It defaults to a line width of 75 chars.
@@ -375,6 +400,12 @@ swiftmailer:
     port:           "587"
     encryption:     "tls"
 ```
+
+If you are sending mails with mailgun on a free account and would like
+to be able to check the logs etc. for more than only two days, also check
+out the AzineMailgunWebhooksBundle. Mailgun deletes logs etc. from free
+accounts after aprox. two days. With this bundle you can store the events
+in your own database and keep them as long as you like. 
 
 PS: make sure your application is allowed to connect to the other 
 smpt. This might be blocked on shared hosting accounts. => ask 
