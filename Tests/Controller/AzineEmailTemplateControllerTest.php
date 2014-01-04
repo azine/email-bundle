@@ -468,6 +468,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 
 		// delete all spooled mails from other tests
         array_map('unlink', glob($spoolDir."/*.messag*"));
+        array_map('unlink', glob($spoolDir."/.*.messag*"));
 
         $context = new RequestContext('/app.php');
         $context->setParameter('_locale', 'en');
