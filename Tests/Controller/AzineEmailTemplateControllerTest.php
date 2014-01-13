@@ -478,9 +478,14 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
         $uri = $router->generate("azine_email_send_test_email", array('template' => AzineTemplateProvider::NEWSLETTER_TEMPLATE, 'email' => $to));
         $container->set('request', Request::create($uri, "GET"));
 
+        // "login" a user
         $token = new UsernamePasswordToken("username", "password", "main");
+        $recipientProvider = $container->get('azine_email_recipient_provider');
+        $users = $recipientProvider->getNewsletterRecipientIDs();
+		$token->setUser($recipientProvider->getRecipient($users[0]));
         $container->get('security.context')->setToken($token);
 
+        // instantiate the controller and try to send the email
  		$controller = new AzineEmailTemplateController();
  		$controller->setContainer($container);
  		$response = $controller->sendTestEmailAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE, $to);

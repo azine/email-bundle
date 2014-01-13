@@ -30,6 +30,16 @@ interface TemplateProviderInterface {
 	public function addTemplateSnippetsWithImagesFor($template, array $vars, $emailLocale, $forWebView = false);
 
 	/**
+	 * Just before sending the message, extra custom headers can be added to the message.
+	 *
+	 * @param string $template
+	 * @param \Swift_Message $message
+	 * @param array $params
+	 * @return array of \Swift_Mime_Header
+	 */
+	public function addCustomHeaders($template, \Swift_Message $message, array $params);
+
+	/**
 	 * Get the absolute filesystem path to the folder where  the template-images are stored.
 	 */
 	public function getTemplateImageDir();

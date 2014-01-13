@@ -179,6 +179,16 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	}
 
 	/**
+	 * Override this function if you want to add extra headers to the messages sent.
+	 * (non-PHPdoc)
+	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::addCustomHeaders()
+	 */
+	public function addCustomHeaders($template, \Swift_Message $message, array $params) {
+		//$headerSet = $message->getHeaders();
+		//$headerSet->addTextHeader($name, $vale);
+	}
+
+	/**
 	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.TemplateProviderInterface::saveWebViewFor()
 	 */

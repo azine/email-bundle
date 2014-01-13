@@ -64,6 +64,20 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
 		return parent::getSnippetArrayFor($template, $vars, $emailLocale);;
 	}
 
+
+	/**
+	 * @param string $template
+	 * @param \Swift_Message $message
+	 * @param array $params
+	 */
+	public function addCustomHeaders($template, \Swift_Message $message, array $params) {
+		// see http://documentation.mailgun.com/user_manual.html#attaching-data-to-messages
+		// for an idea what could be added here.
+		//$headerSet = $message->getHeaders();
+		//$headerSet->addTextHeader($name, $value);
+	}
+
+
 	/**
 	 * Override this function to define the campaign-parameters you like
 	 * If you use GoogleAnalytics, look at this page https://support.google.com/analytics/answer/1033867

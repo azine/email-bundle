@@ -214,6 +214,9 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 			$message->setBcc($bcc, $bccName);
 		}
 
+		// add custom headers
+		$customHeaders = $this->templateProvider->addCustomHeaders($templateBaseId, $message, $params);
+
 		// send the message
 		$messagesSent = $this->mailer->send($message, $failedRecipients);
 
