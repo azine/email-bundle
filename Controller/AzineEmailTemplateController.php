@@ -296,6 +296,7 @@ class AzineEmailTemplateController extends ContainerAware{
 				$spamScore = $spamReport['score'];
 				$spamInfo = "SpamScore: $spamScore! \n".$spamReport['report'];
 			} else {
+				$spamScore = 10;
 				$spamInfo = "Getting the spam-info failed.
 							 HttpCode: ".$spamReport['curlHttpCode']."
 							 SpamReportMsg: ".$spamReport['message']."
@@ -367,8 +368,12 @@ class AzineEmailTemplateController extends ContainerAware{
 			$result['message'] = "-";
 		}
 
-		if(!$result['success'] && strpos($msgString, "Content-Transfer-Encoding: base64") !== false){
+		if(!array_key_exists('success', $result)){
+			$result['message'] = "Something went wrong! Here's the content of the curl-reply:\n\n".nl2br(print_r($result, true));
+
+		} else if(!$result['success'] && strpos($msgString, "Content-Transfer-Encoding: base64") !== false){
 			$result['message'] = $result['message']."\n\nRemoving the base64-Encoded Mime-Parts might help.";
+
 		}
 
 		return $result;
@@ -389,7 +394,7 @@ class AzineEmailTemplateController extends ContainerAware{
 			} else {
 				$spamInfo = "Getting the spam-info failed.
 				HttpCode: ".$spamReport['curlHttpCode']."
-				cURL-Error: ".$result['curlError']."
+				cURL-Error: ".$spamReport['curlError']."
 				SpamReportMsg: ".$spamReport['message'];
 
 			}
