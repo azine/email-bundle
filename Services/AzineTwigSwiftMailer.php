@@ -2,6 +2,8 @@
 namespace Azine\EmailBundle\Services;
 
 
+use Symfony\Component\Routing\RequestContext;
+
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 use Doctrine\ORM\EntityManager;
@@ -45,6 +47,12 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 	protected $entityManager;
 
 	/**
+	 *
+	 * @var RequestContext
+	 */
+	protected $routerContext;
+
+	/**
 	 * @var email to use for "no-reply"
 	 */
 	protected $noReplyEmail;
@@ -85,7 +93,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 		$this->entityManager = $entityManager;
 		$this->noReplyEmail = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS];
 		$this->noReplyName = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_NAME];
-		$this->currentHost = $router->getContext()->getHost();
+		$this->routerContext = $router->getContext();
+		$this->currentHost = $this->routerContext->getHost();
 		$this->encodedItemIdPattern = "/^cid:.*@/";
 	}
 
@@ -137,6 +146,11 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 		// change the locale for the email-recipients
 		if($emailLocale != null){
 			$currentUserLocale = $this->translator->getLocale();
+
+			// change the router-context locale
+			$this->routerContext->setParameter("_locale", $emailLocale);
+
+			// change the translator locale
 			$this->translator->setLocale($emailLocale);
 		} else {
 			$emailLocale = $this->translator->getLocale();
@@ -168,6 +182,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
 		// change the locale back to the users locale
 		if(isset($currentUserLocale) && $currentUserLocale != null){
+			$this->routerContext->setParameter("_locale", $currentUserLocale);
 			$this->translator->setLocale($currentUserLocale);
 		}
 
