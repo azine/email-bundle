@@ -296,12 +296,14 @@ class AzineEmailTemplateController extends ContainerAware{
 				$spamScore = $spamReport['score'];
 				$spamInfo = "SpamScore: $spamScore! \n".$spamReport['report'];
 			} else {
+				//@codeCoverageIgnoreStart
+				// this only happens if the spam-check-server has a problem / is not responding
 				$spamScore = 10;
 				$spamInfo = "Getting the spam-info failed.
 							 HttpCode: ".$spamReport['curlHttpCode']."
 							 SpamReportMsg: ".$spamReport['message']."
 							 cURL-Error: ".$spamReport['curlError'];
-
+				//@codeCoverageIgnoreEnd
 			}
 
 			if($spamScore <= 2){
@@ -311,15 +313,20 @@ class AzineEmailTemplateController extends ContainerAware{
 			} else {
 				$this->container->get('session')->getFlashBag()->add('error', $spamInfo);
 			}
+
 		}
 
 		// inform about sent/failed emails
 		if($sent){
 			$msg = $this->container->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
 			$this->container->get('session')->getFlashBag()->add('info', $msg);
+
+			//@codeCoverageIgnoreStart
 		} else {
+			// this only happens if the mail-server has a problem
 			$msg = $this->container->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
 			$this->container->get('session')->getFlashBag()->add('warn', $msg);
+			//@codeCoverageIgnoreStart
 		}
 
 
@@ -391,12 +398,14 @@ class AzineEmailTemplateController extends ContainerAware{
 			if($spamReport['curlHttpCode'] == 200 && $spamReport['success']){
 				$spamScore = $spamReport['score'];
 				$spamInfo = "SpamScore: $spamScore! \n".$spamReport['report'];
+				//@codeCoverageIgnoreStart
+				// this only happens if the spam-check-server has a problem / is not responding
 			} else {
 				$spamInfo = "Getting the spam-info failed.
 				HttpCode: ".$spamReport['curlHttpCode']."
 				cURL-Error: ".$spamReport['curlError']."
 				SpamReportMsg: ".$spamReport['message'];
-
+				//@codeCoverageIgnoreEnd
 			}
 		}
 

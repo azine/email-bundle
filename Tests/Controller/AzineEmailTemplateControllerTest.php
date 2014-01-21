@@ -575,7 +575,7 @@ Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von 
 		$controller->setContainer($containerMock);
 		$jsonResponse = $controller->checkSpamScoreOfSentEmailAction();
 
-		$this->assertNotContains("Getting the spam-info failed.", $jsonResponse->getContent());
+		$this->assertNotContains("Getting the spam-info failed.", $jsonResponse->getContent(), "Spamcheck returned:\n".$jsonResponse->getContent());
 		$this->assertContains("SpamScore", $jsonResponse->getContent());
 
 
