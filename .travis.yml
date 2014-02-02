@@ -15,7 +15,7 @@ env:
 before_script: 
     - composer update --dev --prefer-source
     - composer require symfony/framework-bundle:${SYMFONY_VERSION} --prefer-source
-    - composer install
+    - composer install --dev --prefer-source 
 
 script: 
   - phpunit --coverage-text --coverage-clover=coverage.clover /home/travis/build/azine/email-bundle/Tests/
