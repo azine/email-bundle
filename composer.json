@@ -20,7 +20,7 @@
         "swiftmailer/swiftmailer": ">=2.1",
         "doctrine/orm": ">=2.0",
         "monolog/monolog": ">=1.6",
-        "friendsofsymfony/user-bundle": "2.0",
+        "friendsofsymfony/user-bundle": "2.0.x-dev",
         "twig/extensions": "1.0.*"        
     },
     "autoload": {
