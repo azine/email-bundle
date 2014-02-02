@@ -4,5 +4,6 @@ imports:
     - php   
     
 tools:
-    external_code_coverage: enabled
+    external_code_coverage:
+        timeout: 1200 # Timeout in seconds.
     
