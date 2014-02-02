@@ -25,11 +25,19 @@ class AzineEmailTwigExtension extends \Twig_Extension
 									" ",
 									"&",
 									"\\",
+									"<",
+									">",
+									'"',
+									"	",
 								),
 							array(	"%0D%0A",
 									"%20",
 									"%26",
 									"%5C",
+									"%3D",
+									"%3E",
+									"%23",
+									"%09",
 								), $text);
 		return $text;
 	}
