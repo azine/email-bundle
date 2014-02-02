@@ -16,11 +16,11 @@
         "symfony/framework-bundle": ">=2.1",
         "symfony/console": ">=2.1",
         "symfony/finder": ">=2.1",
-        "symfony/twig-bundle": ">=2.2",
+        "symfony/twig-bundle": "*",
         "swiftmailer/swiftmailer": ">=2.1",
-        "doctrine/orm": ">=2.3",
+        "doctrine/orm": ">=2.0",
         "monolog/monolog": ">=1.6",
-        "friendsofsymfony/user-bundle": "2.0.x-dev",
+        "friendsofsymfony/user-bundle": "2.0",
         "twig/extensions": "1.0.*"        
     },
     "autoload": {
