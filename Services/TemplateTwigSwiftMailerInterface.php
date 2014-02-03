@@ -35,7 +35,7 @@ interface TemplateTwigSwiftMailerInterface {
 
 	/**
 	 * Convenience function to send one email, no attachments, x recipient
-	 * @param string or array of strings $to => email-addresses
+	 * @param string|array of strings $to => email-addresses
 	 * @param string $toName will be ignored it $to is an array
 	 * @param string $subject
 	 * @param array $params

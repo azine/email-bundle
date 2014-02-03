@@ -290,7 +290,6 @@ class AzineEmailTemplateController extends ContainerAware{
 		$sent = $mailer->sendSingleEmail($email, "Test Recipient", $emailVars['subject'], $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName']." (Test)", $message);
 
 		$spamReport = $this->getSpamIndexReportForSwiftMessage($message);
-		$spamInfo = "";
 		if(is_array($spamReport)){
 			if($spamReport['curlHttpCode'] == 200 && $spamReport['success']){
 				$spamScore = $spamReport['score'];
