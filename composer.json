@@ -17,7 +17,7 @@
         "symfony/console": ">=2.1",
         "symfony/finder": ">=2.1",
         "symfony/twig-bundle": "*",
-        "symfony/http-foundation": ">=2.1.*"
+        "symfony/http-foundation": ">=2.1.*",
         "swiftmailer/swiftmailer": ">=2.1",
         "doctrine/orm": ">=2.0",
         "monolog/monolog": ">=1.6",
