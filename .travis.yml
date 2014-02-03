@@ -21,6 +21,10 @@ script:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
+matrix:
+  allow_failures:
+    - SYMFONY_VERSION=2.2.*
+
 notifications:
   email: travis@azine-it.ch
 
