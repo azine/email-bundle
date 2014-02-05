@@ -39,9 +39,10 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase{
 		$command = $application->find('emails:clear-and-log-failures');
 		$message = "sfdsf";
 		$failedRecipients = array('failed@email.com');
-		$command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->once()));
+		$count = 2;
 
-		$this->createFakeFailedMessageFiles();
+		$this->createFakeFailedMessageFiles($count);
+		$command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->exactly($count)));
 
 		$tester = new CommandTester($command);
 		$tester->execute(array(''));
@@ -57,9 +58,10 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase{
 		$command = $application->find('emails:clear-and-log-failures');
 		$message = "sfdsf";
 		$failedRecipients = array('failed@email.com');
-		$command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->once()));
+		$count = 2;
+		$this->createFakeFailedMessageFiles($count);
 
-		$this->createFakeFailedMessageFiles();
+		$command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->exactly($count)));
 
 		$tester = new CommandTester($command);
 		$tester->execute(array('date' => 'now'));
@@ -152,21 +154,21 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase{
 		return $containerMock;
 	}
 
-	private function createFakeFailedMessageFiles(){
-		$random = md5(date('now'));
-
-		$filename = __DIR__."/mock.spool.path/$random.sending";
-		$msg = new \Swift_Message();
-		$msg->setTo("test-recipient@test.com");
-		$msg->setBody("random file $random bla bla.");
-		$msg->setSubject("subject blabbla");
-		$msg->setSender("test@test.com");
-		$ser = serialize($msg);
-		$filehandle = fopen($filename, "w");
-		fwrite($filehandle, $ser);
-		fclose($filehandle);
-
-		return $msg;
+	private function createFakeFailedMessageFiles($count = 1){
+		while ($count > 0) {
+			$random = md5(date('now')).$count.rand(0, 10000000);
+			$filename = __DIR__."/mock.spool.path/$random.sending";
+			$msg = new \Swift_Message();
+			$msg->setTo("test-recipient@test.com");
+			$msg->setBody("random file $random bla bla.");
+			$msg->setSubject("subject blabbla");
+			$msg->setSender("test@test.com");
+			$ser = serialize($msg);
+			$filehandle = fopen($filename, "w");
+			fwrite($filehandle, $ser);
+			fclose($filehandle);
+			$count--;
+		}
 	}
 
 	public function tearDown(){
