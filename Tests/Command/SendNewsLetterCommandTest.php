@@ -2,9 +2,7 @@
 namespace Azine\EmailBundle\Tests\Command;
 
 use Azine\EmailBundle\Command\SendNewsLetterCommand;
-
 use Symfony\Component\Console\Tester\CommandTester;
-
 use Symfony\Component\Console\Application;
 
 /**

@@ -1,8 +1,6 @@
 <?php
 namespace Azine\EmailBundle\Services;
 
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-
 /**
  * This Service provides the templates and template-variables to be used for emails
  * This class is only an example. Implement your own!

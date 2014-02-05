@@ -2,8 +2,6 @@
 
 namespace Azine\EmailBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * SentEmail
  */

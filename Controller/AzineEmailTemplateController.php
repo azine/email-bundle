@@ -2,21 +2,11 @@
 namespace Azine\EmailBundle\Controller;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-
 use Azine\EmailBundle\Services\AzineEmailTwigExtension;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
-
-use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
-
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
-
 use Symfony\Component\HttpFoundation\RedirectResponse;
-
-use Azine\EmailBundle\Services\ExampleTemplateProvider;
-use FOS\UserBundle\Entity\User;
 use Azine\EmailBundle\Entity\SentEmail;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -54,6 +44,7 @@ class AzineEmailTemplateController extends ContainerAware{
 
 	/**
 	 * Show a web-preview-version of an email-template, filled with dummy-content
+	 * @param string $format
 	 */
 	public function webPreViewAction($template, $format = null){
 		if(!$format){
@@ -100,6 +91,7 @@ class AzineEmailTemplateController extends ContainerAware{
 
 	/**
 	 * Show a web-version of an email that has been sent to recipients and has been stored in the database.
+	 * @param string $token
 	 */
 	public function webViewAction($token){
 		$emailVars = array();
@@ -231,6 +223,7 @@ class AzineEmailTemplateController extends ContainerAware{
 	/**
 	 * Serve the image from the templates-folder
 	 * @param string $filename
+	 * @param string $folderKey
 	 * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
 	 */
 	public function serveImageAction($folderKey, $filename){

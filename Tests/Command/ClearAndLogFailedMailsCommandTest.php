@@ -2,17 +2,11 @@
 namespace Azine\EmailBundle\Tests\Command;
 
 use Symfony\Component\Finder\Finder;
-
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
-
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 use Azine\EmailBundle\Command\ClearAndLogFailedMailsCommand;
-
 use Symfony\Component\Console\Tester\CommandTester;
-
 use Symfony\Component\Console\Application;
 
 /**
@@ -116,6 +110,10 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase{
 		$this->assertContains("Could not find file spool path. Is file-spooling configured in your config.yml for this environment?", $display);
 	}
 
+	/**
+	 * @param string $message
+	 * @param string[] $failedRecipients
+	 */
 	private function getMockSetup($message, $failedRecipients, $noSpoolPath = false, $noTransport = false, $msgCount = null){
 
 		if($msgCount == null){

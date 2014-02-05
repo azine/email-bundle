@@ -7,6 +7,7 @@ class AzineWebViewServiceTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @var \PHPUnit_Framework_MockObject_MockObject
+	 * @return \Symfony\Component\Routing\Generator\UrlGeneratorInterface
 	 */
 	private function getMockRouter(){
 		return $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
@@ -68,6 +69,9 @@ class AzineWebViewServiceTest extends \PHPUnit_Framework_TestCase {
 
 	}
 
+	/**
+	 * @param string $name
+	 */
 	private static function getMethod($name) {
 		$class = new \ReflectionClass("Azine\EmailBundle\Services\AzineWebViewService");
 		$method = $class->getMethod($name);

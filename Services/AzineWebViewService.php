@@ -3,8 +3,6 @@ namespace Azine\EmailBundle\Services;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
-
 /**
  * You must override this service for your needs. Also see ExampleAzineWebViewSerive for some examples.
  *
@@ -102,7 +100,7 @@ class AzineWebViewService implements WebViewServiceInterface
 	/**
 	 * Add the required variables to the $templates-array, so the line can be rendered in the template-index
 	 * @param unknown_type $templates
-	 * @param unknown_type $description
+	 * @param string $description
 	 * @param unknown_type $templateId
 	 * @param unknown_type $formats
 	 * @return multitype:unknown

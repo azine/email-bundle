@@ -3,9 +3,6 @@
 namespace Azine\EmailBundle\DependencyInjection;
 
 use Azine\EmailBundle\Services\AzineTemplateProvider;
-
-use Azine\EmailBundle\Services\AzineNotifierService;
-
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 

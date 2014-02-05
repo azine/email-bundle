@@ -3,21 +3,13 @@ namespace Azine\EmailBundle\Services;
 
 
 use Symfony\Component\Routing\RequestContext;
-
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-
 use Doctrine\ORM\EntityManager;
-
 use Azine\EmailBundle\Entity\SentEmail;
-
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
-
 use Monolog\Logger;
-
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
 
 
@@ -74,7 +66,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 	 * @param \Twig_Environment $twig
 	 * @param Logger $logger
 	 * @param Translator $translator
-	 * @param EntityManager $em
 	 * @param array $parameters
 	 */
 	public function __construct(	\Swift_Mailer $mailer,
@@ -324,7 +315,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
 	/**
 	 * Recursively embed all images in the array into the message
-	 * @param Swift_Message $message
+	 * @param \Swift_Message $message
 	 * @param array $params
 	 * @return $params
 	 */

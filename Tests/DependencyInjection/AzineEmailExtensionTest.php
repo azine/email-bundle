@@ -2,7 +2,6 @@
 namespace Azine\EmailBundle\Tests\DependencyInjection;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Yaml\Parser;
 
@@ -190,7 +189,7 @@ EOF;
     }
 
     /**
-     * @param mixed  $value
+     * @param string  $value
      * @param string $key
      */
     private function assertParameter($value, $key)

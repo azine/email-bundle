@@ -2,16 +2,8 @@
 namespace Azine\EmailBundle\Command;
 
 
-use Azine\EmailBundle\Services\AzineNotifierService;
-
-use Symfony\Component\Console\Input\InputArgument;
-
 use Symfony\Component\Console\Output\OutputInterface;
-
 use Symfony\Component\Console\Input\InputInterface;
-
-use Azine\PlatformBundle\Services\SearcherService;
-
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 /**

@@ -71,6 +71,10 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase {
 
 	}
 
+	/**
+	 * @param string $needle
+	 * @param integer $expectedCount
+	 */
 	private function assertStringCount($needle, $haystack, $expectedCount){
 		$count = 0;
 		str_replace($needle, "--", $haystack, $count);

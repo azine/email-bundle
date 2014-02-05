@@ -1,12 +1,7 @@
 <?php
 namespace Azine\EmailBundle\Tests\Services;
-use Symfony\Bundle\FrameworkBundle\Tests\Functional\WebTestCase;
-
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-
 use Azine\EmailBundle\Services\AzineTemplateProvider;
-
-use FOS\UserBundle\Security\EmailUserProvider;
 
 class AzineTemplateProviderTest extends \PHPUnit_Framework_TestCase {
 

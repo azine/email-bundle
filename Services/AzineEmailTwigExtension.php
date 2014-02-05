@@ -1,8 +1,6 @@
 <?php
 namespace Azine\EmailBundle\Services;
 
-use Symfony\Component\HttpKernel\KernelInterface;
-
 class AzineEmailTwigExtension extends \Twig_Extension
 {
 	public function __construct()

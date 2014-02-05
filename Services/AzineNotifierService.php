@@ -1,17 +1,11 @@
 <?php
 namespace Azine\EmailBundle\Services;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
-
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-
 use Azine\EmailBundle\Entity\Notification;
-
 use Azine\EmailBundle\Entity\RecipientInterface;
-
 use Doctrine\ORM\EntityManager;
-
 use Monolog\Logger;
-
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -122,7 +116,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 
 	/**
 	 * Get the number of seconds in a "one-hour-interval"
-	 * @return number of seconds to consider as an hour.
+	 * @return integer of seconds to consider as an hour.
 	 */
 	protected function getHourInterval(){
 		// about an hour ago (57min)
@@ -134,7 +128,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 
 	/**
 	 * Get the number of seconds in a "one-day-interval"
-	 * @return number of seconds to consider as a day.
+	 * @return integer of seconds to consider as a day.
 	 */
 	protected function getDayInterval(){
 		// about a day ago (23h57min)
@@ -266,7 +260,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @param integer $recipientId
 	 * @param string $wrapperTemplateName
 	 * @param array $params array of parameters for this recipient
-	 * @return null or the failed email addressess
+	 * @return null|string or the failed email addressess
 	 */
 	public function sendNotificationsFor($recipientId, $wrapperTemplateName, $params){
 		// get the recipient
@@ -354,7 +348,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @param integer $recipientId
 	 * @param array $params params and contentItems that are the same for all recipients
 	 * @param string $wrapperTemplate
-	 * @return null or the failed email addressess
+	 * @return string|null or the failed email addressess
 	 */
 	public function sendNewsletterFor($recipientId, array $params, $wrapperTemplate){
 		$recipient = $this->recipientProvider->getRecipient($recipientId);

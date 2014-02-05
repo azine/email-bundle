@@ -2,12 +2,8 @@
 namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Services\AzineTemplateProvider;
-
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-
 use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
-
-use Azine\EmailBundle\Services\AzineWebViewService;
 
 class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 
@@ -54,6 +50,9 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
 		return $mocks;
 	}
 
+	/**
+	 * @return \FOS\UserBundle\Model\UserInterface
+	 */
 	private function getUserMock(){
 		$user = $this->getMockBuilder("FOS\UserBundle\Model\UserInterface")->disableOriginalConstructor()->getMock();
 		$user->expects($this->once())->method('getEmail')->will($this->returnValue("user@email.com"));

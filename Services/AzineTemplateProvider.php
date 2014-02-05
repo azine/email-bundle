@@ -6,12 +6,8 @@ namespace Azine\EmailBundle\Services;
  * @author Dominik Businger
  */
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
-
-use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class AzineTemplateProvider implements TemplateProviderInterface {
 
@@ -202,7 +198,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	/**
 	 * Override this function to define which emails you want to make the web-view available and for which not.
 	 *
-	 * @return array of string => the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
+	 * @return string[] of string => the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
 	 */
 	protected function getTemplatesToStoreForWebView(){
 		$include = array();
@@ -377,7 +373,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 
 	/**
 	 * Only use the translator here when you already know in which language the user should get the email.
-	 * @param $emailLocale
+	 * @param string $emailLocale
 	 * @return Translator
 	 */
 	protected function getTranslator($emailLocale){
@@ -390,6 +386,7 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 	/**
 	 * Recursively replace all absolute image-file-paths with relative web-paths.
 	 * @param array $emailVars
+	 * @param string $locale
 	 */
 	public function makeImagePathsWebRelative(array $emailVars, $locale){
 

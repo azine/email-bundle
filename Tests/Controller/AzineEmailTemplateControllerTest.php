@@ -3,25 +3,14 @@ namespace Azine\EmailBundle\Tests\Controller;
 
 
 use Azine\EmailBundle\Tests\FindInFileUtil;
-
 use Symfony\Component\Routing\RequestContext;
-
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-
 use Symfony\Component\HttpFoundation\Request;
-
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-
 use Azine\EmailBundle\Services\AzineTemplateProvider;
-
 use Azine\EmailBundle\Entity\SentEmail;
-
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 use Symfony\Component\HttpFoundation\Response;
-
 use Azine\EmailBundle\Controller\AzineEmailTemplateController;
-
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**

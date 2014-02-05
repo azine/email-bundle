@@ -2,20 +2,9 @@
 namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Tests\AzineQueryMock;
-
 use Doctrine\DBAL\LockMode;
-
 use Azine\EmailBundle\Entity\RecipientInterface;
-
 use Azine\EmailBundle\Services\AzineRecipientProvider;
-
-use Symfony\Bundle\FrameworkBundle\Tests\Functional\WebTestCase;
-
-use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-
-use Azine\EmailBundle\Services\AzineTemplateProvider;
-
-use FOS\UserBundle\Security\EmailUserProvider;
 
 class AzineRecipientProviderTest extends \PHPUnit_Framework_TestCase {
 

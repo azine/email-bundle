@@ -2,38 +2,17 @@
 namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Services\ExampleNotifierService;
-
 use Azine\EmailBundle\Entity\Notification;
-
 use Azine\EmailBundle\Services\TemplateProviderInterface;
-
-use Azine\EmailBundle\Services\NotifierServiceInterface;
-
 use Azine\EmailBundle\Services\AzineNotifierService;
-
 use Doctrine\ORM\EntityManager;
-
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-
 use Monolog\Logger;
-
 use Azine\EmailBundle\Services\TemplateTwigSwiftMailerInterface;
-
 use Azine\EmailBundle\Tests\AzineQueryMock;
-
-use Doctrine\DBAL\LockMode;
-
 use Azine\EmailBundle\Entity\RecipientInterface;
-
-use Azine\EmailBundle\Services\AzineRecipientProvider;
-
-use Symfony\Bundle\FrameworkBundle\Tests\Functional\WebTestCase;
-
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-
 use Azine\EmailBundle\Services\AzineTemplateProvider;
-
-use FOS\UserBundle\Security\EmailUserProvider;
 
 class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 
@@ -353,6 +332,9 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase {
 
   	}
 
+ 	/**
+ 	 * @param string $name
+ 	 */
  	private static function getMethod($name) {
  		$class = new \ReflectionClass("Azine\EmailBundle\Services\AzineNotifierService");
  		$method = $class->getMethod($name);

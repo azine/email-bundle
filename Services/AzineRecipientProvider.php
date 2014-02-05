@@ -20,8 +20,8 @@ use Doctrine\ORM\EntityManager;
 	/**
 	 *
 	 * @param EntityManager $em
-	 * @param unknown_type $userClass
-	 * @param unknown_type $newsletterField
+	 * @param string $userClass
+	 * @param string $newsletterField
 	 */
 	public function __construct(EntityManager $em, $userClass, $newsletterField) {
 		$this->em = $em;

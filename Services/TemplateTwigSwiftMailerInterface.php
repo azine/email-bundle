@@ -29,7 +29,7 @@ interface TemplateTwigSwiftMailerInterface {
 	 * @param string $emailLocale two-char locale for the rendering of the email
 	 * @param \Swift_Message $message instance of \Swift_Message that can be accessed by reference after sending the email.
 	 * @throws FileException
-	 * @return number of sent messages
+	 * @return integer of sent messages
 	 */
 	public function sendEmail(&$failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null, \Swift_Message &$message = null);
 
@@ -44,6 +44,7 @@ interface TemplateTwigSwiftMailerInterface {
 	 * @param string $from defaults to azine's mailer
 	 * @param string $fromName defaults to azine's mailer
 	 * @param \Swift_Message $message instance of \Swift_Message that can be accessed by reference after sending the email.
+	 * @param string $to
 	 * @return boolean true if the mail was sent successfully, else false
 	 */
 	public function sendSingleEmail($to, $toName, $subject, array $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null);

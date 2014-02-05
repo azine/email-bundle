@@ -2,13 +2,9 @@
 namespace Azine\EmailBundle\Tests\Command;
 
 use Azine\EmailBundle\Tests\AzineQueryMock;
-
 use Doctrine\ORM\EntityManager;
-
 use Azine\EmailBundle\Command\RemoveOldWebViewEmailsCommand;
-
 use Symfony\Component\Console\Tester\CommandTester;
-
 use Symfony\Component\Console\Application;
 
 /**
@@ -77,6 +73,10 @@ class RemoveOldWebViewEmailsCommandTest extends \PHPUnit_Framework_TestCase{
 		$this->assertTrue(strpos($display, "using the parameter from the configuration") === false, "display is:\n\n$display");
 	}
 
+	/**
+	 * @param integer|null $days
+	 * @param integer $deletedWebMails
+	 */
 	private function getMockSetup($days, $deletedWebMails, $useKeep = false){
 		$containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
 

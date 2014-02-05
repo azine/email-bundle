@@ -41,18 +41,19 @@ interface TemplateProviderInterface {
 
 	/**
 	 * Get the absolute filesystem path to the folder where  the template-images are stored.
+	 * @return string
 	 */
 	public function getTemplateImageDir();
 
 	/**
 	 * Check if an image that should be embeded into an email is stored in an "allowed_images_folder" see config.yml
 	 * @param string the filesystem path to the file
+	 * @param string $filePath
 	 */
 	public function isFileAllowed($filePath);
 
 	/**
 	 * Get the filesystem-folder for the given key
-	 * @param string $md5
 	 * @return string the fs-folder | false
 	 */
 	public function getFolderFrom($key);
@@ -71,6 +72,7 @@ interface TemplateProviderInterface {
 	 * to something else.
 	 *
 	 * This ID is used in the AzineEmailBundle::baseEmailLayout.html.twig to show a link to the web-view.
+	 * @return string
 	 */
 	public function getWebViewTokenId();
 
@@ -78,7 +80,6 @@ interface TemplateProviderInterface {
 	 * Get the url-query-parameters for campaign identification.
 	 * If you work with GoogleAnalytics take a look at this page: https://support.google.com/analytics/answer/1033867
 	 *
-	 * @param String $templateId (without ending) as key and params to render the template as value
 	 * @param array $template parameters already loaded
 	 * @return array of (string => string)
 	 */

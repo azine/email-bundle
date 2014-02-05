@@ -46,6 +46,9 @@ class FindInFileUtil
 		return $this->results;
 	}
 
+	/**
+	 * @param string $file
+	 */
 	private function findTxtt($file)
 	{
 		$ext = strrchr($file, '.');
@@ -94,6 +97,10 @@ class FindInFileUtil
 		return false;
 	}
 
+	/**
+	 * @param string $haystack
+	 * @param string $keyword
+	 */
 	private function strpos2($haystack, $keyword)
 	{
 		if (!$this->caseSensitive)
@@ -104,6 +111,9 @@ class FindInFileUtil
 		return (mb_strpos($haystack, $keyword) !== false);
 	}
 
+	/**
+	 * @param string $dir
+	 */
 	private function scandir2($dir)
 	{
 		if (is_dir($dir))

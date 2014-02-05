@@ -2,19 +2,11 @@
 namespace Azine\EmailBundle\Command;
 
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
-
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-
-use Symfony\Component\Console\Output\Output;
-
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-
 use Symfony\Component\Finder\Finder;
-
 use Symfony\Component\Console\Input\InputArgument;
-
 use Symfony\Component\Console\Output\OutputInterface;
-
 use Symfony\Component\Console\Input\InputInterface;
 
 use \Swift_Transport;
