@@ -94,7 +94,6 @@ class AzineEmailTemplateController extends ContainerAware{
 	 * @param string $token
 	 */
 	public function webViewAction($token){
-		$emailVars = array();
 
 		// find email recipients, template & params
 		$sentEmail = $this->getSentEmailForToken($token);
@@ -332,7 +331,7 @@ class AzineEmailTemplateController extends ContainerAware{
 	 * @return array TestResult array('success', 'message', 'curlHttpCode', 'curlError', ['score', 'report'])
 	 */
 	public function getSpamIndexReportForSwiftMessage(\Swift_Message $message, $report = 'long'){
-		return $this->getSpamIndexReport($message->toString());
+		return $this->getSpamIndexReport($message->toString(), $report);
 	}
 
 	private function getSpamIndexReport($msgString, $report = 'long'){

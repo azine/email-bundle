@@ -15,14 +15,14 @@ interface TemplateTwigSwiftMailerInterface {
 	 * @param string $subject
 	 * @param String $from Email
 	 * @param String $fromName
-	 * @param String or array $to Email
-	 * @param String or null $toName if $to is an array, $toName will be ignored
-	 * @param String or array $cc Email
-	 * @param String or null $ccName if $cc is an array, $ccName will be ignored
-	 * @param String or array $bcc Email
-	 * @param String or null $bccName if $bcc is an array, $bccName will be ignored
-	 * @param String or array $replyTo Email
-	 * @param String or null $replyToName
+	 * @param String|array $to Email
+	 * @param String $toName if $to is an array, $toName will be ignored
+	 * @param String|array $cc Email
+	 * @param String $ccName if $cc is an array, $ccName will be ignored
+	 * @param String|array $bcc Email
+	 * @param String $bccName if $bcc is an array, $bccName will be ignored
+	 * @param String|array $replyTo Email
+	 * @param String $replyToName
 	 * @param array $params associative array of variables for the twig-template
 	 * @param string $template twig-template to render, needs to have "body_text", "body_html" and "subject" blocks
 	 * @param array $attachments associative array of attachmentNames and files (url or data) (if the attachmentName for an attachment is less than 5 chars long, the original file-name is used)

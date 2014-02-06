@@ -419,7 +419,6 @@ class AzineTemplateProvider implements TemplateProviderInterface {
 		foreach ($this->allowedImageFolders as $key => $nextFolder){
 			if(strpos($filePath, $nextFolder) === 0){
 				return $key;
-				break;
 			}
 		}
 		return false;

@@ -274,6 +274,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 
 		// get the recipient specific parameters for the twig-templates
 		$recipientParams = $this->getRecipientVarsForNotificationsEmail($recipient);
+		$params = array_merge($recipientParams, $params);
 
 		// prepare the arrays with template and template-variables for each notification
 		$contentItems = array();
@@ -325,7 +326,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$params['subject'] = $this->translatorService->trans("_az.email.newsletter.subject");
 
 		// get the the non-recipient-specific contentItems of the newsletter
-		$params[self::CONTENT_ITEMS] = $this->getNonRecipientSpecificNewsletterContentItems($params);
+		$params[self::CONTENT_ITEMS] = $this->getNonRecipientSpecificNewsletterContentItems();
 
 		// get recipientIds for the newsletter
 		$recipientIds = $this->recipientProvider->getNewsletterRecipientIDs();
@@ -421,7 +422,6 @@ class AzineNotifierService implements NotifierServiceInterface {
 			$sendNotifications = ($timeDelta > $this->getDayInterval());
 
 		} else if($notificationMode == RecipientInterface::NOTIFICATION_MODE_NEVER){
-			$sendNotifications = false;
 			$this->markAllNotificationsAsSentFarInThePast($recipient);
 			return array();
 		}

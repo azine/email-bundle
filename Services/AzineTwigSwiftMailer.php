@@ -126,6 +126,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
 			// add the web-view token
 			$params[$this->templateProvider->getWebViewTokenId()] = SentEmail::getNewToken();
+		} else {
+			$webViewParams = array();
 		}
 
 		// recursively add all template-variables for the wrapper-templates and contentItems
@@ -221,7 +223,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 		}
 
 		// add custom headers
-		$customHeaders = $this->templateProvider->addCustomHeaders($templateBaseId, $message, $params);
+		$this->templateProvider->addCustomHeaders($templateBaseId, $message, $params);
 
 		// send the message
 		$messagesSent = $this->mailer->send($message, $failedRecipients);
@@ -381,7 +383,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 	 * @return \Swift_Image|null
 	 */
 	private function cachedEmbedImage($filePath){
-		$encodedImage = null;
 		$filePath = realpath($filePath);
 		if(!array_key_exists($filePath, $this->imageCache)){
 			if(is_file($filePath)){
