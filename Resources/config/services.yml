@@ -71,7 +71,7 @@ services:
 ###################################################################
 ## Twig-Filter
 ###################################################################
-    azine.email.text.wrap.filter:
+    azine.email.bundle.twig.filters:
         class: Azine\EmailBundle\Services\AzineEmailTwigExtension 
         public: false
         tags:
