@@ -58,7 +58,7 @@ All that is left to do is to update your AppKernel.php file, and register the ne
 // in AppKernel::registerBundles()
 $bundles = array(
     // ...
-   	new Azine\EmailBundle\EmailBundle(),
+       new Azine\EmailBundle\AzineEmailBundle(),
     // ...
 );
 ```
@@ -144,7 +144,7 @@ azine_email:
     web_view_retention:   90
 
     # the service-id of your implementation of the web view service to be used
-    web_view_service:     azine_email.example.web.view.service
+    web_view_service:     azine_email.example.web_view_service
 
 ```
 
