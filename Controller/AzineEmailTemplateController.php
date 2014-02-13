@@ -352,6 +352,7 @@ class AzineEmailTemplateController extends ContainerAware{
 		$data = array("email" => $msgString, "options" => $report);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "Accept: application/json"));
+		curl_setopt($ch, CURLOPT_TIMEOUT, 5); // max wait for 5sec for reply
 
 		$result = json_decode(curl_exec($ch), true);
 		$error = curl_error($ch);

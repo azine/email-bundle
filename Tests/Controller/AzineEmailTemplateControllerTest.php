@@ -568,9 +568,9 @@ Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von 
 		$controller->setContainer($containerMock);
 		$jsonResponse = $controller->checkSpamScoreOfSentEmailAction();
 
-		$report = json_decode($jsonResponse->getContent());
-		if(array_key_exists('curlError', $report)){
- 			$this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n".print_r($report, true));
+		$json = $jsonResponse->getContent();
+		if(strpos($json, "Getting the spam-info failed") !== false){
+ 			$this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n".print_r($report['result'], true));
  		}
 
 		$this->assertNotContains("Getting the spam-info failed.", $jsonResponse->getContent(), "Spamcheck returned:\n".$jsonResponse->getContent());
