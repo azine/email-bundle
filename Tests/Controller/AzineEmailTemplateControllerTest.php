@@ -543,6 +543,10 @@ Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von 
  		$controller = new AzineEmailTemplateController();
  		$report = $controller->getSpamIndexReportForSwiftMessage($swiftMessage);
 
+ 		if(array_key_exists('curlError', $report)){
+ 			$this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n".print_r($report, true));
+ 		}
+
  		$this->assertArrayHasKey("success", $report, "success was expected in report.\n\n".print_r($report, true));
  		$this->assertArrayNotHasKey("curlError", $report, "curlError was not expected in report.\n\n".print_r($report, true));
  		$this->assertArrayHasKey("message", $report, "message was expected in report.\n\n".print_r($report, true));
@@ -563,6 +567,11 @@ Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von 
 		$controller = new AzineEmailTemplateController();
 		$controller->setContainer($containerMock);
 		$jsonResponse = $controller->checkSpamScoreOfSentEmailAction();
+
+		$report = json_decode($jsonResponse->getContent());
+		if(array_key_exists('curlError', $report)){
+ 			$this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n".print_r($report, true));
+ 		}
 
 		$this->assertNotContains("Getting the spam-info failed.", $jsonResponse->getContent(), "Spamcheck returned:\n".$jsonResponse->getContent());
 		$this->assertContains("SpamScore", $jsonResponse->getContent());

@@ -386,7 +386,7 @@ class AzineEmailTemplateController extends ContainerAware{
 		$spamReport = $this->getSpamIndexReport($msgString);
 		$spamInfo = "";
 		if(is_array($spamReport)){
-			if($spamReport['curlHttpCode'] == 200 && $spamReport['success']){
+			if(array_key_exists('curlHttpCode', $spamReport) && $spamReport['curlHttpCode'] == 200 && $spamReport['success']){
 				$spamScore = $spamReport['score'];
 				$spamInfo = "SpamScore: $spamScore! \n".$spamReport['report'];
 				//@codeCoverageIgnoreStart
