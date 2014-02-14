@@ -570,7 +570,7 @@ Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von 
 
 		$json = $jsonResponse->getContent();
 		if(strpos($json, "Getting the spam-info failed") !== false){
- 			$this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n".print_r($report['result'], true));
+ 			$this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n$json");
  		}
 
 		$this->assertNotContains("Getting the spam-info failed.", $jsonResponse->getContent(), "Spamcheck returned:\n".$jsonResponse->getContent());
