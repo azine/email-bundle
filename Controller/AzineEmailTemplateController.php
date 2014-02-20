@@ -50,9 +50,12 @@ class AzineEmailTemplateController extends ContainerAware{
 		if(!$format){
 			$format = "html";
 		}
-		$locale = $this->container->get('request')->getLocale();
+
+		$request = $this->container->get('request');
+		$locale = $request->getLocale();
 
 		$emailVars = $this->container->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale);
+		$emailVars = array_merge($emailVars, $request->query->all());
 
 		// add the styles
 		$emailVars = $this->getTemplateProviderService()->addTemplateVariablesFor($template, $emailVars);

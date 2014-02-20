@@ -83,6 +83,15 @@ class AzineNotifierService implements NotifierServiceInterface {
 	}
 
 	/**
+	 * Override this function to add more parameters that are required to render the newsletter template.
+	 * @param RecipientInterface $recipient
+	 * @return multitype:RecipientInterface
+	 */
+	protected function getRecipientSpecificNewsletterParams(RecipientInterface $recipient){
+		return array('recipient' => $recipient);
+	}
+
+	/**
 	 * Override this function to fill in any recipient-specific content items that are different
 	 * depending on the recipient of the newsletter.
 	 *
@@ -355,7 +364,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$recipient = $this->recipientProvider->getRecipient($recipientId);
 
 		// create new array for each recipient.
-		$recipientParams = array_merge($params, array('recipient' => $recipient));
+		$recipientParams = array_merge($params, $this->getRecipientSpecificNewsletterParams($recipient));
 
 		// get the recipient-specific contentItems of the newsletter
 		$recipientContentItems = $this->getRecipientSpecificNewsletterContentItems($recipient);

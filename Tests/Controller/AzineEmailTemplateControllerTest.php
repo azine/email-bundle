@@ -2,15 +2,19 @@
 namespace Azine\EmailBundle\Tests\Controller;
 
 
+
 use Azine\EmailBundle\Tests\FindInFileUtil;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\HttpFoundation\Request;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\Entity\SentEmail;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Response;
 use Azine\EmailBundle\Controller\AzineEmailTemplateController;
+
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
@@ -86,6 +90,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase {
 
 		$requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->setMethods(array('getLocale'))->getMock();
  		$requestMock->expects($this->exactly(6))->method("getLocale")->will($this->returnValue("en"));
+ 		$requestMock->query = new ParameterBag();
 
  		$webViewServiceMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineWebViewService")->disableOriginalConstructor()->getMock();
 		$webViewServiceMock->expects($this->exactly(3))->method("getDummyVarsFor")->will($this->returnValue(array()));
