@@ -97,9 +97,11 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 *
 	 * E.g. a list of the recipients latest activites.
 	 *
+	 * @param RecipientInterface $recipient
+	 * @param string $locale the language code for translations.
 	 * @return array of templatesIds (without ending) as key and params to render the template as value. => array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...));
 	 */
-	protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient){
+	protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient, $locale){
 		// @codeCoverageIgnoreStart
 		$contentItems = array();
 
@@ -117,9 +119,10 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 * @param $recipientContentItems array of content items. => e.g. array of array('templateID' => array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...))
 	 * @param $params array the array with all general template-params, including the item with the key 'subject' containing the default-subject
 	 * @param $recipient RecipientInterface
+	 * @param $locale string The language-code for translation of the subject
 	 * @return the subject line
 	 */
-	public function getRecipientSpecificNewsletterSubject(array $generalContentItems, array $recipientContentItems, array $params, RecipientInterface $recipient){
+	public function getRecipientSpecificNewsletterSubject(array $generalContentItems, array $recipientContentItems, array $params, RecipientInterface $recipient, $locale){
 	    return $params['subject'];
 	}
 
@@ -367,7 +370,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 		$recipientParams = array_merge($params, $this->getRecipientSpecificNewsletterParams($recipient));
 
 		// get the recipient-specific contentItems of the newsletter
-		$recipientContentItems = $this->getRecipientSpecificNewsletterContentItems($recipient);
+		$recipientContentItems = $this->getRecipientSpecificNewsletterContentItems($recipient, $recipient->getPreferredLocale());
 
 		// merge the recipient-specific and the general content items. recipient-specific first/at the top!
 		$recipientParams[self::CONTENT_ITEMS] = array_merge($recipientContentItems,  $params[self::CONTENT_ITEMS]);
@@ -378,7 +381,7 @@ class AzineNotifierService implements NotifierServiceInterface {
 			return $recipient->getEmail();
 		}
 
-		$subject = $this->getRecipientSpecificNewsletterSubject($params[self::CONTENT_ITEMS], $recipientContentItems, $params, $recipient);
+		$subject = $this->getRecipientSpecificNewsletterSubject($params[self::CONTENT_ITEMS], $recipientContentItems, $params, $recipient, $recipient->getPreferredLocale());
 
 		// render and send the email with the right wrapper-template
 		$sent = $this->mailer->sendSingleEmail($recipient->getEmail(), $recipient->getDisplayName(), $subject, $recipientParams, $wrapperTemplate.".txt.twig", $recipient->getPreferredLocale());

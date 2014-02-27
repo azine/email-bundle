@@ -41,8 +41,7 @@ class AzineWebViewService implements WebViewServiceInterface
 	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.WebViewServiceInterface::getDummyVarsFor()
 	 */
-	public function getDummyVarsFor($template, $locale){
-		$variables = array();
+	public function getDummyVarsFor($template, $locale, $variables = array()){
 		$variables['subject'] = "some dummy subject";
 		$variables['sendMailAccountName'] = "some name";
 		$variables['sendMailAccountAddress'] = "no-reply@email.com";

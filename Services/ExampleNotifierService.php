@@ -50,8 +50,8 @@ class ExampleNotifierService extends AzineNotifierService {
 	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterSubject()
 	 */
-	public function getRecipientSpecificNewsletterSubject(array $generalContentItems, array $recipientContentItems, array $params, RecipientInterface $recipient){
-		return parent::getRecipientSpecificNewsletterSubject($generalContentItems, $recipientContentItems, $params, $recipient);
+	public function getRecipientSpecificNewsletterSubject(array $generalContentItems, array $recipientContentItems, array $params, RecipientInterface $recipient, $locale){
+		return parent::getRecipientSpecificNewsletterSubject($generalContentItems, $recipientContentItems, $params, $recipient, $locale);
 	}
 
 
@@ -60,7 +60,7 @@ class ExampleNotifierService extends AzineNotifierService {
 	 * (non-PHPdoc)
 	 * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterContentItems()
 	 */
-	protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient){
+	protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient, $locale){
 		$contentItems = array();
 
 		$recipientSpecificTemplateParams = array('title' => 'foo bar');
