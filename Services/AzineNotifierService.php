@@ -99,7 +99,11 @@ class AzineNotifierService implements NotifierServiceInterface {
 	 *
 	 * @param RecipientInterface $recipient
 	 * @param string $locale the language code for translations.
-	 * @return array of templatesIds (without ending) as key and params to render the template as value. => array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification, 'goToUrl' => 'http://example.com', ...));
+	 * @return array of arrays with templatesIds (without ending) as key and params to render the template as value.
+	 * 			=> array(
+	 * 					array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification1, 'goToUrl' => 'http://example.com/1', ...))
+	 * 					array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification2, 'goToUrl' => 'http://example.com/2', ...))
+	 * 					);
 	 */
 	protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient, $locale){
 		// @codeCoverageIgnoreStart
