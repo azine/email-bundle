@@ -3,11 +3,11 @@ Azine\EmailBundle\Entity\Notification:
   repositoryClass: Azine\EmailBundle\Entity\Repositories\NotificationRepository
   table: notification
   fields:
-    id:                                                         # ID of the notification                 
+    id:                                                         # ID of the notification
       type: integer(9)
       id: true
       generator:
-        strategy: AUTO  
+        strategy: AUTO
     recipient_id:        { type: integer(9)   }                 # recipient id
     title:               { type: string(255)  }                 # subject for the notification item
     content:             { type: text         }                 # content of the notification
@@ -18,5 +18,5 @@ Azine\EmailBundle\Entity\Notification:
     sent:                { type: datetime,  nullable true }     # Date when the notification was sent
     created:             { type: datetime,  nullable false}     # Date when the notification was created
 
-  lifecycleCallbacks: 
+  lifecycleCallbacks:
     prePersist: [setCreatedValue]

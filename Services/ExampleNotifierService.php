@@ -9,66 +9,66 @@ use Azine\EmailBundle\Entity\RecipientInterface;
  * @codeCoverageIgnoreStart
  * @author Dominik Businger
  */
-class ExampleNotifierService extends AzineNotifierService {
+class ExampleNotifierService extends AzineNotifierService
+{
+    /**
+     * (non-PHPdoc)
+     * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientVarsForNotificationsEmail()
+     */
+    protected function getRecipientVarsForNotificationsEmail(RecipientInterface $recipient)
+    {
+        $recipientParams = parent::getRecipientVarsForNotificationsEmail($recipient);
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientVarsForNotificationsEmail()
-	 */
-	protected function getRecipientVarsForNotificationsEmail(RecipientInterface $recipient){
-		$recipientParams = parent::getRecipientVarsForNotificationsEmail($recipient);
+        // $recipientParams = array_merge($this->getSomeMoreRecipientParamsForTheNotificationEmail($recipient), $recipientParams);
+        return $recipientParams;
+    }
 
-		// $recipientParams = array_merge($this->getSomeMoreRecipientParamsForTheNotificationEmail($recipient), $recipientParams);
+    /**
+     * (non-PHPdoc)
+     * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNotificationsSubject()
+     */
+    public function getRecipientSpecificNotificationsSubject($contentItems, RecipientInterface $recipient)
+    {
+        return parent::getRecipientSpecificNotificationsSubject($contentItems, $recipient);
+    }
 
-		return $recipientParams;
-	}
+    /**
+     * (non-PHPdoc)
+     * @see Azine\EmailBundle\Services.AzineNotifierService::getNonRecipientSpecificNewsletterContentItems()
+     */
+    protected function getNonRecipientSpecificNewsletterContentItems()
+    {
+        $contentItems = array();
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNotificationsSubject()
-	 */
-	public function getRecipientSpecificNotificationsSubject($contentItems, RecipientInterface $recipient) {
-		return parent::getRecipientSpecificNotificationsSubject($contentItems, $recipient);
-	}
+        $templateParams = array('title' => 'foo bar');
+        //$templateParams = array_merge($this->getSomeMoreParamsForTheNewsletter(), $templateParams);
+        $contentItems[] = array('AcmeBundle:foo:barSameForAllRecipientsTemplate' => $templateParams);
 
+        return $contentItems;
+    }
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.AzineNotifierService::getNonRecipientSpecificNewsletterContentItems()
-	 */
-	protected function getNonRecipientSpecificNewsletterContentItems(){
-		$contentItems = array();
+    /**
+     * (non-PHPdoc)
+     * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterSubject()
+     */
+    public function getRecipientSpecificNewsletterSubject(array $generalContentItems, array $recipientContentItems, array $params, RecipientInterface $recipient, $locale)
+    {
+        return parent::getRecipientSpecificNewsletterSubject($generalContentItems, $recipientContentItems, $params, $recipient, $locale);
+    }
 
-		$templateParams = array('title' => 'foo bar');
-		//$templateParams = array_merge($this->getSomeMoreParamsForTheNewsletter(), $templateParams);
-		$contentItems[] = array('AcmeBundle:foo:barSameForAllRecipientsTemplate' => $templateParams);
+    /**
+     * (non-PHPdoc)
+     * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterContentItems()
+     */
+    protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient, $locale)
+    {
+        $contentItems = array();
 
-		return $contentItems;
-	}
+        $recipientSpecificTemplateParams = array('title' => 'foo bar');
+        //$recipientSpecificTemplateParams = array_merge($this->getSomeMoreParamsForTheNewsletterForThisRecipient($recipient), $recipientSpecificTemplateParams);
+        $contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate' => $recipientSpecificTemplateParams);
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterSubject()
-	 */
-	public function getRecipientSpecificNewsletterSubject(array $generalContentItems, array $recipientContentItems, array $params, RecipientInterface $recipient, $locale){
-		return parent::getRecipientSpecificNewsletterSubject($generalContentItems, $recipientContentItems, $params, $recipient, $locale);
-	}
-
-
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterContentItems()
-	 */
-	protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient, $locale){
-		$contentItems = array();
-
-		$recipientSpecificTemplateParams = array('title' => 'foo bar');
-		//$recipientSpecificTemplateParams = array_merge($this->getSomeMoreParamsForTheNewsletterForThisRecipient($recipient), $recipientSpecificTemplateParams);
-		$contentItems[] = array('AcmeBundle:foo:barDifferentForEachRecipientTemplate' => $recipientSpecificTemplateParams);
-
-		return $contentItems;
-	}
-
+        return $contentItems;
+    }
 
 }

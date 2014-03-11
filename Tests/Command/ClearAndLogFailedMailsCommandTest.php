@@ -12,168 +12,173 @@ use Symfony\Component\Console\Application;
 /**
  * @author dominik
  */
-class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase{
+class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
+{
+    public function testHelpInfo()
+    {
+        $application = new Application();
+        $application->add(new ClearAndLogFailedMailsCommand());
 
+        $command = $application->find('emails:clear-and-log-failures');
 
-	public function testHelpInfo(){
-		$application = new Application();
-		$application->add(new ClearAndLogFailedMailsCommand());
+        $display = $command->getHelp();
+        $this->assertContains("Any email-address that still failed, is logged.", $display);
+    }
 
-		$command = $application->find('emails:clear-and-log-failures');
+    public function testSendingFailedMails()
+    {
+        $application = new Application();
+        $application->add(new ClearAndLogFailedMailsCommand());
 
-		$display = $command->getHelp();
-		$this->assertContains("Any email-address that still failed, is logged.", $display);
-	}
+        $command = $application->find('emails:clear-and-log-failures');
+        $message = "sfdsf";
+        $failedRecipients = array('failed@email.com');
+        $count = 2;
 
+        $this->createFakeFailedMessageFiles($count);
+        $command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->exactly($count)));
 
-	public function testSendingFailedMails(){
-		$application = new Application();
-		$application->add(new ClearAndLogFailedMailsCommand());
+        $tester = new CommandTester($command);
+        $tester->execute(array(''));
+        $display = $tester->getDisplay();
+        $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@test.com'", $display);
+        $this->assertContains("Sent!", $display);
+    }
 
-		$command = $application->find('emails:clear-and-log-failures');
-		$message = "sfdsf";
-		$failedRecipients = array('failed@email.com');
-		$count = 2;
+    public function testSendingFailedMailsWithDate()
+    {
+        $application = new Application();
+        $application->add(new ClearAndLogFailedMailsCommand());
 
-		$this->createFakeFailedMessageFiles($count);
-		$command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->exactly($count)));
+        $command = $application->find('emails:clear-and-log-failures');
+        $message = "sfdsf";
+        $failedRecipients = array('failed@email.com');
+        $count = 2;
+        $this->createFakeFailedMessageFiles($count);
 
-		$tester = new CommandTester($command);
-		$tester->execute(array(''));
-		$display = $tester->getDisplay();
-		$this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@test.com'", $display);
-		$this->assertContains("Sent!", $display);
-	}
+        $command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->exactly($count)));
 
-	public function testSendingFailedMailsWithDate(){
-		$application = new Application();
-		$application->add(new ClearAndLogFailedMailsCommand());
+        $tester = new CommandTester($command);
+        $tester->execute(array('date' => 'now'));
+        $display = $tester->getDisplay();
+        $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@test.com'", $display);
+        $this->assertContains("Sent!", $display);
+    }
 
-		$command = $application->find('emails:clear-and-log-failures');
-		$message = "sfdsf";
-		$failedRecipients = array('failed@email.com');
-		$count = 2;
-		$this->createFakeFailedMessageFiles($count);
+    public function testSendingFailedMailsNoMailsFound()
+    {
+        $application = new Application();
+        $application->add(new ClearAndLogFailedMailsCommand());
 
-		$command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->exactly($count)));
+        $command = $application->find('emails:clear-and-log-failures');
+        $message = "sfdsf";
+        $failedRecipients = array('failed@email.com');
+        $command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->never()));
 
-		$tester = new CommandTester($command);
-		$tester->execute(array('date' => 'now'));
-		$display = $tester->getDisplay();
-		$this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@test.com'", $display);
-		$this->assertContains("Sent!", $display);
-	}
+        $tester = new CommandTester($command);
+        $tester->execute(array(''));
+        $display = $tester->getDisplay();
+        $this->assertContains("No failed-message-files found", $display);
+    }
 
-	public function testSendingFailedMailsNoMailsFound(){
-		$application = new Application();
-		$application->add(new ClearAndLogFailedMailsCommand());
+    public function testSendingFailedMailsWithoutTransport()
+    {
+        $application = new Application();
+        $application->add(new ClearAndLogFailedMailsCommand());
 
-		$command = $application->find('emails:clear-and-log-failures');
-		$message = "sfdsf";
-		$failedRecipients = array('failed@email.com');
-		$command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->never()));
+        $command = $application->find('emails:clear-and-log-failures');
+        $message = "sfdsf";
+        $failedRecipients = array('failed@email.com');
+        $command->setContainer($this->getMockSetup($message, $failedRecipients, false, true));
 
-		$tester = new CommandTester($command);
-		$tester->execute(array(''));
-		$display = $tester->getDisplay();
-		$this->assertContains("No failed-message-files found", $display);
-	}
+        $tester = new CommandTester($command);
+        $tester->execute(array(''));
+        $display = $tester->getDisplay();
+        $this->assertContains("Could not load transport. Is file-spooling configured in your config.yml for this environment?", $display);
+    }
 
+    public function testSendingFailedMailsWithoutSpooling()
+    {
+        $application = new Application();
+        $application->add(new ClearAndLogFailedMailsCommand());
 
-	public function testSendingFailedMailsWithoutTransport(){
-		$application = new Application();
-		$application->add(new ClearAndLogFailedMailsCommand());
+        $command = $application->find('emails:clear-and-log-failures');
+        $message = "sfdsf";
+        $failedRecipients = array('failed@email.com');
+        $command->setContainer($this->getMockSetup($message, $failedRecipients, true));
 
-		$command = $application->find('emails:clear-and-log-failures');
-		$message = "sfdsf";
-		$failedRecipients = array('failed@email.com');
-		$command->setContainer($this->getMockSetup($message, $failedRecipients, false, true));
+        $tester = new CommandTester($command);
+        $tester->execute(array(''));
+        $display = $tester->getDisplay();
+        $this->assertContains("Could not find file spool path. Is file-spooling configured in your config.yml for this environment?", $display);
+    }
 
-		$tester = new CommandTester($command);
-		$tester->execute(array(''));
-		$display = $tester->getDisplay();
-		$this->assertContains("Could not load transport. Is file-spooling configured in your config.yml for this environment?", $display);
-	}
+    /**
+     * @param string   $message
+     * @param string[] $failedRecipients
+     */
+    private function getMockSetup($message, $failedRecipients, $noSpoolPath = false, $noTransport = false, $msgCount = null)
+    {
+        if ($msgCount == null) {
+            $msgCount = $this->once();
+        }
 
-	public function testSendingFailedMailsWithoutSpooling(){
-		$application = new Application();
-		$application->add(new ClearAndLogFailedMailsCommand());
+        $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
 
-		$command = $application->find('emails:clear-and-log-failures');
-		$message = "sfdsf";
-		$failedRecipients = array('failed@email.com');
-		$command->setContainer($this->getMockSetup($message, $failedRecipients, true));
+        $loggerMock = $this->getMockBuilder("Psr\Log\LoggerInterface")->disableOriginalConstructor()->getMock();
+        $loggerMock->expects($this->any())->method("warning")->with("<error>Failed to send an email to : ".implode(", ", $failedRecipients)."</error>");
 
-		$tester = new CommandTester($command);
-		$tester->execute(array(''));
-		$display = $tester->getDisplay();
-		$this->assertContains("Could not find file spool path. Is file-spooling configured in your config.yml for this environment?", $display);
-	}
+        if ($noTransport) {
+            $containerMock->expects($this->once())->method('get')->will($this->throwException(new ServiceNotFoundException('swiftmailer.transport.real')));
 
-	/**
-	 * @param string $message
-	 * @param string[] $failedRecipients
-	 */
-	private function getMockSetup($message, $failedRecipients, $noSpoolPath = false, $noTransport = false, $msgCount = null){
+            return $containerMock;
 
-		if($msgCount == null){
-			$msgCount = $this->once();
-		}
+        }
+        $transportMock = $this->getMockBuilder("\Swift_SmtpTransport")->getMock();
 
-		$containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
+        if ($noSpoolPath) {
+            $containerMock->expects($this->once())->method('get')->will($this->returnValue($transportMock));
+            $containerMock->expects($this->once())->method('getParameter')->will($this->throwException(new InvalidArgumentException()));
 
+            return $containerMock;
+        }
+        $transportMock->expects($this->once())->method("isStarted")->will($this->returnValue(false));
+        $transportMock->expects($this->once())->method("start");
+        $transportMock->expects($msgCount)->method("send");
 
-		$loggerMock = $this->getMockBuilder("Psr\Log\LoggerInterface")->disableOriginalConstructor()->getMock();
-		$loggerMock->expects($this->any())->method("warning")->with("<error>Failed to send an email to : ".implode(", ", $failedRecipients)."</error>");
+        $containerMock->expects($this->once())->method('get')->will($this->returnValueMap(array(array('swiftmailer.transport.real', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $transportMock))));
+        $containerMock->expects($this->exactly(2))->method('getParameter')->will($this->returnValueMap(array(
+                                                                                                    array('swiftmailer.mailers', array('default_mailer' => 'a dummy value for a mailer')),
+                                                                                                    array('swiftmailer.spool.default_mailer.file.path', __DIR__."/mock.spool.path"))
+                                                                                ));
 
+        return $containerMock;
+    }
 
-		if ($noTransport){
-			$containerMock->expects($this->once())->method('get')->will($this->throwException(new ServiceNotFoundException('swiftmailer.transport.real')));
-			return $containerMock;
+    private function createFakeFailedMessageFiles($count = 1)
+    {
+        while ($count > 0) {
+            $random = md5(date('now')).$count.rand(0, 10000000);
+            $filename = __DIR__."/mock.spool.path/$random.sending";
+            $msg = new \Swift_Message();
+            $msg->setTo("test-recipient@test.com");
+            $msg->setBody("random file $random bla bla.");
+            $msg->setSubject("subject blabbla");
+            $msg->setSender("test@test.com");
+            $ser = serialize($msg);
+            $filehandle = fopen($filename, "w");
+            fwrite($filehandle, $ser);
+            fclose($filehandle);
+            $count--;
+        }
+    }
 
-		}
-		$transportMock = $this->getMockBuilder("\Swift_SmtpTransport")->getMock();
+    public function tearDown()
+    {
+        $finder = Finder::create()->in(__DIR__."/mock.spool.path")->name('*');
+        foreach ($finder as $next) {
+            unlink($next);
+        }
 
-		if($noSpoolPath){
-			$containerMock->expects($this->once())->method('get')->will($this->returnValue($transportMock));
-			$containerMock->expects($this->once())->method('getParameter')->will($this->throwException(new InvalidArgumentException()));
-			return $containerMock;
-		}
-		$transportMock->expects($this->once())->method("isStarted")->will($this->returnValue(false));
-		$transportMock->expects($this->once())->method("start");
-		$transportMock->expects($msgCount)->method("send");
-
-		$containerMock->expects($this->once())->method('get')->will($this->returnValueMap(array(array('swiftmailer.transport.real', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $transportMock))));
-		$containerMock->expects($this->exactly(2))->method('getParameter')->will($this->returnValueMap(array(
-																									array('swiftmailer.mailers', array('default_mailer' => 'a dummy value for a mailer')),
-																									array('swiftmailer.spool.default_mailer.file.path', __DIR__."/mock.spool.path"))
-																				));
-
-		return $containerMock;
-	}
-
-	private function createFakeFailedMessageFiles($count = 1){
-		while ($count > 0) {
-			$random = md5(date('now')).$count.rand(0, 10000000);
-			$filename = __DIR__."/mock.spool.path/$random.sending";
-			$msg = new \Swift_Message();
-			$msg->setTo("test-recipient@test.com");
-			$msg->setBody("random file $random bla bla.");
-			$msg->setSubject("subject blabbla");
-			$msg->setSender("test@test.com");
-			$ser = serialize($msg);
-			$filehandle = fopen($filename, "w");
-			fwrite($filehandle, $ser);
-			fclose($filehandle);
-			$count--;
-		}
-	}
-
-	public function tearDown(){
-		$finder = Finder::create()->in(__DIR__."/mock.spool.path")->name('*');
-		foreach ($finder as $next){
-			unlink($next);
-		}
-
-	}
+    }
 }

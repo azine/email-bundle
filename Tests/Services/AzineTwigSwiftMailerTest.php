@@ -5,291 +5,297 @@ use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
 
-class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase {
+class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
+{
+    private function getMockSetup()
+    {
+        $mocks['mailer'] = $this->getMockBuilder("\Swift_Mailer")->disableOriginalConstructor()->getMock();
+        $mocks['mailer']->expects($this->once())->method('send')->will($this->returnValue(1));
+        $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
+        $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
+        $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
+        $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
 
-	private function getMockSetup(){
+        $mocks['logger'] = $this->getMockBuilder("Monolog\Logger")->disableOriginalConstructor()->getMock();
 
-		$mocks['mailer'] = $this->getMockBuilder("\Swift_Mailer")->disableOriginalConstructor()->getMock();
-		$mocks['mailer']->expects($this->once())->method('send')->will($this->returnValue(1));
-		$mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
-		$mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
-		$mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
-		$mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
+        $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
+        $mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue("azine.translation.mock"));
 
-		$mocks['logger'] = $this->getMockBuilder("Monolog\Logger")->disableOriginalConstructor()->getMock();
+        $imagesDir = realpath(__DIR__."/../../Resources/htmlTemplateImages/");
+        $mocks['templateProvider'] = new AzineTemplateProvider($mocks['router'], $mocks['translator'], array(	AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
+                                                                                                                AzineEmailExtension::TEMPLATE_IMAGE_DIR => $imagesDir,
+                                                                                                                AzineEmailExtension::CAMPAIGN_PARAM_NAME => "pk_campaign",
+                                                                                                                AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME => "pk_kwd",
+                                                                                                            ));
+        $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
+        $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
+        $mocks['parameters'] = array(	AzineEmailExtension::NO_REPLY => array(
+                                                                                AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS => 'no-reply@address.com',
+                                                                                AzineEmailExtension::NO_REPLY_EMAIL_NAME => 'no-reply-name'),
+                                        AzineTemplateProvider::CONTENT_ITEMS => array(
+                                                                                        0 => array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'some title', 'created' => new \DateTime('2 hours ago'), 'content' => "some content"))),
+                                                                                        1 => array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'some other title', 'created' => new \DateTime('1 hours ago'), 'content' => "some other content")))
+                                                                                    ),
+                                        'logo_png' => $imagesDir."/logo.png",
+                                        'noFile_png' => $imagesDir."/../../../unallowedFolder/logo.png",
+                                        'not_allowed_png' => $imagesDir."/inexistentFile.png",
+                                    );
+        $requestContext = $this->getMockBuilder("Symfony\Component\Routing\RequestContext")->disableOriginalConstructor()->getMock();
+        $requestContext->expects($this->once())->method("getHost")->will($this->returnValue("azine.test.host"));
+        $mocks['router']->expects($this->once())->method('getContext')->will($this->returnValue($requestContext));
 
-		$mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
-		$mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue("azine.translation.mock"));
+        return $mocks;
+    }
 
-		$imagesDir = realpath(__DIR__."/../../Resources/htmlTemplateImages/");
-		$mocks['templateProvider'] = new AzineTemplateProvider($mocks['router'], $mocks['translator'], array(	AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
-																												AzineEmailExtension::TEMPLATE_IMAGE_DIR => $imagesDir,
-																												AzineEmailExtension::CAMPAIGN_PARAM_NAME => "pk_campaign",
-																												AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME => "pk_kwd",
-																											));
-		$this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
+    /**
+     * @return \FOS\UserBundle\Model\UserInterface
+     */
+    private function getUserMock()
+    {
+        $user = $this->getMockBuilder("FOS\UserBundle\Model\UserInterface")->disableOriginalConstructor()->getMock();
+        $user->expects($this->once())->method('getEmail')->will($this->returnValue("user@email.com"));
+        $user->expects($this->any())->method('getConfirmationToken')->will($this->returnValue("aptrqi3o4pte:::token:::zfpguhask5jx0a9xukp"));
 
+        return $user;
+    }
 
-		$mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
-		$mocks['parameters'] = array(	AzineEmailExtension::NO_REPLY => array(
-																				AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS => 'no-reply@address.com',
-																				AzineEmailExtension::NO_REPLY_EMAIL_NAME => 'no-reply-name'),
-										AzineTemplateProvider::CONTENT_ITEMS => array(
-																						0 => array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'some title', 'created' => new \DateTime('2 hours ago'), 'content' => "some content"))),
-																						1 => array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'some other title', 'created' => new \DateTime('1 hours ago'), 'content' => "some other content")))
-																					),
-										'logo_png' => $imagesDir."/logo.png",
-										'noFile_png' => $imagesDir."/../../../unallowedFolder/logo.png",
-										'not_allowed_png' => $imagesDir."/inexistentFile.png",
-									);
-		$requestContext = $this->getMockBuilder("Symfony\Component\Routing\RequestContext")->disableOriginalConstructor()->getMock();
-		$requestContext->expects($this->once())->method("getHost")->will($this->returnValue("azine.test.host"));
-		$mocks['router']->expects($this->once())->method('getContext')->will($this->returnValue($requestContext));
+    public function renderBlockCallback($name, $context = array(), $blocks = array())
+    {
+        if ($name == 'subject') {
+            return "a subject";
+        } elseif ($name == 'body_html') {
+            $generatedImage = "";
+            if (array_key_exists("embededUsedGeneratedImage", $context)) {
+                $generatedImage = "<img src='".$context['embededUsedGeneratedImage']."' alt='generatedImage'>";
+            }
 
-		return $mocks;
-	}
+            return  "<html><body><h1>a html body</h1>$generatedImage<a href='http://some.url.com/' ><img src='".$context['logo_png']."' alt='logo'></a><p>with a paragraph and <a href='https://foo.bar.com/index.php?q=4'>links</a>.</p></body><html>";
+        } elseif ($name == 'body_text') {
+            return "a text body \n \n with new lines.";
+        }
+        throw new \Exception("un-known block : '$name'");
+    }
 
-	/**
-	 * @return \FOS\UserBundle\Model\UserInterface
-	 */
-	private function getUserMock(){
-		$user = $this->getMockBuilder("FOS\UserBundle\Model\UserInterface")->disableOriginalConstructor()->getMock();
-		$user->expects($this->once())->method('getEmail')->will($this->returnValue("user@email.com"));
-		$user->expects($this->any())->method('getConfirmationToken')->will($this->returnValue("aptrqi3o4pte:::token:::zfpguhask5jx0a9xukp"));
-		return $user;
-	}
+    public function generateCallback($name, $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
+    {
+        if ($name == 'fos_user_registration_confirm') {
+            return "http://azine.bundle.com/confirmation/url/".$parameters['token'];
 
-	public function renderBlockCallback($name, $context = array(), $blocks = array()){
-		if($name == 'subject'){
-			return "a subject";
-		} else if ($name == 'body_html'){
-			$generatedImage = "";
-			if(array_key_exists("embededUsedGeneratedImage", $context)){
-				$generatedImage = "<img src='".$context['embededUsedGeneratedImage']."' alt='generatedImage'>";
-			}
-			return  "<html><body><h1>a html body</h1>$generatedImage<a href='http://some.url.com/' ><img src='".$context['logo_png']."' alt='logo'></a><p>with a paragraph and <a href='https://foo.bar.com/index.php?q=4'>links</a>.</p></body><html>";
-		} else if ($name == 'body_text'){
-			return "a text body \n \n with new lines.";
-		}
-		throw new \Exception("un-known block : '$name'");
-	}
+        } elseif ($name == 'fos_user_resetting_reset') {
+            return "http://azine.bundle.com/resetting/url/".$parameters['token'];
 
-	public function generateCallback($name, $parameters = array(), $referenceType = self::ABSOLUTE_PATH){
+        } elseif ($name == 'azine_email_serve_template_image') {
+            return "http://azine.bundle.com/image/url/logo.png";
+        }
+        throw new \Exception("un-expected route for url-generation : '$name'");
+    }
 
-		if($name == 'fos_user_registration_confirm'){
-			return "http://azine.bundle.com/confirmation/url/".$parameters['token'];
+    public function testSendSingleEmail()
+    {
+        $mocks = $this->getMockSetup();
+        $mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
+        $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
+        $mocks['router']->expects($this->exactly(12))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-		} else if ($name == 'fos_user_resetting_reset'){
-			return "http://azine.bundle.com/resetting/url/".$parameters['token'];
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
 
-		} else if ($name == 'azine_email_serve_template_image'){
-			return "http://azine.bundle.com/image/url/logo.png";
-		}
-		throw new \Exception("un-expected route for url-generation : '$name'");
-	}
+        $to = "to@mail.com";
+        $toName = "ToName";
+        $params = array("aKey" => "aValue", 'contentItems' => array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('someOtherKey' => 'someOtherValue'))));
+        $template = AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig";
+        $emailLocale = "en";
+        $subject = "custom subject";
+        $azineMailer->sendSingleEmail($to, $toName, $subject, $params, $template, $emailLocale);
 
- 	public function testSendSingleEmail(){
- 		$mocks = $this->getMockSetup();
-  		$mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
- 		$mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
- 		$mocks['router']->expects($this->exactly(12))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
+    }
 
-  		$azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
+    public function testSendEmailWithEmailLocaleAndAttachments()
+    {
+        $mocks = $this->getMockSetup();
+        $mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
+        $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
+        $mocks['router']->expects($this->exactly(6))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-  		$to = "to@mail.com";
-  		$toName = "ToName";
-  		$params = array("aKey" => "aValue", 'contentItems' => array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('someOtherKey' => 'someOtherValue'))));
-  		$template = AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig";
-  		$emailLocale = "en";
-  		$subject = "custom subject";
-  		$azineMailer->sendSingleEmail($to, $toName, $subject, $params, $template, $emailLocale);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
 
- 	}
+        $failedRecipients = array();
+        $from = "from@email.com";
+        $fromName = "FromName";
+        $to = "to@mail.com";
+        $toName = "ToName";
+        $cc = "cc@mail.com";
+        $ccName = "CcName";
+        $bcc = "bcc@email.com";
+        $bccName = "BccName";
+        $replyTo = "replyTo@email.com";
+        $replyToName = "ReplyToName";
+        $subject = "some dummy test subject";
+        $params = array();
+        $generatedImage = imagecreate(100, 100);
+        $background_color = imagecolorallocate($generatedImage, 0, 0, 0);
+        $text_color = imagecolorallocate($generatedImage, 233, 14, 91);
+        imagestring($generatedImage, 1, 5, 5,  "A Simple Text String", $text_color);
+        $template = AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig";
 
-	public function testSendEmailWithEmailLocaleAndAttachments(){
-		$mocks = $this->getMockSetup();
-  		$mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
-		$mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
-		$mocks['router']->expects($this->exactly(6))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
+        // embed a regular file, a generated file and an invalid file
+        $params['embededUnusedFile'] = __FILE__;
+        $params['embededUnusedGeneratedFile'] = $generatedImage;
+        $params['embededUsedGeneratedImage'] = $generatedImage;
+        $params['embededUnusedInexistentFile'] = __FILE__."not.existent.jpg";
 
-		$azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
+        // attach a regular file and a generated file
+        $attachments = array('regularFile' => __FILE__, 'generatedFile' => $generatedImage, "fileWithVeryShortName.replacement.txt" => __DIR__."/a.b");
+        $emailLocale = "en";
 
-		$failedRecipients = array();
-		$from = "from@email.com";
-		$fromName = "FromName";
-		$to = "to@mail.com";
-		$toName = "ToName";
-		$cc = "cc@mail.com";
-		$ccName = "CcName";
-		$bcc = "bcc@email.com";
-		$bccName = "BccName";
-		$replyTo = "replyTo@email.com";
-		$replyToName = "ReplyToName";
-		$subject = "some dummy test subject";
-		$params = array();
-		$generatedImage = imagecreate(100, 100);
-		$background_color = imagecolorallocate($generatedImage, 0, 0, 0);
-		$text_color = imagecolorallocate($generatedImage, 233, 14, 91);
-		imagestring($generatedImage, 1, 5, 5,  "A Simple Text String", $text_color);
-  		$template = AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig";
+        $azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
+    }
 
-  		// embed a regular file, a generated file and an invalid file
-  		$params['embededUnusedFile'] = __FILE__;
-  		$params['embededUnusedGeneratedFile'] = $generatedImage;
-  		$params['embededUsedGeneratedImage'] = $generatedImage;
-  		$params['embededUnusedInexistentFile'] = __FILE__."not.existent.jpg";
+    /**
+     * @expectedException  Symfony\Component\HttpFoundation\File\Exception\FileException
+     */
+    public function testSendEmailWithEmailLocaleAndInexistentAttachment()
+    {
+        $mocks['mailer'] = $this->getMockBuilder("\Swift_Mailer")->disableOriginalConstructor()->getMock();
+        $mocks['mailer']->expects($this->never())->method('send');
 
-  		// attach a regular file and a generated file
-		$attachments = array('regularFile' => __FILE__, 'generatedFile' => $generatedImage, "fileWithVeryShortName.replacement.txt" => __DIR__."/a.b");
-		$emailLocale = "en";
+        $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
+        $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
+        $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
+        $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
 
-		$azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
-	}
+        $mocks['logger'] = $this->getMockBuilder("Monolog\Logger")->disableOriginalConstructor()->getMock();
 
-	/**
- 	 * @expectedException  Symfony\Component\HttpFoundation\File\Exception\FileException
-	 */
-	public function testSendEmailWithEmailLocaleAndInexistentAttachment(){
-		$mocks['mailer'] = $this->getMockBuilder("\Swift_Mailer")->disableOriginalConstructor()->getMock();
-		$mocks['mailer']->expects($this->never())->method('send');
+        $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
+        $mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue("azine.translation.mock"));
 
-		$mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
-		$mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
-		$mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
-		$mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
+        $imagesDir = realpath(__DIR__."/../../Resources/htmlTemplateImages/");
+        $mocks['templateProvider'] = new AzineTemplateProvider($mocks['router'], $mocks['translator'], array(	AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
+                                                                                                                AzineEmailExtension::TEMPLATE_IMAGE_DIR => $imagesDir,
+                                                                                                                AzineEmailExtension::CAMPAIGN_PARAM_NAME => "pk_campaign",
+                                                                                                                AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME => "pk_kwd",
+                                                                                                            ));
+        $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
-		$mocks['logger'] = $this->getMockBuilder("Monolog\Logger")->disableOriginalConstructor()->getMock();
+        $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
+        $mocks['parameters'] = array(	AzineEmailExtension::NO_REPLY => array(
+                                                                                AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS => 'no-reply@address.com',
+                                                                                AzineEmailExtension::NO_REPLY_EMAIL_NAME => 'no-reply-name'),
+                                        AzineTemplateProvider::CONTENT_ITEMS => array(
+                                                                                        0 => array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'some title', 'created' => new \DateTime('2 hours ago'), 'content' => "some content"))),
+                                                                                        1 => array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'some other title', 'created' => new \DateTime('1 hours ago'), 'content' => "some other content")))
+                                                                                    ),
+                                        'logo_png' => $imagesDir."/logo.png",
+                                        'noFile_png' => $imagesDir."/../../../unallowedFolder/logo.png",
+                                        'not_allowed_png' => $imagesDir."/inexistentFile.png",
+                                    );
+        $requestContext = $this->getMockBuilder("Symfony\Component\Routing\RequestContext")->disableOriginalConstructor()->getMock();
+        $requestContext->expects($this->once())->method("getHost")->will($this->returnValue("azine.test.host"));
+        $mocks['router']->expects($this->once())->method('getContext')->will($this->returnValue($requestContext));
+        $mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
+        $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
+        $mocks['router']->expects($this->never())->method('generate');
 
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
 
-		$mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
-		$mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue("azine.translation.mock"));
+        $failedRecipients = array();
+        $from = "from@email.com";
+        $fromName = "FromName";
+        $to = "to@mail.com";
+        $toName = "ToName";
+        $cc = "cc@mail.com";
+        $ccName = "CcName";
+        $bcc = "bcc@email.com";
+        $bccName = "BccName";
+        $replyTo = "replyTo@email.com";
+        $replyToName = "ReplyToName";
+        $subject = "some dummy test subject";
+        $params = array();
+        $template = AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig";
 
-		$imagesDir = realpath(__DIR__."/../../Resources/htmlTemplateImages/");
-		$mocks['templateProvider'] = new AzineTemplateProvider($mocks['router'], $mocks['translator'], array(	AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
-																												AzineEmailExtension::TEMPLATE_IMAGE_DIR => $imagesDir,
-																												AzineEmailExtension::CAMPAIGN_PARAM_NAME => "pk_campaign",
-																												AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME => "pk_kwd",
-																											));
-		$this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
+        // embed an inexistent file
+        $params['embededUnusedInexistentFile'] = __FILE__."not.existent.jpg";
 
+        // attach an inexistent file
+        $attachments = array(__FILE__."not.existent.jpg");
+        $emailLocale = "en";
 
-		$mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
-		$mocks['parameters'] = array(	AzineEmailExtension::NO_REPLY => array(
-																				AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS => 'no-reply@address.com',
-																				AzineEmailExtension::NO_REPLY_EMAIL_NAME => 'no-reply-name'),
-										AzineTemplateProvider::CONTENT_ITEMS => array(
-																						0 => array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'some title', 'created' => new \DateTime('2 hours ago'), 'content' => "some content"))),
-																						1 => array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => array('title' => 'some other title', 'created' => new \DateTime('1 hours ago'), 'content' => "some other content")))
-																					),
-										'logo_png' => $imagesDir."/logo.png",
-										'noFile_png' => $imagesDir."/../../../unallowedFolder/logo.png",
-										'not_allowed_png' => $imagesDir."/inexistentFile.png",
-									);
-		$requestContext = $this->getMockBuilder("Symfony\Component\Routing\RequestContext")->disableOriginalConstructor()->getMock();
-		$requestContext->expects($this->once())->method("getHost")->will($this->returnValue("azine.test.host"));
-		$mocks['router']->expects($this->once())->method('getContext')->will($this->returnValue($requestContext));
-		$mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
-		$mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
-		$mocks['router']->expects($this->never())->method('generate');
+        $azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
+    }
 
-		$azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
+    public function testSendEmailWithOutEmailLocaleAndNoAttachment()
+    {
+        $mocks = $this->getMockSetup();
+        $mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
+        $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
+        $mocks['router']->expects($this->exactly(0))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-		$failedRecipients = array();
-		$from = "from@email.com";
-		$fromName = "FromName";
-		$to = "to@mail.com";
-		$toName = "ToName";
-		$cc = "cc@mail.com";
-		$ccName = "CcName";
-		$bcc = "bcc@email.com";
-		$bccName = "BccName";
-		$replyTo = "replyTo@email.com";
-		$replyToName = "ReplyToName";
-		$subject = "some dummy test subject";
-		$params = array();
-  		$template = AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig";
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
 
-  		// embed an inexistent file
-  		$params['embededUnusedInexistentFile'] = __FILE__."not.existent.jpg";
+        $failedRecipients = array();
+        $from = "from@email.com";
+        $fromName = "FromName";
+        $to = "to@mail.com";
+        $toName = "ToName";
+        $cc = "cc@mail.com";
+        $ccName = "CcName";
+        $bcc = "bcc@email.com";
+        $bccName = "BccName";
+        $replyTo = "replyTo@email.com";
+        $replyToName = "ReplyToName";
+        $subject = "some dummy test subject";
+        $params = array();
+        $template = AzineTemplateProvider::BASE_TEMPLATE.".txt.twig";
+        $attachments = array();
+        $emailLocale = null;
 
-  		// attach an inexistent file
-		$attachments = array(__FILE__."not.existent.jpg");
-		$emailLocale = "en";
+        $sentCount = $azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
 
-		$azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
-	}
+        $this->assertEquals(1, $sentCount, "One email should have been sent.");
+    }
 
-	public function testSendEmailWithOutEmailLocaleAndNoAttachment(){
-		$mocks = $this->getMockSetup();
-  		$mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
-		$mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
-		$mocks['router']->expects($this->exactly(0))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
+    public function testSendConfirmationEmailMessage()
+    {
+        $mocks = $this->getMockSetup();
+        $user = $this->getUserMock();
 
-		$azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
+        // as the subject from FOS-templates is embeded in the twig-template, the render-block is called 3 instead of only 2 times
+        $mocks['baseTemplateMock']->expects($this->exactly(3))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
 
-		$failedRecipients = array();
-		$from = "from@email.com";
-		$fromName = "FromName";
-		$to = "to@mail.com";
-		$toName = "ToName";
-		$cc = "cc@mail.com";
-		$ccName = "CcName";
-		$bcc = "bcc@email.com";
-		$bccName = "BccName";
-		$replyTo = "replyTo@email.com";
-		$replyToName = "ReplyToName";
-		$subject = "some dummy test subject";
-		$params = array();
-		$template = AzineTemplateProvider::BASE_TEMPLATE.".txt.twig";
-		$attachments = array();
-		$emailLocale = null;
+        $mocks['parameters']['template'] = array();
+        $mocks['parameters']['template']['confirmation'] = AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE.".txt.twig";
+        $mocks['parameters']['from_email'] = array();
+        $mocks['parameters']['from_email']['confirmation'] = 'from@email.com';
 
-		$sentCount = $azineMailer->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, $params, $template, $attachments, $emailLocale);
+        $mocks['router']->expects($this->once())->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-		$this->assertEquals(1, $sentCount, "One email should have been sent.");
-	}
+        $mocks['translator']->expects($this->exactly(2))->method('getLocale')->will($this->returnValue("en"));
 
-	public function testSendConfirmationEmailMessage(){
- 		$mocks = $this->getMockSetup();
-  		$user = $this->getUserMock();
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
 
-  		// as the subject from FOS-templates is embeded in the twig-template, the render-block is called 3 instead of only 2 times
-  		$mocks['baseTemplateMock']->expects($this->exactly(3))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
+        $azineMailer->sendConfirmationEmailMessage($user);
+    }
 
- 		$mocks['parameters']['template'] = array();
- 		$mocks['parameters']['template']['confirmation'] = AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE.".txt.twig";
- 		$mocks['parameters']['from_email'] = array();
- 		$mocks['parameters']['from_email']['confirmation'] = 'from@email.com';
+    public function testSendResettingEmailMessage()
+    {
+        $mocks = $this->getMockSetup();
+        $user = $this->getUserMock();
 
- 		$mocks['router']->expects($this->once())->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
+        // as the subject from FOS-templates is embeded in the twig-template, the render-block is called 3 instead of only 2 times
+        $mocks['baseTemplateMock']->expects($this->exactly(3))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
 
- 		$mocks['translator']->expects($this->exactly(2))->method('getLocale')->will($this->returnValue("en"));
+        $mocks['parameters']['template'] = array();
+        $mocks['parameters']['template']['resetting'] = AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE.".txt.twig";
+        $mocks['parameters']['from_email'] = array();
+        $mocks['parameters']['from_email']['resetting'] = 'from@email.com';
 
-  		$azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
+        $mocks['translator']->expects($this->exactly(2))->method('getLocale')->will($this->returnValue("en"));
 
-		$azineMailer->sendConfirmationEmailMessage($user);
-	}
+        $mocks['router']->expects($this->once())->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-	public function testSendResettingEmailMessage(){
-	 	$mocks = $this->getMockSetup();
-	  	$user = $this->getUserMock();
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
 
-	  	// as the subject from FOS-templates is embeded in the twig-template, the render-block is called 3 instead of only 2 times
-  		$mocks['baseTemplateMock']->expects($this->exactly(3))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
+        $azineMailer->sendResettingEmailMessage($user);
 
-	 	$mocks['parameters']['template'] = array();
-	 	$mocks['parameters']['template']['resetting'] = AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE.".txt.twig";
-	 	$mocks['parameters']['from_email'] = array();
-	 	$mocks['parameters']['from_email']['resetting'] = 'from@email.com';
-
-	 	$mocks['translator']->expects($this->exactly(2))->method('getLocale')->will($this->returnValue("en"));
-
-		$mocks['router']->expects($this->once())->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
-
-		$azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
-
-		$azineMailer->sendResettingEmailMessage($user);
-
-	}
+    }
 }
