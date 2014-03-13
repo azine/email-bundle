@@ -48,7 +48,9 @@ use Doctrine\ORM\EntityManager;
         $qb = $this->em->createQueryBuilder()
             ->select("n.id")
             ->from($this->userClass, "n")
-            ->where('n.'.$this->newsletterField.' = true');
+            ->where('n.'.$this->newsletterField.' = true')
+            ->andWhere("n.locked = 0") // exclude locked users
+            ;
         $results = $qb->getQuery()->execute();
         $ids = array();
         foreach ($results as $next) {
