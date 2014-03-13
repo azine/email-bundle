@@ -49,9 +49,4 @@ interface RecipientInterface
      */
     public function getPreferredLocale();
 
-    /**
-     * Whether the recipient is locked (=>should not receive any mails because the account is locked)
-     * @return boolean true if the user is locked
-     */
-    public function getLocked();
 }
