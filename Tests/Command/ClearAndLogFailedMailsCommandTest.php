@@ -14,12 +14,9 @@ use Symfony\Component\Console\Application;
  */
 class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
 {
-    public function testHelpInfo()
+	public function testHelpInfo()
     {
-        $application = new Application();
-        $application->add(new ClearAndLogFailedMailsCommand());
-
-        $command = $application->find('emails:clear-and-log-failures');
+        $command = $this->getCommand();
 
         $display = $command->getHelp();
         $this->assertContains("Any email-address that still failed, is logged.", $display);
@@ -27,84 +24,62 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
 
     public function testSendingFailedMails()
     {
-        $application = new Application();
-        $application->add(new ClearAndLogFailedMailsCommand());
-
-        $command = $application->find('emails:clear-and-log-failures');
+        $command = $this->getCommand();
         $failedRecipients = array('failed@email.com');
         $count = 2;
 
         $this->createFakeFailedMessageFiles($count);
         $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->exactly($count)));
 
-        $tester = new CommandTester($command);
-        $tester->execute(array(''));
-        $display = $tester->getDisplay();
+        $display = $this->executeCommandAndGetDisplay($command, array(''));
         $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@test.com'", $display);
         $this->assertContains("Sent!", $display);
     }
 
     public function testSendingFailedMailsWithDate()
     {
-        $application = new Application();
-        $application->add(new ClearAndLogFailedMailsCommand());
-
-        $command = $application->find('emails:clear-and-log-failures');
+        $command = $this->getCommand();
         $failedRecipients = array('failed@email.com');
         $count = 4;
         $this->createFakeFailedMessageFiles($count);
 
         $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->exactly($count)));
 
-        $tester = new CommandTester($command);
-        $tester->execute(array('date' => 'now'));
-        $display = $tester->getDisplay();
+        $display = $this->executeCommandAndGetDisplay($command, array('date' => 'now'));
         $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@test.com'", $display);
         $this->assertContains("Sent!", $display);
     }
 
     public function testSendingFailedMailsNoMailsFound()
     {
-        $application = new Application();
-        $application->add(new ClearAndLogFailedMailsCommand());
-
-        $command = $application->find('emails:clear-and-log-failures');
+        $command = $this->getCommand();
         $failedRecipients = array();
         $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->never()));
 
-        $tester = new CommandTester($command);
-        $tester->execute(array(''));
-        $display = $tester->getDisplay();
+        $display = $this->executeCommandAndGetDisplay($command, array(''));
+
         $this->assertContains("No failed-message-files found", $display);
     }
 
     public function testSendingFailedMailsWithoutTransport()
     {
-        $application = new Application();
-        $application->add(new ClearAndLogFailedMailsCommand());
-
-        $command = $application->find('emails:clear-and-log-failures');
+        $command = $this->getCommand();
         $failedRecipients = array('failed@email.com');
         $command->setContainer($this->getMockSetup($failedRecipients, false, true));
 
-        $tester = new CommandTester($command);
-        $tester->execute(array(''));
-        $display = $tester->getDisplay();
+        $display = $this->executeCommandAndGetDisplay($command, array(''));
+
         $this->assertContains("Could not load transport. Is file-spooling configured in your config.yml for this environment?", $display);
     }
 
     public function testSendingFailedMailsWithoutSpooling()
     {
-        $application = new Application();
-        $application->add(new ClearAndLogFailedMailsCommand());
-
-        $command = $application->find('emails:clear-and-log-failures');
+        $command = $this->getCommand();
         $failedRecipients = array('failed@email.com');
         $command->setContainer($this->getMockSetup($failedRecipients, true));
 
-        $tester = new CommandTester($command);
-        $tester->execute(array(''));
-        $display = $tester->getDisplay();
+        $display = $this->executeCommandAndGetDisplay($command, array(''));
+
         $this->assertContains("Could not find file spool path. Is file-spooling configured in your config.yml for this environment?", $display);
     }
 
@@ -185,6 +160,29 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
             fclose($filehandle);
             $count--;
         }
+    }
+
+    /**
+     * @return ClearAndLogFailedMailsCommand
+     */
+    private function getCommand(){
+    	$application = new Application();
+    	$application->add(new ClearAndLogFailedMailsCommand());
+
+    	return $application->find('emails:clear-and-log-failures');
+    }
+
+    /**
+     *
+     * @param ClearAndLogFailedMailsCommand $command
+     * @param array $input
+     * @return string
+     */
+    private function executeCommandAndGetDisplay($command, $input){
+    	$tester = new CommandTester($command);
+    	$tester->execute($input);
+    	$display = $tester->getDisplay();
+    	return $display;
     }
 
     public function tearDown()
