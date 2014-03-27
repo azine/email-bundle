@@ -31,12 +31,11 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
         $application->add(new ClearAndLogFailedMailsCommand());
 
         $command = $application->find('emails:clear-and-log-failures');
-        $message = "sfdsf";
         $failedRecipients = array('failed@email.com');
         $count = 2;
 
         $this->createFakeFailedMessageFiles($count);
-        $command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->exactly($count)));
+        $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->exactly($count)));
 
         $tester = new CommandTester($command);
         $tester->execute(array(''));
@@ -51,12 +50,11 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
         $application->add(new ClearAndLogFailedMailsCommand());
 
         $command = $application->find('emails:clear-and-log-failures');
-        $message = "sfdsf";
         $failedRecipients = array('failed@email.com');
-        $count = 2;
+        $count = 4;
         $this->createFakeFailedMessageFiles($count);
 
-        $command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->exactly($count)));
+        $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->exactly($count)));
 
         $tester = new CommandTester($command);
         $tester->execute(array('date' => 'now'));
@@ -71,9 +69,8 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
         $application->add(new ClearAndLogFailedMailsCommand());
 
         $command = $application->find('emails:clear-and-log-failures');
-        $message = "sfdsf";
-        $failedRecipients = array('failed@email.com');
-        $command->setContainer($this->getMockSetup($message, $failedRecipients, false, false, $this->never()));
+        $failedRecipients = array();
+        $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->never()));
 
         $tester = new CommandTester($command);
         $tester->execute(array(''));
@@ -87,9 +84,8 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
         $application->add(new ClearAndLogFailedMailsCommand());
 
         $command = $application->find('emails:clear-and-log-failures');
-        $message = "sfdsf";
         $failedRecipients = array('failed@email.com');
-        $command->setContainer($this->getMockSetup($message, $failedRecipients, false, true));
+        $command->setContainer($this->getMockSetup($failedRecipients, false, true));
 
         $tester = new CommandTester($command);
         $tester->execute(array(''));
@@ -103,9 +99,8 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
         $application->add(new ClearAndLogFailedMailsCommand());
 
         $command = $application->find('emails:clear-and-log-failures');
-        $message = "sfdsf";
         $failedRecipients = array('failed@email.com');
-        $command->setContainer($this->getMockSetup($message, $failedRecipients, true));
+        $command->setContainer($this->getMockSetup($failedRecipients, true));
 
         $tester = new CommandTester($command);
         $tester->execute(array(''));
@@ -117,7 +112,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
      * @param string   $message
      * @param string[] $failedRecipients
      */
-    private function getMockSetup($message, $failedRecipients, $noSpoolPath = false, $noTransport = false, $msgCount = null)
+    private function getMockSetup($failedRecipients, $noSpoolPath = false, $noTransport = false, $msgCount = null)
     {
         if ($msgCount == null) {
             $msgCount = $this->once();
@@ -125,15 +120,12 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
 
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
 
-        $loggerMock = $this->getMockBuilder("Psr\Log\LoggerInterface")->disableOriginalConstructor()->getMock();
-        $loggerMock->expects($this->any())->method("warning")->with("<error>Failed to send an email to : ".implode(", ", $failedRecipients)."</error>");
-
         if ($noTransport) {
             $containerMock->expects($this->once())->method('get')->will($this->throwException(new ServiceNotFoundException('swiftmailer.transport.real')));
 
             return $containerMock;
-
         }
+
         $transportMock = $this->getMockBuilder("\Swift_SmtpTransport")->getMock();
 
         if ($noSpoolPath) {
@@ -142,17 +134,39 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
 
             return $containerMock;
         }
+
+        $loggerMock = $this->getMockBuilder("Psr\Log\LoggerInterface")->disableOriginalConstructor()->getMock();
+        if(sizeof($failedRecipients) > 0){
+        	$loggerMock->expects($this->once())->method("warning")->with("<error>Failed to send an email to : ".implode(", ", $failedRecipients)."</error>");
+        	$getServiceCallCount = $this->exactly(2);
+        } else {
+        	$loggerMock->expects($this->never())->method("warning");
+        	$getServiceCallCount = $this->once();
+        }
+
         $transportMock->expects($this->once())->method("isStarted")->will($this->returnValue(false));
         $transportMock->expects($this->once())->method("start");
-        $transportMock->expects($msgCount)->method("send");
+        $this->failedRecipients = $failedRecipients;
+        $transportMock->expects($msgCount)->method("send")->will($this->returnCallback(array($this, 'send_failures_callback')));
 
-        $containerMock->expects($this->once())->method('get')->will($this->returnValueMap(array(array('swiftmailer.transport.real', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $transportMock))));
+        $containerMock->expects($getServiceCallCount)->method('get')->will($this->returnValueMap(array(
+        																							array('swiftmailer.transport.real', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $transportMock),
+        																							array('logger', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $loggerMock),
+        																					)));
         $containerMock->expects($this->exactly(2))->method('getParameter')->will($this->returnValueMap(array(
                                                                                                     array('swiftmailer.mailers', array('default_mailer' => 'a dummy value for a mailer')),
-                                                                                                    array('swiftmailer.spool.default_mailer.file.path', __DIR__."/mock.spool.path"))
-                                                                                ));
+                                                                                                    array('swiftmailer.spool.default_mailer.file.path', __DIR__."/mock.spool.path"),
+        																					)));
 
         return $containerMock;
+    }
+
+    private $failedRecipients = array();
+
+    public function send_failures_callback(\Swift_Mime_Message $message, &$failedRecipients = null){
+    	if(sizeof($this->failedRecipients) > 0){
+    		$failedRecipients[] = array_pop($this->failedRecipients);
+    	}
     }
 
     private function createFakeFailedMessageFiles($count = 1)

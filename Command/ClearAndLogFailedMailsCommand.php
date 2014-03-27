@@ -108,7 +108,7 @@ EOF
         }
 
         // write the failure to the log
-        if (!empty($failedRecipients)) {
+        if (sizeof($failedRecipients) > 0) {
             /** @var $logger LoggerInterface */
             $logger = $this->getContainer()->get("logger");
             $logger->warning("<error>Failed to send an email to : ".implode(", ", $failedRecipients)."</error>");
