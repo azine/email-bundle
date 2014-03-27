@@ -14,26 +14,20 @@ class SendNotificationsCommandTest extends \PHPUnit_Framework_TestCase
 
     public function testHelpInfo()
     {
-        $application = new Application();
-        $application->add(new SendNotificationsCommand());
-
-        $command = $application->find('emails:sendNotifications');
-
-        $display = $command->getHelp();
+        $command = $this->getCommand();
+    	$display = $command->getHelp();
         $this->assertContains("Depending on you Swiftmailer-Configuration the email will be send directly or will be written to the spool.", $display);
 
     }
 
     public function testSend()
     {
-        $application = new Application();
-        $application->add(new SendNotificationsCommand());
-
-        $command = $application->find('emails:sendNotifications');
+        $command = $this->getCommand();
         $command->setContainer($this->getMockSetup());
 
         $tester = new CommandTester($command);
-        $tester->execute(array(''));
+        $params = array('');
+        $tester->execute($params);
         $display = $tester->getDisplay();
         $this->assertContains(AzineNotifierServiceMock::EMAIL_COUNT." emails have been processed.", $display);
 
@@ -41,11 +35,8 @@ class SendNotificationsCommandTest extends \PHPUnit_Framework_TestCase
 
     public function testSendFail()
     {
-        $application = new Application();
-        $application->add(new SendNotificationsCommand());
-
-        $command = $application->find('emails:sendNotifications');
-        $command->setContainer($this->getMockSetup(true));
+    	$command = $this->getCommand();
+    	$command->setContainer($this->getMockSetup(true));
 
         $tester = new CommandTester($command);
         $tester->execute(array(''));
@@ -53,6 +44,17 @@ class SendNotificationsCommandTest extends \PHPUnit_Framework_TestCase
         $this->assertContains((AzineNotifierServiceMock::EMAIL_COUNT-1)." emails have been processed.", $display);
         $this->assertContains(AzineNotifierServiceMock::FAILED_ADDRESS, $display);
 
+    }
+
+	/**
+	 * @return SendNotificationsCommand
+	 */
+    private function getCommand(){
+    	$application = new Application();
+    	$application->add(new SendNotificationsCommand());
+
+    	$command = $application->find('emails:sendNotifications');
+    	return $command;
     }
 
     private function getMockSetup($fail = false)
