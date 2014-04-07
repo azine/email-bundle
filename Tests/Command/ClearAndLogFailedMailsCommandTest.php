@@ -146,9 +146,12 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
 
     private function createFakeFailedMessageFiles($count = 1)
     {
-        while ($count > 0) {
+    	$targetDir = __DIR__."/mock.spool.path/";
+
+		$i = 0;
+    	while ($i < $count) {
             $random = md5(date('now')).$count.rand(0, 10000000);
-            $filename = __DIR__."/mock.spool.path/$random.sending";
+            $filename = $targetDir."$random.sending";
             $msg = new \Swift_Message();
             $msg->setTo("test-recipient@test.com");
             $msg->setBody("random file $random bla bla.");
@@ -158,8 +161,16 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
             $filehandle = fopen($filename, "w");
             fwrite($filehandle, $ser);
             fclose($filehandle);
-            $count--;
+            $i++;
         }
+
+        // make sure the right number of files has been created.
+        $fileCount = 0;
+        $targetDirHandle = opendir($targetDir);
+		while(($file = readdir($targetDirHandle)) !== false){
+			$fileCount++;
+		}
+		$this->assertEquals($count + 3, $fileCount, "Exactly $count + 2 files (*.sending, '.', '..' and '.keepMe') expected in this directory( $targetDir ).");
     }
 
     /**
@@ -185,12 +196,11 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
     	return $display;
     }
 
-    public function tearDown()
-    {
-        $finder = Finder::create()->in(__DIR__."/mock.spool.path")->name('*');
+    public function tearDown(){
+    	parent::tearDown();
+        $finder = Finder::create()->in(__DIR__."/mock.spool.path/")->name('*');
         foreach ($finder as $next) {
             unlink($next);
         }
-
     }
 }
