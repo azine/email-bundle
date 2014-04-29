@@ -55,6 +55,10 @@ class AzineNotifierService implements NotifierServiceInterface
     {
         $count = sizeof($contentItems);
 
+        if($count == 1){
+        	return $contentItems[0]['notification']->getTitle();
+        }
+
         return $this->translatorService->transChoice("_az.email.notifications.subject.%count%", $count, array('%count%' => $count));
     }
 
@@ -95,7 +99,7 @@ class AzineNotifierService implements NotifierServiceInterface
      * @param  RecipientInterface           $recipient
      * @return multitype:RecipientInterface
      */
-    protected function getRecipientSpecificNewsletterParams(RecipientInterface $recipient)
+    public function getRecipientSpecificNewsletterParams(RecipientInterface $recipient)
     {
         return array('recipient' => $recipient);
     }
@@ -107,14 +111,13 @@ class AzineNotifierService implements NotifierServiceInterface
      * E.g. a list of the recipients latest activites.
      *
      * @param  RecipientInterface $recipient
-     * @param  string             $locale    the language code for translations.
      * @return array              of arrays with templatesIds (without ending) as key and params to render the template as value.
      *                                      => array(
      *                                      array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification1, 'goToUrl' => 'http://example.com/1', ...))
      *                                      array('AzineEmailBundle:contentItem:message' => array('notification => $someNotification2, 'goToUrl' => 'http://example.com/2', ...))
      *                                      );
      */
-    protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient, $locale)
+    protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient)
     {
         // @codeCoverageIgnoreStart
         $contentItems = array();
@@ -391,7 +394,7 @@ class AzineNotifierService implements NotifierServiceInterface
         $recipientParams = array_merge($params, $this->getRecipientSpecificNewsletterParams($recipient));
 
         // get the recipient-specific contentItems of the newsletter
-        $recipientContentItems = $this->getRecipientSpecificNewsletterContentItems($recipient, $recipient->getPreferredLocale());
+        $recipientContentItems = $this->getRecipientSpecificNewsletterContentItems($recipient);
 
         // merge the recipient-specific and the general content items. recipient-specific first/at the top!
         $recipientParams[self::CONTENT_ITEMS] = array_merge($recipientContentItems,  $params[self::CONTENT_ITEMS]);

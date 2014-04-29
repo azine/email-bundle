@@ -60,7 +60,7 @@ class ExampleNotifierService extends AzineNotifierService
      * (non-PHPdoc)
      * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterContentItems()
      */
-    protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient, $locale)
+    protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient)
     {
         $contentItems = array();
 
