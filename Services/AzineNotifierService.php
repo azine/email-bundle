@@ -56,7 +56,10 @@ class AzineNotifierService implements NotifierServiceInterface
         $count = sizeof($contentItems);
 
         if($count == 1){
-        	return $contentItems[0]['notification']->getTitle();
+        	// get the content-item out of the boxed associative array => array(array('templateId' => contentItem))
+        	$onlyItem = current(current($contentItems));
+        	// get the title out of the notification in the contentItem
+        	return $onlyItem['notification']->getTitle();
         }
 
         return $this->translatorService->transChoice("_az.email.notifications.subject.%count%", $count, array('%count%' => $count));
