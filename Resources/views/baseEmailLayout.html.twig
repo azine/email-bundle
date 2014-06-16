@@ -6,9 +6,21 @@
 		<title>{% block title %}{% endblock %}</title>
 		<meta name="description" content="{% block description %}{% endblock %}" />
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<style>
+		{% block medieQueryCSS %}
+		@media only screen and (max-width: {{ mediaQueryWidth }}px) {
+            table.emailWidth, img.emailWidth{
+                width: {{ mobileEmailWidth }}px !important;
+            }
+            td.contentWidth {
+                width: {{ mobileContentWidth }}px !important;
+            }
+		}
+		{% endblock %}
+		</style>
 	</head>
 	<body style=" color: {{ blackColor }}; margin:0; font: normal 12px/18px {{ fontFamily }}; background-color: {{ bodyBackgroundColor }};">
-		<table summary="header and logo" width="{{ emailWidth }}" border="0" align="center" cellpadding="0" cellspacing="0" style="font: normal 12px/18px {{ fontFamily }};">
+		<table class="emailWidth" summary="header and logo" width="{{ emailWidth }}" border="0" align="center" cellpadding="0" cellspacing="0" style="font: normal 12px/18px {{ fontFamily }};">
 			{% block linkToWebView %}
 			{% if( azineEmailWebViewToken is defined) %}
 			<tr>
@@ -29,7 +41,7 @@
 				</tr>
 			<tr>
 				<td width="{{ shadowWidth }}">&nbsp;</td>
-				<td width="{{ contentWidth }}" bgcolor="{{ contentBackgroundColor }}" style="padding: 0px 20px;">
+				<td class="contentWidth" width="{{ contentWidth }}" bgcolor="{{ contentBackgroundColor }}" style="padding: 0px 20px;">
 					{% block logo %}
 			    	<a href="http://example.com" target="_blank" style="color: green; font-size: 72px; font-weight: bold; text-decoration: none;">
 			    		<img src="{{ logo_png }}" alt="azine" height="35" width="169" />
@@ -41,7 +53,7 @@
 	  	</table>
 	  	{{ topShadow }}
 	 	{{ leftShadow}}
-		    	<td width="{{ contentWidth }}" bgcolor="white"  style="padding:10px 20px 20px 20px; border-top: 1px solid #EEEEEE;">
+		    	<td class="contentWidth" width="{{ contentWidth }}" bgcolor="white"  style="padding:10px 20px 20px 20px; border-top: 1px solid #EEEEEE;">
 	    		<a name="top" ></a>
 	  			{% block content %}
 	  				{% block contentHead %}
@@ -77,7 +89,7 @@ the first loop get's all the arrays, the second loop get's the template from the
 			    </td>
 		{{ rightShadow }}
 		{{ leftShadow}}
-	        	<td width="{{ contentWidth }}" bgcolor="white" style="text-align:center;">
+	        	<td class="contentWidth" width="{{ contentWidth }}" bgcolor="white" style="text-align:center;">
 	        		{% block footerLogo %}
 	        		<a href="http://example.com" target="_blank" style="color: {{ azGreen }}; font: 36px bold; text-decoration: none; position:relative; top:1px;">
 			    		<img height="24" width="116" src="{{ logo_png }}" alt="azine" />
@@ -86,7 +98,7 @@ the first loop get's all the arrays, the second loop get's the template from the
 	            </td>
     	{{ rightShadow}}
 		{{ leftShadow}}
-            	<td width="{{ contentWidth }}" align="center" valign="top" bgcolor="{{ footerBackgroundColor }}" style="font: normal 12px/18px {{ fontFamily }}; padding:10px 30px 30px 30px; border-top:3px solid #b1c800; text-align:center;" >
+            	<td class="contentWidth" width="{{ contentWidth }}" align="center" valign="top" bgcolor="{{ footerBackgroundColor }}" style="font: normal 12px/18px {{ fontFamily }}; padding:10px 30px 30px 30px; border-top:3px solid #b1c800; text-align:center;" >
                 	{% block footerInfoText %}
             		<p style="color:white;">
 	            		The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.
