@@ -408,6 +408,7 @@ your admin to un-block it.
 
 
 ## Build-Status ec.
+
 [![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle)
 [![Total Downloads](https://poser.pugx.org/azine/email-bundle/downloads.png)](https://packagist.org/packages/azine/email-bundle)
 [![Latest Stable Version](https://poser.pugx.org/azine/email-bundle/v/stable.png)](https://packagist.org/packages/azine/email-bundle)
