@@ -353,6 +353,11 @@ class AzineEmailTemplateController extends ContainerAware
         return $this->getSpamIndexReport($message->toString(), $report);
     }
 
+    /**
+     * @param $msgString
+     * @param string $report
+     * @return mixed
+     */
     private function getSpamIndexReport($msgString, $report = 'long')
     {
         // check if cURL is loaded/available
@@ -414,10 +419,18 @@ class AzineEmailTemplateController extends ContainerAware
                 //@codeCoverageIgnoreStart
                 // this only happens if the spam-check-server has a problem / is not responding
             } else {
-                $spamInfo = "Getting the spam-info failed.
-                HttpCode: ".$spamReport['curlHttpCode']."
-                cURL-Error: ".$spamReport['curlError']."
-                SpamReportMsg: ".$spamReport['message'];
+                if( array_key_exists('curlHttpCode', $spamReport) && array_key_exists('curlError', $spamReport) && array_key_exists('message', $spamReport)){
+                    $spamInfo = "Getting the spam-info failed.
+                    HttpCode: " . $spamReport['curlHttpCode'] . "
+                    cURL-Error: " . $spamReport['curlError'] . "
+                    SpamReportMsg: " . $spamReport['message'];
+
+                } elseif ($spamReport != null && is_array($spamReport)) {
+                    $spamInfo = "Getting the spam-info failed. This was returned:
+---Start----------------------------------------------
+" . implode(";\n", $spamReport) ."
+---End------------------------------------------------";
+                }
                 //@codeCoverageIgnoreEnd
             }
         }
