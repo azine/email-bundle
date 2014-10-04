@@ -13,7 +13,7 @@
     ],
     "config": {
         "process-timeout": 590,
-        "github-protocols": ["http", "https", "git"],
+        "github-protocols": ["https", "git", "ssh"],
         "github-domains": ["github.com"]
     },
     "require": {
