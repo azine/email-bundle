@@ -101,20 +101,20 @@ class AzineWebViewService implements WebViewServiceInterface
 
     /**
      * Add the required variables to the $templates-array, so the line can be rendered in the template-index
-     * @param  unknown_type      $templates
-     * @param  string            $description
-     * @param  unknown_type      $templateId
-     * @param  unknown_type      $formats
-     * @return multitype:unknown
+     * @param  array       $templates
+     * @param  string      $description
+     * @param  string      $templateId
+     * @param  array       $formats
+     * @return array
      */
     protected function addTemplate($templates, $description, $templateId, $formats = array('txt','html'))
     {
         $route = $this->router->generate("azine_email_web_preview", array('template' => $templateId));
 
         $template = array(	'url' 			=> $route,
-                'description'	=> $description,
-                'formats' 		=> $formats,
-                'templateId'	=> $templateId,
+                            'description'	=> $description,
+                            'formats' 		=> $formats,
+                            'templateId'	=> $templateId,
         );
 
         $templates[] = $template;
