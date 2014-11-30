@@ -36,7 +36,7 @@ class AzineRecipientProviderTest extends \PHPUnit_Framework_TestCase
         $queryBuilderMock->expects($this->once())->method("select")->will($this->returnSelf());
         $queryBuilderMock->expects($this->once())->method("from")->will($this->returnSelf());
         $queryBuilderMock->expects($this->once())->method("where")->will($this->returnSelf());
-        $queryBuilderMock->expects($this->once())->method("andWhere")->will($this->returnSelf());
+        $queryBuilderMock->expects($this->exactly(2))->method("andWhere")->will($this->returnSelf());
 
         $queryBuilderMock->expects($this->once())->method("getQuery")->will($this->returnValue(new AzineQueryMock($queryResult)));
 
