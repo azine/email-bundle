@@ -275,7 +275,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     {
         foreach ($params as $key => $value) {
             // remove unreferenced attachments from contentItems too.
-            if ($key == 'contentItems') {
+            if ($key === 'contentItems') {
                 foreach ($value as $contentItemParams) {
                     $message = $this->removeUnreferecedEmbededItemsFromMessage($message, $contentItemParams, $htmlBody);
                 }
