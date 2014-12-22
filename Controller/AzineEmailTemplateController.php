@@ -311,8 +311,11 @@ class AzineEmailTemplateController extends ContainerAware
                 $spamScore = 10;
                 $spamInfo = "Getting the spam-info failed.
                              HttpCode: ".$spamReport['curlHttpCode']."
-                             SpamReportMsg: ".$spamReport['message']."
-                             cURL-Error: ".$spamReport['curlError'];
+                             SpamReportMsg: ".$spamReport['message'];
+                if(array_key_exists('curlError', $spamReport)) {
+                    $spamInfo .= "
+                             cURL-Error: " . $spamReport['curlError'];
+                }
                 //@codeCoverageIgnoreEnd
             }
 
@@ -413,7 +416,7 @@ class AzineEmailTemplateController extends ContainerAware
         $spamReport = $this->getSpamIndexReport($msgString);
         $spamInfo = "";
         if (is_array($spamReport)) {
-            if (array_key_exists('curlHttpCode', $spamReport) && $spamReport['curlHttpCode'] == 200 && $spamReport['success']) {
+            if (array_key_exists('curlHttpCode', $spamReport) && $spamReport['curlHttpCode'] == 200 && $spamReport['success'] && array_key_exists('score', $spamReport)) {
                 $spamScore = $spamReport['score'];
                 $spamInfo = "SpamScore: $spamScore! \n".$spamReport['report'];
                 //@codeCoverageIgnoreStart
