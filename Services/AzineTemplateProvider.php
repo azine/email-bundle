@@ -27,11 +27,12 @@ class AzineTemplateProvider implements TemplateProviderInterface
      * In this function you should fill a set of variables for eacht template.
      *
      * @param string $template the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
+     * @return array
      */
     protected function getParamArrayFor($template)
     {
         // this implementation uses the same array for all templates.
-        // override this function with a more sophiticated logic
+        // override this function with a more sophisticated logic
         // if you need different styles for different templates.
 
         $newVars = array();
@@ -76,14 +77,14 @@ class AzineTemplateProvider implements TemplateProviderInterface
         $newVars["emailWidth"]				= 640;// width for the whole email-body
         $newVars["shadowWidth"]				= 10; // width for the shadows left and right of the content
         $newVars["contentWidth"]			= 620;// width for the mail content
-        $newVars["mediaQueryWidth"]			= 479;// width for the mediaquery for mobile devices
+        $newVars["mediaQueryWidth"]			= 479;// width for the media-query for mobile devices
         $newVars["mobileEmailWidth"]		= 459;// width for the whole email-body for mobile devices
         $newVars["mobileContentWidth"]		= 439;// width for the mail content for mobile devices
         $newVars["footerBackgroundColor"]   = "#434343";
 
         // add html-styles for your html-emails
         // css does not work in html-emails, so all styles need to be
-        // embeded directly into the html-elements
+        // embedded directly into the html-elements
         $newVars["h2Style"]					= "style='padding:0; margin:0; font:bold 24px $fontFamily; color:$azBlue; text-decoration:none;'";
         $newVars["h3Style"]					= "style='margin:12px 0 5px 0; font:bold 18px $fontFamily; padding:0; color:$azGreen; text-decoration:none;'";
         $newVars["h4Style"]					= "style='padding:0; margin:0 0 20px 0; color:$blackColor; font-size:14px; text-decoration:none;'";
@@ -107,13 +108,13 @@ class AzineTemplateProvider implements TemplateProviderInterface
      * to the twig-renderer, just before sending the mail.
      *
      * In this implementation for example some reusable "snippets" are added to render
-     * a nice shadow arround content parts and add a "link to top" at the top of each part.
+     * a nice shadow around content parts and add a "link to top" at the top of each part.
      *
-     * As these "snippets" contain references to images that first had to be embeded into the
+     * As these "snippets" contain references to images that first had to be embedded into the
      * Message, these "snippets" are added after embedding/adding the attachments.
      *
      * This means, that here the variable "bottom_shadow_png" defined in AzineTemplateProvider.fillParamArrayFor()
-     * does not contain the path to the image-file anymore but now contains the CID of the embeded image.
+     * does not contain the path to the image-file anymore but now contains the CID of the embedded image.
      *
      * @param  string     $template    the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
      * @param  array      $vars
@@ -124,7 +125,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
     protected function getSnippetArrayFor($template, array $vars, $emailLocale)
     {
         // this implementation uses the same snippets for all templates.
-        // override this function with a more sophiticated logic
+        // override this function with a more sophisticated logic
         // if you need different snippets for different templates.
 
         // the snippets added in this implementation depend on the
@@ -387,7 +388,8 @@ class AzineTemplateProvider implements TemplateProviderInterface
 
     /**
      * Only use the translator here when you already know in which language the user should get the email.
-     * @param  string     $emailLocale
+     * @param  string $emailLocale
+     * @throws \Exception
      * @return Translator
      */
     protected function getTranslator($emailLocale)
@@ -401,8 +403,9 @@ class AzineTemplateProvider implements TemplateProviderInterface
 
     /**
      * Recursively replace all absolute image-file-paths with relative web-paths.
-     * @param array  $emailVars
+     * @param array $emailVars
      * @param string $locale
+     * @return array
      */
     public function makeImagePathsWebRelative(array $emailVars, $locale)
     {
