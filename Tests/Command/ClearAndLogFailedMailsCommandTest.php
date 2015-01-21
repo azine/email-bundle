@@ -84,8 +84,12 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string   $message
      * @param string[] $failedRecipients
+     * @param bool $noSpoolPath
+     * @param bool $noTransport
+     * @param null $msgCount
+     * @internal param string $message
+     * @return ContainerInterface
      */
     private function getMockSetup($failedRecipients, $noSpoolPath = false, $noTransport = false, $msgCount = null)
     {
