@@ -16,7 +16,7 @@ before_script:
   - composer -vvv install --dev --prefer-source
 
 script:
-  - phpunit --coverage-text --coverage-clover=coverage.clover /home/travis/build/azine/email-bundle/Tests/
+  - phpunit --coverage-clover=coverage.clover /home/travis/build/azine/email-bundle/Tests/
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
