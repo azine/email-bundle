@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
 
 /**
- * This Service is used to send html-emails with embeded images
+ * This Service is used to send html-emails with embedded images
  * @author Dominik Businger
  */
 class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftMailerInterface

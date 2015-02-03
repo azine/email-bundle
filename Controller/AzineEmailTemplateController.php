@@ -248,7 +248,7 @@ class AzineEmailTemplateController extends ContainerAware
             return $response;
         }
 
-        return new FileNotFoundException($filename);
+        throw new FileNotFoundException($filename);
     }
 
     /**
