@@ -268,7 +268,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $response = $controller->webViewAction($token);
+        $controller->webViewAction($token);
     }
 
     /**
