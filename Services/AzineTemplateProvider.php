@@ -17,6 +17,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
     const CONTENT_ITEM_MESSAGE_TEMPLATE		= 'AzineEmailBundle:contentItem:message';
     const FOS_USER_PWD_RESETTING_TEMPLATE	= "FOSUserBundle:Resetting:email";
     const FOS_USER_REGISTRATION_TEMPLATE	= "FOSUserBundle:Registration:email";
+    const SEND_IMMEDIATELY_FLAG             = "AzineEmailBundle_SendThisEmailImmediately";
 
     /**
      * Override this function for your template(s)!
@@ -44,6 +45,11 @@ class AzineTemplateProvider implements TemplateProviderInterface
 
         if ($template == self::NEWSLETTER_TEMPLATE) {
             $newVars['subject'] = "Newsletter sent by AzineEmailBundle";
+        }
+
+        // send some mails immediately instead of spooled
+        if($template == self::FOS_USER_PWD_RESETTING_TEMPLATE || $template == self::FOS_USER_REGISTRATION_TEMPLATE){
+            $newVars[self::SEND_IMMEDIATELY_FLAG] = true;
         }
 
         // add generic stuff needed for all templates

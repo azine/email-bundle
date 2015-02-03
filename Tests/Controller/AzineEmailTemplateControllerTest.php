@@ -453,7 +453,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         static::$kernel->boot();
         $container = static::$kernel->getContainer();
 
-        $spoolDir = $container->getParameter('swiftmailer.spool.default.file.path');
+        $spoolDir = $container->getParameter('swiftmailer.spool.defaultMailer.file.path');
 
         // delete all spooled mails from other tests
         array_map('unlink', glob($spoolDir."/*.messag*"));

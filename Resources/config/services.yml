@@ -60,6 +60,7 @@ services:
               confirmation:   "%fos_user.registration.confirmation.from_email%"
               resetting:      "%fos_user.resetting.email.from_email%"
             no_reply:         "%azine_email_no_reply%"
+          immediateMailer:    "@swiftmailer.mailer.immediateMailer"
 
     azine_email.default.recipient_provider:
         class: Azine\EmailBundle\Services\AzineRecipientProvider

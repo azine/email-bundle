@@ -26,6 +26,12 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
             return;
         }
 
+        // send some mails immediately instead of spooled
+        if($template == self::VIP_INFO_MAIL_TEMPLATE){
+            $newVars[self::SEND_IMMEDIATELY_FLAG] = true;
+        }
+
+
         // get the style-params from the parent (if you like)
         $newVars = parent::getParamArrayFor($template);
 

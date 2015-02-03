@@ -53,10 +53,17 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      */
     protected $noReplyName;
 
+    /**
+     * The Swift_Mailer to be used for sending emails immediately
+     * @var \Swift_Mailer
+     */
+    private $immediateMailer;
+
     private $encodedItemIdPattern;
     private $currentHost;
     private $templateCache = array();
     private $imageCache = array();
+
 
     /**
      *
@@ -66,17 +73,20 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * @param Logger                $logger
      * @param Translator            $translator
      * @param array                 $parameters
+     * @param \Swift_Mailer         $immediateMailer
      */
-    public function __construct(\Swift_Mailer $mailer,
+    public function __construct(    \Swift_Mailer $mailer,
                                     UrlGeneratorInterface $router,
                                     \Twig_Environment $twig,
                                     Logger $logger,
                                     Translator $translator,
                                     TemplateProviderInterface $templateProvider,
                                     EntityManager $entityManager,
-                                    array $parameters)
+                                    array $parameters,
+                                    \Swift_Mailer $immediateMailer = null)
     {
         parent::__construct($mailer, $router, $twig, $parameters);
+        $this->immediateMailer = $immediateMailer;
         $this->logger = $logger;
         $this->translator = $translator;
         $this->templateProvider = $templateProvider;
@@ -225,7 +235,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $this->templateProvider->addCustomHeaders($templateBaseId, $message, $params);
 
         // send the message
-        $messagesSent = $this->mailer->send($message, $failedRecipients);
+        $mailer = $this->getMailer($params);
+        $messagesSent = $mailer->send($message, $failedRecipients);
 
         // if the message was successfully sent,
         // and it should be made available in web-view
@@ -268,8 +279,9 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * to avoid using unneccary bandwidth.
      *
      * @param \Swift_Message $message
-     * @param array          $params   the parameters used to render the html
-     * @param string         $htmlBody
+     * @param array $params the parameters used to render the html
+     * @param string $htmlBody
+     * @return \Swift_Message
      */
     private function removeUnreferecedEmbededItemsFromMessage(\Swift_Message $message, $params, $htmlBody)
     {
@@ -319,8 +331,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     /**
      * Recursively embed all images in the array into the message
      * @param  \Swift_Message $message
-     * @param  array          $params
-     * @return $params
+     * @param  array $params
+     * @return array $params
      */
     private function embedImages(&$message, &$params)
     {
@@ -442,5 +454,21 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $subject = $twigTemplate->renderBlock('subject', $context);
 
         return $this->sendSingleEmail($toEmail, null, $subject, $context, $templateName, $this->translator->getLocale());
+    }
+
+    /**
+     * Return the Swift_Mailer to be used for sending mails immediately (e.g. instead of spooling them) if it is configured
+     * @param $params
+     * @return \Swift_Mailer
+     */
+    private function getMailer($params){
+        // if the second mailer for immediate mail-delivery has been configured
+        if($this->immediateMailer != null){
+            // check if this template has been configured to be sent immediately
+            if(array_key_exists(AzineTemplateProvider::SEND_IMMEDIATELY_FLAG, $params) && $params[AzineTemplateProvider::SEND_IMMEDIATELY_FLAG]) {
+                return $this->immediateMailer;
+            }
+        }
+        return $this->mailer;
     }
 }

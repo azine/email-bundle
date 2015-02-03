@@ -378,6 +378,94 @@ or
 {{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
 ```
 
+## Use a different mailer for "normal" and for "urgent" emails
+In most cases you'll probably prefer UI-performance over speed of email-delivery. But for example for the password-reset- or for email-confirmation-emails
+you want the user to receive the mail a.s.a.p and not after the next spool-mailing.
+
+To achieve this you must do two things:
+  1) configure multiple swiftmailers in you config.yml-files (see example below and http://symfony.com/doc/2.6/reference/configuration/swiftmailer.html#using-multiple-mailers)
+  2) define which emails should be delivered immediately in your TemplateProvider.
+
+Here are extracts from config.yml-files:
+```
+// app/config/config.yml
+# Swiftmailer Configuration
+swiftmailer:
+    default_mailer: defaultMailer // name of the default mailer defined below.
+    mailers:
+        defaultMailer: // you can choose your name for the default mailer
+            host:           "%mailer_host%"
+            username:       "%mailer_user%"
+            password:       "%mailer_password%"
+            transport:      "%mailer_transport%"
+            port:           "%mailer_port%"
+            encryption:     "%mailer_encryption%"
+            antiflood:
+                threshold:  10
+                sleep:      2
+            logging:        "%kernel.debug%"
+
+        immediateMailer: // this name is hard-coded in the bundle!
+            host:           "%mailer_host%"
+            username:       "%mailer_user%"
+            password:       "%mailer_password%"
+            transport:      "%mailer_transport%"
+            port:           "%mailer_port%"
+            encryption:     "%mailer_encryption%"
+            antiflood:
+                threshold:  10
+                sleep:      2
+            logging:        "%kernel.debug%"
+
+
+// app/config/config_prod.yml
+swiftmailer:
+    mailers:
+        defaultMailer:
+            spool:
+                type: file
+                path: "%kernel.root_dir%/spool.mails/prod"
+
+
+// app/config/config_dev.yml
+swiftmailer:
+    mailers:
+        defaultMailer:
+            delivery_address: from-dev-env-spool@businger.ch
+
+        immediateMailer:
+            delivery_address: from-dev-env-nospool@businger.ch
+
+
+// app/config/config_test.yml
+swiftmailer:
+    mailers:
+        defaultMailer:
+            spool:
+                type: file
+                path: "%kernel.root_dir%/spool.mails/test"
+
+        immediateMailer:
+            spool:
+                type: file
+                path: "%kernel.root_dir%/spool.mails/test"
+
+```
+
+And in your implementation of the TemplateProviderInterface, you can define emails from which templates should be sent immediately instead of spooled:
+```
+// see ExampleTemplateProvider or AzineTemplateProvider for an example
+   protected function getParamArrayFor($template){
+
+     ...
+        // send some mails immediately instead of spooled
+        if($template == self::VIP_INFO_MAIL_TEMPLATE){
+            $newVars[self::SEND_IMMEDIATELY_FLAG] = true;
+        }
+     ...
+
+```
+
 
 ## Use transactional email services e.g.e mailgun.com
 To send and track your emails with a transactional email service  
