@@ -7,6 +7,7 @@ use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Controller\AzineEmailTemplateController;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -415,6 +416,9 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
     }
 
+    /**
+     * @expectedException Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
+     */
     public function testServeImageAction_404()
     {
         $folderKey = "asdfadfasfasfd";
@@ -431,9 +435,6 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $response = $controller->serveImageAction($folderKey, $filename);
-
-        $this->assertInstanceOf("Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException", $response, "404 error expected");
-
     }
 
     public function testSendTestEmailAction()
