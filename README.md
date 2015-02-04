@@ -419,6 +419,8 @@ swiftmailer:
 
 
 // app/config/config_prod.yml
+// for most mails (defaultMailer) use spooling to improve ui responsiveness
+// you must configure a cron-job to execute the "swiftmailer:spool:send"-command
 swiftmailer:
     mailers:
         defaultMailer:
@@ -428,16 +430,18 @@ swiftmailer:
 
 
 // app/config/config_dev.yml
+// make sure dev-environment mails are sent immediately to a developer-account and not to real email-addresses
 swiftmailer:
     mailers:
         defaultMailer:
-            delivery_address: from-dev-env-spool@businger.ch
+            delivery_address: mail-to-dev-account-spool@your.domain.com
 
         immediateMailer:
-            delivery_address: from-dev-env-nospool@businger.ch
+            delivery_address: mail-to-dev-account-nospool@your.domain.com
 
 
 // app/config/config_test.yml
+// don't send mails during test-runs, only spool them in a dedicated directory
 swiftmailer:
     mailers:
         defaultMailer:
