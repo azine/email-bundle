@@ -148,7 +148,23 @@ azine_email:
 
 ```
 
-## Customise the content and layout of your emails
+## Customise the content of you emails
+You must implement your version of the notifier service in which you pull the content
+of you notification- or newsletter-emails together. In you subclass of AzineNotifierService you can/should implement
+the following functions:
+
+- getVarsForNotificationsEmail => variables you use in your twig-templates that are the same for all notification recipients
+- getRecipientVarsForNotificationsEmail => variables you use in twig-templates for notifications that are specific for a recipient
+- getRecipientSpecificNotificationsSubject => the notification-email subject
+- getGeneralVarsForNewsletter => variable you use in twig-templates that are the same for all newsletter recipients
+- getNonRecipientSpecificNewsletterContentItems => content items that are the same for all newsletter recipients
+- getRecipientSpecificNewsletterParams => variables you use in twig-templates that are specific for a recipient
+- getRecipientSpecificNewsletterContentItems => content items for a specific recipient
+- getRecipientSpecificNewsletterSubject => newsletter subject for a specific recipient
+
+See `ExampleNotifierService.php` for an example.
+
+## Customise the layout of your emails
 You can/must customize the layout of your email in three ways:
 
 - define your own styles by writing your own implementation of the TemplateProviderInterface 
