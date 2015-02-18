@@ -1,0 +1,55 @@
+{% extends 'AzineEmailBundle::baseEmailLayout.html.twig' %}
+{% autoescape false %}
+{% spaceless %}
+
+{% block title %}Your html-title here{% endblock %}
+
+{% block logo %}
+    <a href="http://example.com" target="_blank" style="color: green; font-size: 72px; font-weight: bold; text-decoration: none;">
+        <img src="{{ logo_png }}" alt="azine" height="35" width="169" />
+    </a>
+{% endblock %}
+
+{% block content %}{# override this block for emails that don't contain "contentItems" => password-reset, account-confirmation, other custom emails of your application #}
+    {% block contentHead %}{# override this block for emails that do contain "contentItems" => e.g. NewsLetter or Notifications #}
+        <span {{ salutationStyle }}>Hello,</span>
+        <p>
+            Add some html content here
+        </p>
+        <p>
+            This is just the default content-block.
+        </p>
+        <p>
+            Best regards,
+            <br/>
+            <span style="color:#024d84;">the azine team</span>
+        </p>
+    {% endblock %}
+{% endblock %}
+
+
+{# also override all the following blocks to suite your application/needs #}
+{% block footerInfoText %}
+<p style="color:white;">
+    The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.
+</p>
+<p style="color:white;">
+    Add "<a href="mailto:{{ sendMailAccountName }}&lt;{{ sendMailAccountAddress }}&gt;">{{ sendMailAccountAddress }}</a>" to your address book to ensure delivery of azine emails.
+</p>
+{% endblock %}
+
+{% block footerCopyrightText %}
+<p style="color:white;">
+    &copy; 2013
+</p>
+{% endblock %}
+
+{% block footerLinks %}
+    <a style="color:#acacac; text-decoration:none;" href="http://example.com#help">Help</a> |
+    <a style="color:#acacac; text-decoration:none;" href="http://example.com#tos">Terms of use</a> |
+    <a style="color:#acacac; text-decoration:none;" href="http://example.com#about">About</a> |
+    <a style="color:#acacac; text-decoration:none;" href="http://example.com#contact">Contact</a>
+{% endblock %}
+
+{% endspaceless %}
+{% endautoescape %}
