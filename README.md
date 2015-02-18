@@ -110,7 +110,7 @@ azine_email:
     # absolute path to the image-folder containing the images used in your templates.
     image_dir:            %kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/
 
-    # list of folders from which images are allowed to be embeded into emails
+    # list of folders from which images are allowed to be embedded into emails
     allowed_images_folders:  []
 
     # newsletter configuration
