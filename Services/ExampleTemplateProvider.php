@@ -9,9 +9,11 @@ namespace Azine\EmailBundle\Services;
  */
 class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateProviderInterface
 {
-    // design your own templates for newsletter/notifications.
+    // design your own twig-templates for your custom emails
     const VIP_INFO_MAIL_TEMPLATE		= 'AcmeExampleEmailBundle:VIP:infoMail';
     const SOME_OTHER_MAIL_TEMPLATE		= 'AcmeExampleEmailBundle:Foo:marMail';
+    // and also design your own base-template that should be used for newsletter/notification-emails
+    // and define the template IDs for the newsletter- and notification-emails in your config.yml
 
     /**
      * (non-PHPdoc)
