@@ -209,7 +209,7 @@ services:
             templates_content_item:   "%azine_email_templates_content_item%"
 ```			
 
-change 
+on your config file change 
 ```
    notifier_service:     azine_email.example.notifier_service			
 ```			
