@@ -31,7 +31,7 @@ provide recipient information (name/email/notification interval/newsletter subsc
 for the mails to be sent.
 
 ## Installation
-To install AzineGeoBlockingBundle with Composer just add the following to your `composer.json` file:
+To install AzineEmailBundle with Composer just add the following to your `composer.json` file:
 
 ```
 // composer.json

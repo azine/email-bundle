@@ -147,32 +147,6 @@ class AzineNotifierService implements NotifierServiceInterface
     }
 
     /**
-     * Get the number of seconds in a "one-hour-interval"
-     * @return integer of seconds to consider as an hour.
-     */
-    protected function getHourInterval()
-    {
-        // about an hour ago (57min)
-        // this is because if the last run started 60min. ago, then the notifications
-        // for any recipient have been send after that and would be skipped until the next run.
-        // if your cron-job runs every minute, this is not needed.
-        return 	60*60 - 3*60;
-    }
-
-    /**
-     * Get the number of seconds in a "one-day-interval"
-     * @return integer of seconds to consider as a day.
-     */
-    protected function getDayInterval()
-    {
-        // about a day ago (23h57min)
-        // this is because if the last run started 24h. ago, then the notifications
-        // for any recipient have been send after that and would be skipped until the next run.
-        // if your cron-job runs every minute, this is not needed.
-        return 60 * 60 * 24 - 3 * 60;
-    }
-
-    /**
      * Over ride this constructor if you need to inject more dependencies to get all the data together that you need for your newsletter/notifications.
      *
      * @param TemplateTwigSwiftMailerInterface $mailer
@@ -241,12 +215,6 @@ class AzineNotifierService implements NotifierServiceInterface
     protected $em;
 
     /**
-     * Array of TwigTemplates that have been loaded already
-     * @var array
-     */
-    private $templateStore = array();
-
-    /**
      * Array of configuration-parameters from the config.yml
      * @var array
      */
@@ -257,6 +225,32 @@ class AzineNotifierService implements NotifierServiceInterface
      * @var Translator
      */
     protected $translatorService;
+
+    /**
+     * Get the number of seconds in a "one-hour-interval"
+     * @return integer of seconds to consider as an hour.
+     */
+    protected function getHourInterval()
+    {
+        // about an hour ago (57min)
+        // this is because if the last run started 60min. ago, then the notifications
+        // for any recipient have been send after that and would be skipped until the next run.
+        // if your cron-job runs every minute, this is not needed.
+        return 	60*60 - 3*60;
+    }
+
+    /**
+     * Get the number of seconds in a "one-day-interval"
+     * @return integer of seconds to consider as a day.
+     */
+    protected function getDayInterval()
+    {
+        // about a day ago (23h57min)
+        // this is because if the last run started 24h. ago, then the notifications
+        // for any recipient have been send after that and would be skipped until the next run.
+        // if your cron-job runs every minute, this is not needed.
+        return 60 * 60 * 24 - 3 * 60;
+    }
 
     /**
      * (non-PHPdoc)

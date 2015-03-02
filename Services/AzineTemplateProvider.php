@@ -25,7 +25,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
      * For each template you like to render, you need to supply the array with variables that can be passed to the twig renderer.
      * Those variables can then be used in the twig-template => {{ logo_png }}
      *
-     * In this function you should fill a set of variables for eacht template.
+     * In this function you should fill a set of variables for each template.
      *
      * @param string $template the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
      * @return array
@@ -108,7 +108,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
     }
 
     /**
-     * Override this function for your template(s) if you use other "snippets" with embeded images.
+     * Override this function for your template(s) if you use other "snippets" with embedded images.
      *
      * This function adds more complex elements to the array of variables that are passed
      * to the twig-renderer, just before sending the mail.
@@ -169,7 +169,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
     /**
      * Override this function to define your own campaign-parameters
      * (non-PHPdoc)
-     * @see Azine\EmailBundle\Services.TemplateProviderInterface::getCampaignParamsFor()
+     * @see Azine\EmailBundle\Services\TemplateProviderInterface::getCampaignParamsFor()
      */
     public function getCampaignParamsFor($templateId, array $params = null)
     {
