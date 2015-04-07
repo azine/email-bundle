@@ -14,15 +14,17 @@ class AzineWebViewService implements WebViewServiceInterface
      * (non-PHPdoc)
      * @see Azine\EmailBundle\Services.WebViewServiceInterface::getTemplatesForWebPreView()
      */
+    protected $templates = array();
+    protected $emails = array();
+
     public function getTemplatesForWebPreView()
     {
-        $templates = array();
-        $templates =$this->addTemplate($templates, "Reset Passwort Email",	AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE);
-        $templates =$this->addTemplate($templates, "Account activation",	AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE);
+        $this->addTemplate($templates, "Reset Passwort Email", AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE);
+        $this->addTemplate($templates, "Account activation", AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE);
         // override this method to add your own templates
-        // $templates =$this->addTemplate($templates, "Some other mail",	ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE);
-        // $templates =$this->addTemplate($templates, "VIP Infos",	ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE);
-        return $templates;
+        // $this->addTemplate($templates, "Some other mail",	ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE);
+        // $this->addTemplate($templates, "VIP Infos",	ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE);
+        return $this->templates;
     }
 
     /**
@@ -31,11 +33,10 @@ class AzineWebViewService implements WebViewServiceInterface
      */
     public function getTestMailAccounts()
     {
-        $emails = array();
         // override this method to add your own emails
-        // $emails = $this->addTestMailAccount($emails, 'Testmail-account for MS Outlook',	'your.email.address@for.an.outlook.client.com');
-        // $emails = $this->addTestMailAccount($emails, 'Testmail-account for Gmail', 	'your.email.address@gmail');
-        return $emails;
+        // $this->addTestMailAccount($emails, 'Testmail-account for MS Outlook',	'your.email.address@for.an.outlook.client.com');
+        // $this->addTestMailAccount($emails, 'Testmail-account for Gmail', 	'your.email.address@gmail');
+        return $this->emails;
     }
 
     /**
@@ -77,7 +78,7 @@ class AzineWebViewService implements WebViewServiceInterface
     }
 
 //////////////////////////////////////////////////////////////////////////
-/* You probably don't need to change or override any of the stuff below */
+    /* You probably don't need to change or override any of the stuff below */
 //////////////////////////////////////////////////////////////////////////
 
     /**
@@ -92,11 +93,11 @@ class AzineWebViewService implements WebViewServiceInterface
      * @param  string $emailAddress
      * @return array  the array with the added email-test-account
      */
-    protected function addTestMailAccount(array $emails, $description, $emailAddress)
+    protected function addTestMailAccount($description, $emailAddress)
     {
-        $emails[] = array('accountDescription' => $description, 'accountEmail' => $emailAddress );
+        $this->emails[] = array('accountDescription' => $description, 'accountEmail' => $emailAddress);
 
-        return $emails;
+        return $this->emails;
     }
 
     /**
@@ -107,7 +108,7 @@ class AzineWebViewService implements WebViewServiceInterface
      * @param  array       $formats
      * @return array
      */
-    protected function addTemplate($templates, $description, $templateId, $formats = array('txt','html'))
+    protected function addTemplate($description, $templateId, $formats = array('txt', 'html'))
     {
         $route = $this->router->generate("azine_email_web_preview", array('template' => $templateId));
 
@@ -117,9 +118,9 @@ class AzineWebViewService implements WebViewServiceInterface
                             'templateId'	=> $templateId,
         );
 
-        $templates[] = $template;
+        $this->templates[] = $template;
 
-        return $templates;
+        return $this->templates;
     }
 
 }
