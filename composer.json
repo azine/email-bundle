@@ -22,7 +22,7 @@
         "symfony/console": ">=2.1",
         "symfony/finder": ">=2.1",
         "symfony/twig-bundle": ">=2.1",
-        "swiftmailer/swiftmailer": ">=2.1",
+        "swiftmailer/swiftmailer": ">=4.2.0,~5.0",
         "doctrine/orm": ">=2.0",
         "monolog/monolog": ">=1.6",
         "friendsofsymfony/user-bundle": ">=1.3",
