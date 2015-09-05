@@ -8,8 +8,13 @@ use FOS\UserBundle\Model\User;
 /**
  * ExampleUser
  */
-class ExampleUser extends User implements RecipientInterface
-{
+class ExampleUser extends User implements RecipientInterface {
+
+    /**
+     * @var integer
+     */
+    protected $id;
+
     /**
      * Set some defaults
      */
@@ -62,11 +67,6 @@ class ExampleUser extends User implements RecipientInterface
 // generated stuff only below this line.
 // @codeCoverageIgnoreStart
 ///////////////////////////////////////////////////////////////////
-
-    /**
-     * @var integer
-     */
-    private $id;
 
     /**
      * @var string
