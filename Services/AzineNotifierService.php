@@ -147,6 +147,19 @@ class AzineNotifierService implements NotifierServiceInterface
     }
 
     /**
+     * By overriding this function you can rearrange the content items to you liking. By default no ordering is done, so the order is as follows:
+     *
+     * - all user-specific content items as returned by AzineNotifierService::getRecipientSpecificNewsletterContentItems
+     * - all non-user-specific content items as returned by AzineNotifierService::getNonRecipientSpecificNewsletterContentItems
+     *
+     * @param array $contentItems
+     * @return array
+     */
+    public function orderContentItems(array $contentItems){
+        return $contentItems;
+    }
+
+    /**
      * Over ride this constructor if you need to inject more dependencies to get all the data together that you need for your newsletter/notifications.
      *
      * @param TemplateTwigSwiftMailerInterface $mailer
@@ -394,7 +407,7 @@ class AzineNotifierService implements NotifierServiceInterface
         $recipientContentItems = $this->getRecipientSpecificNewsletterContentItems($recipient);
 
         // merge the recipient-specific and the general content items. recipient-specific first/at the top!
-        $recipientParams[self::CONTENT_ITEMS] = array_merge($recipientContentItems,  $params[self::CONTENT_ITEMS]);
+        $recipientParams[self::CONTENT_ITEMS] = $this->orderContentItems(array_merge($recipientContentItems,  $params[self::CONTENT_ITEMS]));
         $recipientParams['_locale'] = $recipient->getPreferredLocale();
 
         if (sizeof($recipientParams[self::CONTENT_ITEMS]) == 0) {
