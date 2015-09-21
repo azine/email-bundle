@@ -13,8 +13,8 @@ class AzineEmailTwigExtension extends \Twig_Extension
     public function getFilters()
     {
         return array(
-            'textWrap' => new \Twig_Filter_Method($this, 'textWrap'),
-            'urlEncodeText' => new \Twig_Filter_Method($this, 'urlEncodeText', array('is_safe' => array('html'))),
+            'textWrap' => new \Twig_SimpleFilter('textWrap', array($this, 'textWrap')),
+            'urlEncodeText' => new \Twig_SimpleFilter('urlEncodeText', array($this, 'urlEncodeText'), array('is_safe' => array('html'))),
         );
     }
 

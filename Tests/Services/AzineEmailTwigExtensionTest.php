@@ -17,7 +17,7 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists("urlEncodeText", $filters),"The filter urlEncodeText should exist.");
 
         $filter = $filters["textWrap"];
-        $this->assertTrue($filter instanceof \Twig_Filter_Method, "Twig_Filter_Method expected as filter for textWrap.");
+        $this->assertTrue($filter instanceof \Twig_SimpleFilter, "Twig_SimpleFilter expected as filter for textWrap.");
 
         $this->assertEquals('azine_email_bundle_twig_extension', $twigExtension->getName());
     }
