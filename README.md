@@ -11,8 +11,8 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 You can easily use it with transactional email services like mailgun.com.
 
 Quick start guide:
-- [How to configure](https://github.com/azine/email-bundle/blob/master/QUICK_START.md)
-- [Examples on how to use the plugin](https://github.com/azine/email-bundle/blob/master/USAGE_EXAMPLES.md)
+- [How to configure](QUICK_START.md)
+- [Examples on how to use the plugin](USAGE_EXAMPLES.md)
 
 ## Requirements
 
