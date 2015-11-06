@@ -74,8 +74,8 @@ Check out the [ExampleWebViewService](Services/ExampleWebViewService.php) to see
 
 ## Configuration options (required)
 Update your services.yml to define your implementations of the services mentioned above (RecipientProvider, NotifierService, TemplateProvider, WebViewService).
-```
-// src/Your/AwesomeBundle/Resources/config/services.yml
+```yml
+# src/Your/AwesomeBundle/Resources/config/services.yml
 
     # the notifierservice is required, as you MUST provide your own implementation
     your.awesome.bundle.notifierservice:
@@ -122,8 +122,8 @@ Update your services.yml to define your implementations of the services mentione
 
 For the bundle to work with the "default-settings", only a few config-options are absolutely required:
 
-```
-// app/config/config.yml
+```yml
+# app/config/config.yml
 azine_email:
 
     # the class of your implementation of the RecipientInterface
