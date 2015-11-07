@@ -33,7 +33,7 @@ before_install:
 before_script:
   - ls -a /home/travis/build/azine/* -R
   - composer require symfony/symfony:${SYMFONY_VERSION} --prefer-source --no-update -v
-  - which composer
+  - which composer 
   - php -d memory_limit=-1 /usr/bin/composer install --dev --prefer-source
 
 script:
