@@ -10,6 +10,10 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 
 You can easily use it with transactional email services like mailgun.com.
 
+Quick start guide:
+- [How to configure](QUICK_START.md)
+- [Examples on how to use the plugin](USAGE_EXAMPLES.md)
+
 ## Requirements
 
 ##### 1. Swift-Mailer with working configuration 
@@ -33,12 +37,10 @@ for the mails to be sent.
 ## Installation
 To install AzineEmailBundle with Composer just add the following to your `composer.json` file:
 
-```
+```javascript
 // composer.json
 {
-    // ...
     require: {
-        // ...
         "azine/email-bundle": "dev-master"
     }
 }
@@ -52,7 +54,7 @@ php composer.phar update
 Now, Composer will automatically download all required files, and install them for you. 
 All that is left to do is to update your AppKernel.php file, and register the new bundle:
 
-```
+```php
 <?php
 
 // in AppKernel::registerBundles()
@@ -65,8 +67,8 @@ $bundles = array(
 
 Register the routes of the AzineEmailBundle:
 
-```
-// in app/config/routing.yml
+```yml
+# in app/config/routing.yml
 
 azine_email_bundle:
     resource: "@AzineEmailBundle/Resources/config/routing.yml"
@@ -78,8 +80,8 @@ For the bundle to work with the default-settings, no config-options are
 required, but the swiftmailer must be configured.
 
 This is the complete list of configuration options with their defaults.
-```
-// app/config/config.yml
+```yml
+# app/config/config.yml
 azine_email:
 
     # the class of your implementation of the RecipientInterface
@@ -274,7 +276,7 @@ value for `azine_email_web_view_retention`. The default is 90 days.
 
 The web-view uses the following routes that:
 
-```
+```yml
 // ...EmailBundle/Resources/config/routing.yml
 # route for users to see emails
 azine_email_webview:
@@ -304,7 +306,7 @@ azine_email_send_test_email:
 
 To use web-view you must enable these routes by including the routing file in you config.
 
-```
+```yml
 // app/config/routing.yml
 ...
 azine_email_bundle:
@@ -362,7 +364,7 @@ mailer should attempt to send those mails, before they are deleted by this comma
 ## Cron-Job examples
 Here are some examples how to configure your cronjobs to send the emails and cleanup periodically.
 
-```
+```bash
 # Send a newsletter every friday:
 0 	10 	* 	* 	5 	/usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console emails:sendNewsletter -e prod >>/path/to/your/application/app/logs/cron.log 2>&1 
 
@@ -388,7 +390,7 @@ Here are some examples how to configure your cronjobs to send the emails and cle
 This bundle also adds a twig filter that allows you to wrap text using the php 
 function wordwrap. It defaults to a line width of 75 chars.
 
-```
+```twig
 {{ "This text should be wrapped after 75 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap }}
 or
 {{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
@@ -403,8 +405,8 @@ To achieve this you must do two things:
   2) define which emails should be delivered immediately in your TemplateProvider.
 
 Here are extracts from config.yml-files:
-```
-// app/config/config.yml
+```yml
+# app/config/config.yml
 # Swiftmailer Configuration
 swiftmailer:
     default_mailer: defaultMailer // name of the default mailer defined below.
@@ -473,7 +475,7 @@ swiftmailer:
 ```
 
 And in your implementation of the TemplateProviderInterface, you can define emails from which templates should be sent immediately instead of spooled:
-```
+```php
 // see ExampleTemplateProvider or AzineTemplateProvider for an example
    protected function getParamArrayFor($template){
 
@@ -493,8 +495,8 @@ like mailgun.com, postmarkapp.com or madrill.com, you can set
 the swiftmailer configuration to use their smpt server to send
 emails.
 
-```
-// app/config/config.yml (or imported from your parameters.yml.dist)
+```yml
+# app/config/config.yml (or imported from your parameters.yml.dist)
 swiftmailer:
     host:           "smtp.mailgun.org"
     username:       "postmaster@acme.com"

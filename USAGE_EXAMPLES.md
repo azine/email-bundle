@@ -2,7 +2,7 @@ Usage Examples
 ==============
 
 ## Send a single email programmatically
-```
+```php
 $subject = "your email subject";
 $recipientName = "John Doe";
 $recipientEmail = "john@doe.com";
@@ -22,7 +22,7 @@ $mailer->sendSingleEmail($recipientEmail, $recipientName, $subject, $params, Ema
 ```
 
 ## Send an email to one or more recipients with extra options
-```
+```php
 // $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName all follow the same pattern.
 // if $from is a string, then the name is added to the address => "John Doe <me@acme.com>"
 // if $from is an array of strings, the name is ignored. => "me@acme.com, you@acme.com" 
@@ -44,7 +44,7 @@ for($failedRecipients as $failure){
 ```
 
 ## Create a simple text-notification email
-```
+```php
 // get all elements used for the notification email
 $title = "You have won the lottery!"
 $content = "Congratulation John! You have won 7'000'000$ in the lottery";
@@ -57,7 +57,7 @@ $notifierService->addNotificationMessage($recipientId, $title, $content, $goToUr
 ```
 
 ## Create a notification with a custom layout
-```
+```php
 // get all elements used for the notification email
 $title = "You have won the lottery!"
 $content = "Congratulation John! You have won 7'000'000$ in the lottery";
@@ -78,7 +78,7 @@ Of course you can run the send command from a cron-job or a terminal, but doing 
 with a scheduler (e.g. cron) is probably what you really want.
 
 Here are the commands you will want to run periodically:
-```
+```php
 // every minute
 php app/console swiftmailer:spool:send                  // send all spooled mails (e.g. every minute)
 php app/console  emails:sendNotifications               // Aggregate and send pending notifications via email.
@@ -91,7 +91,7 @@ php app/console  emails:remove-old-web-view-emails      // Remove all "SentEmail
 ```
 
 Here's an example cron-job line:
-```
+```php
 // run job a 3 o'clock on the first day of the month and log output into the cron.log file
 0 	3 	1 	* 	*  /usr/local/bin/php /home/acme/app/console emails:remove-old-web-view-emails -e prod >>/home/acme/app/logs/cron.log 2>&1 
 ```
