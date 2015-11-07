@@ -1,5 +1,14 @@
 Usage Examples
 ==============
+Here are some usage examples for this bundle. Please also take a look at the example-implementations of some classes you could/should extend when you use this bundle.
+- [ExampleUser](Entity/ExampleUser.php) & [ExampleUserRepository](Entity/Repositories/ExampleUserRepository.php)
+- [ExampleNotifierService](Services/ExampleNotifierService.php)
+- [ExampleTemplateProvider](Services/ExampleTemplateProvider.php)
+- [ExampleWebViewService](Services/ExampleWebViewService.php)
+- [services.yml](Resources/config/services.yml): see the service definitions for the above services.
+- [exampleEmailLayout.txt.twig](Resources/views/exampleEmailLayout.txt.twig) & [exampleEmailLayout.html.twig](Resources/views/exampleEmailLayout.html.twig): Note: The txt.twig includes the html.twig at the bottom. 
+
+
 
 ## Send a single email programmatically
 ```php
