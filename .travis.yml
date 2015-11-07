@@ -27,10 +27,13 @@ matrix:
 
 sudo: false
 
+before_install:
+  - composer self-update
+
 before_script:
   - ls -a /home/travis/build/azine/* -R
   - composer require symfony/symfony:${SYMFONY_VERSION} --prefer-source --no-update -v
-  - composer -vvv install --dev --prefer-source
+  - php -d memory_limit=-1 /usr/bin/composer install --dev --prefer-source
 
 script:
   - phpunit --coverage-clover=coverage.clover /home/travis/build/azine/email-bundle/Tests/
