@@ -45,7 +45,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
 
         $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->exactly($count)));
 
-        $display = $this->executeCommandAndGetDisplay($command, array('date' => 'now'));
+        $display = $this->executeCommandAndGetDisplay($command, array('date' => ' > now -1 minute'));
         $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@test.com'", $display);
         $this->assertContains("Sent!", $display);
     }
