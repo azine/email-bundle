@@ -18,14 +18,6 @@
         <source>content.items.go.to.message.link.text</source>
         <target>Gehe zur Nachricht</target>
       </trans-unit>
-      <trans-unit id="2c9652a9ece6edcc43429d0c7dcbd755a724f5b7" resname="example.templateProvider.your.newsletter.subject">
-        <source>example.templateProvider.your.newsletter.subject</source>
-        <target>Dein Newsletter-Betreff</target>
-      </trans-unit>
-      <trans-unit id="45922abe617dcdfc28d84a356d9cdd15b50d9e98" resname="example.templateProvider.your.notification.subject">
-        <source>example.templateProvider.your.notification.subject</source>
-        <target>Dein Benachrichtigungs-Betreff</target>
-      </trans-unit>
       <trans-unit id="9cc27e4ea30041d924908f649cb3974e9e02ca81" resname="html.email.go.to.top.link.label">
         <source>html.email.go.to.top.link.label</source>
         <target>Nach oben</target>
