@@ -2,20 +2,19 @@
 
 namespace Azine\EmailBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * SentEmail
  */
-class SentEmail{
-
-	/**
-	 * Generate a 23-char unique id
-	 * @return string
-	 */
-	static function getNewToken(){
-		return uniqid("", true);
-	}
+class SentEmail
+{
+    /**
+     * Generate a 23-char unique id
+     * @return string
+     */
+    public static function getNewToken()
+    {
+        return uniqid("", true);
+    }
 
 ///////////////////////////////////////////////////////////////////
 // generated stuff only below this line.
@@ -52,7 +51,6 @@ class SentEmail{
      */
     private $token;
 
-
     /**
      * Get id
      *
@@ -66,7 +64,7 @@ class SentEmail{
     /**
      * Set recipients
      *
-     * @param array $recipients
+     * @param  array     $recipients
      * @return SentEmail
      */
     public function setRecipients($recipients)
@@ -89,7 +87,7 @@ class SentEmail{
     /**
      * Set template
      *
-     * @param string $template
+     * @param  string    $template
      * @return SentEmail
      */
     public function setTemplate($template)
@@ -112,7 +110,7 @@ class SentEmail{
     /**
      * Set variables
      *
-     * @param array $variables
+     * @param  array     $variables
      * @return SentEmail
      */
     public function setVariables($variables)
@@ -135,7 +133,7 @@ class SentEmail{
     /**
      * Set sent
      *
-     * @param \DateTime $sent
+     * @param  \DateTime $sent
      * @return SentEmail
      */
     public function setSent($sent)
@@ -158,7 +156,7 @@ class SentEmail{
     /**
      * Set token
      *
-     * @param string $token
+     * @param  string    $token
      * @return SentEmail
      */
     public function setToken($token)

@@ -4,19 +4,40 @@ php:
   - 5.3
   - 5.4
   - 5.5
+  - 5.6
 
 env:
-  - SYMFONY_VERSION=2.2.*
   - SYMFONY_VERSION=2.3.*
   - SYMFONY_VERSION=2.4.*
+  - SYMFONY_VERSION=2.5.*
+  - SYMFONY_VERSION=2.6.*
+  - SYMFONY_VERSION=2.7.*
+  - SYMFONY_VERSION=2.8.*
   - SYMFONY_VERSION=dev-master
 
+matrix:
+  allow_failures:
+    - env: SYMFONY_VERSION=dev-master
+
+  exclude:
+      - php: 5.3
+        env: SYMFONY_VERSION=dev-master
+      - php: 5.4
+        env: SYMFONY_VERSION=dev-master
+
+sudo: false
+
+before_install:
+  - composer self-update
+
 before_script:
-    - composer require symfony/framework-bundle:${SYMFONY_VERSION} --prefer-source --no-update
-    - composer install --dev --prefer-source
+  - phpenv config-add travis.php.ini
+  - travis_wait composer require symfony/symfony:${SYMFONY_VERSION} --prefer-source --no-update -v
+  - travis_wait composer install --prefer-source
+  - ls -a /home/travis/build/azine/* -R
 
 script:
-  - phpunit --coverage-text --coverage-clover=coverage.clover /home/travis/build/azine/email-bundle/Tests/
+  - travis_wait phpunit --coverage-clover=coverage.clover /home/travis/build/azine/email-bundle/Tests/
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 

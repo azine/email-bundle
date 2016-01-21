@@ -10,6 +10,10 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 
 You can easily use it with transactional email services like mailgun.com.
 
+## Quick start guide & examples:
+- [How to configure](QUICK_START.md)
+- [Examples on how to use the plugin](USAGE_EXAMPLES.md)
+
 ## Requirements
 
 ##### 1. Swift-Mailer with working configuration 
@@ -31,14 +35,12 @@ provide recipient information (name/email/notification interval/newsletter subsc
 for the mails to be sent.
 
 ## Installation
-To install AzineGeoBlockingBundle with Composer just add the following to your `composer.json` file:
+To install AzineEmailBundle with Composer just add the following to your `composer.json` file:
 
-```
+```javascript
 // composer.json
 {
-    // ...
     require: {
-        // ...
         "azine/email-bundle": "dev-master"
     }
 }
@@ -52,21 +54,21 @@ php composer.phar update
 Now, Composer will automatically download all required files, and install them for you. 
 All that is left to do is to update your AppKernel.php file, and register the new bundle:
 
-```
+```php
 <?php
 
 // in AppKernel::registerBundles()
 $bundles = array(
     // ...
-       new Azine\EmailBundle\AzineEmailBundle(),
+    new Azine\EmailBundle\AzineEmailBundle(),
     // ...
 );
 ```
 
 Register the routes of the AzineEmailBundle:
 
-```
-// in app/config/routing.yml
+```yml
+# in app/config/routing.yml
 
 azine_email_bundle:
     resource: "@AzineEmailBundle/Resources/config/routing.yml"
@@ -78,8 +80,8 @@ For the bundle to work with the default-settings, no config-options are
 required, but the swiftmailer must be configured.
 
 This is the complete list of configuration options with their defaults.
-```
-// app/config/config.yml
+```yml
+# app/config/config.yml
 azine_email:
 
     # the class of your implementation of the RecipientInterface
@@ -110,7 +112,7 @@ azine_email:
     # absolute path to the image-folder containing the images used in your templates.
     image_dir:            %kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/
 
-    # list of folders from which images are allowed to be embeded into emails
+    # list of folders from which images are allowed to be embedded into emails
     allowed_images_folders:  []
 
     # newsletter configuration
@@ -148,7 +150,23 @@ azine_email:
 
 ```
 
-## Customise the content and layout of your emails
+## Customise the content of you emails
+You must implement your version of the notifier service in which you pull the content
+of you notification- or newsletter-emails together. In you subclass of AzineNotifierService you can/should implement
+the following functions:
+
+- getVarsForNotificationsEmail => variables you use in your twig-templates that are the same for all notification recipients
+- getRecipientVarsForNotificationsEmail => variables you use in twig-templates for notifications that are specific for a recipient
+- getRecipientSpecificNotificationsSubject => the notification-email subject
+- getGeneralVarsForNewsletter => variable you use in twig-templates that are the same for all newsletter recipients
+- getNonRecipientSpecificNewsletterContentItems => content items that are the same for all newsletter recipients
+- getRecipientSpecificNewsletterParams => variables you use in twig-templates that are specific for a recipient
+- getRecipientSpecificNewsletterContentItems => content items for a specific recipient
+- getRecipientSpecificNewsletterSubject => newsletter subject for a specific recipient
+
+See `ExampleNotifierService.php` for an example.
+
+## Customise the layout of your emails
 You can/must customize the layout of your email in three ways:
 
 - define your own styles by writing your own implementation of the TemplateProviderInterface 
@@ -258,7 +276,7 @@ value for `azine_email_web_view_retention`. The default is 90 days.
 
 The web-view uses the following routes that:
 
-```
+```yml
 // ...EmailBundle/Resources/config/routing.yml
 # route for users to see emails
 azine_email_webview:
@@ -288,7 +306,7 @@ azine_email_send_test_email:
 
 To use web-view you must enable these routes by including the routing file in you config.
 
-```
+```yml
 // app/config/routing.yml
 ...
 azine_email_bundle:
@@ -346,7 +364,7 @@ mailer should attempt to send those mails, before they are deleted by this comma
 ## Cron-Job examples
 Here are some examples how to configure your cronjobs to send the emails and cleanup periodically.
 
-```
+```bash
 # Send a newsletter every friday:
 0 	10 	* 	* 	5 	/usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console emails:sendNewsletter -e prod >>/path/to/your/application/app/logs/cron.log 2>&1 
 
@@ -372,10 +390,102 @@ Here are some examples how to configure your cronjobs to send the emails and cle
 This bundle also adds a twig filter that allows you to wrap text using the php 
 function wordwrap. It defaults to a line width of 75 chars.
 
-```
+```twig
 {{ "This text should be wrapped after 75 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap }}
 or
 {{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
+```
+
+## Use a different mailer for "normal" and for "urgent" emails
+In most cases you'll probably prefer UI-performance over speed of email-delivery. But for example for the password-reset- or for email-confirmation-emails
+you want the user to receive the mail a.s.a.p and not after the next spool-mailing.
+
+To achieve this you must do two things:
+  1) configure multiple swiftmailers in you config.yml-files (see example below and http://symfony.com/doc/2.6/reference/configuration/swiftmailer.html#using-multiple-mailers)
+  2) define which emails should be delivered immediately in your TemplateProvider.
+
+Here are extracts from config.yml-files:
+```yml
+# app/config/config.yml
+# Swiftmailer Configuration
+swiftmailer:
+    default_mailer: defaultMailer // name of the default mailer defined below.
+    mailers:
+        defaultMailer: // you can choose your name for the default mailer
+            host:           "%mailer_host%"
+            username:       "%mailer_user%"
+            password:       "%mailer_password%"
+            transport:      "%mailer_transport%"
+            port:           "%mailer_port%"
+            encryption:     "%mailer_encryption%"
+            antiflood:
+                threshold:  10
+                sleep:      2
+            logging:        "%kernel.debug%"
+
+        immediateMailer: // this name is hard-coded in the bundle!
+            host:           "%mailer_host%"
+            username:       "%mailer_user%"
+            password:       "%mailer_password%"
+            transport:      "%mailer_transport%"
+            port:           "%mailer_port%"
+            encryption:     "%mailer_encryption%"
+            antiflood:
+                threshold:  10
+                sleep:      2
+            logging:        "%kernel.debug%"
+
+
+// app/config/config_prod.yml
+// for most mails (defaultMailer) use spooling to improve ui responsiveness
+// you must configure a cron-job to execute the "swiftmailer:spool:send"-command
+swiftmailer:
+    mailers:
+        defaultMailer:
+            spool:
+                type: file
+                path: "%kernel.root_dir%/spool.mails/prod"
+
+
+// app/config/config_dev.yml
+// make sure dev-environment mails are sent immediately to a developer-account and not to real email-addresses
+swiftmailer:
+    mailers:
+        defaultMailer:
+            delivery_address: mail-to-dev-account-spool@your.domain.com
+
+        immediateMailer:
+            delivery_address: mail-to-dev-account-nospool@your.domain.com
+
+
+// app/config/config_test.yml
+// don't send mails during test-runs, only spool them in a dedicated directory
+swiftmailer:
+    mailers:
+        defaultMailer:
+            spool:
+                type: file
+                path: "%kernel.root_dir%/spool.mails/test"
+
+        immediateMailer:
+            spool:
+                type: file
+                path: "%kernel.root_dir%/spool.mails/test"
+
+```
+
+And in your implementation of the TemplateProviderInterface, you can define emails from which templates should be sent immediately instead of spooled:
+```php
+// see ExampleTemplateProvider or AzineTemplateProvider for an example
+   protected function getParamArrayFor($template){
+
+     ...
+        // send some mails immediately instead of spooled
+        if($template == self::VIP_INFO_MAIL_TEMPLATE){
+            $newVars[self::SEND_IMMEDIATELY_FLAG] = true;
+        }
+     ...
+
 ```
 
 
@@ -385,8 +495,8 @@ like mailgun.com, postmarkapp.com or madrill.com, you can set
 the swiftmailer configuration to use their smpt server to send
 emails.
 
-```
-// app/config/config.yml (or imported from your parameters.yml.dist)
+```yml
+# app/config/config.yml (or imported from your parameters.yml.dist)
 swiftmailer:
     host:           "smtp.mailgun.org"
     username:       "postmaster@acme.com"
@@ -408,9 +518,10 @@ your admin to un-block it.
 
 
 ## Build-Status ec.
+
 [![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle)
 [![Total Downloads](https://poser.pugx.org/azine/email-bundle/downloads.png)](https://packagist.org/packages/azine/email-bundle)
 [![Latest Stable Version](https://poser.pugx.org/azine/email-bundle/v/stable.png)](https://packagist.org/packages/azine/email-bundle)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/email-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/email-bundle/)
 [![Code Coverage](https://scrutinizer-ci.com/g/azine/email-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/email-bundle/)
-
+[![Dependency Status](https://www.versioneye.com/user/projects/567eae02eb4f470030000001/badge.svg?style=flat)](https://www.versioneye.com/user/projects/567eae02eb4f470030000001)

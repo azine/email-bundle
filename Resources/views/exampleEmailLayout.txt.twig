@@ -1,0 +1,39 @@
+{% extends 'AzineEmailBundle::baseEmailLayout.txt.twig' %}
+{% autoescape false %}
+
+{% block content %}{# override this block for emails that don't contain "contentItems" => password-reset, account-confirmation, other custom emails of your application #}
+{% block contentHead %}{# override this block for emails that do contain "contentItems" => e.g. NewsLetter or Notifications #}
+    Hello,
+    {{ txtH2Style }}{# this add a "==================="-line the "Hello" #}
+
+    Add some content here
+
+    This is just the default content-block.
+
+    Best regards,
+    the azine team
+{% endblock %}
+{% endblock %}
+
+{# also override all the following blocks to suite your application/needs #}
+{% block footerInfoText %}
+
+The Symfony-Bundle this email was created with is brought to you by Azine IT Services AG.
+
+Add "{{ sendMailAccountAddress }}" to your address book to ensure delivery of azine emails.
+{% endblock %}
+
+{% block footerLinks %}
+
+- Help         : http://example.com#help
+- Terms of use : http://example.com#tos
+- About        : http://example.com#about
+- Contact      : http://example.com#contact
+{% endblock %}
+
+{% endautoescape %}
+
+{% block body_html %}
+{# update this reference to include the twig-template with the html-version of your email. #}
+{% include 'AzineEmailBundle::exampleEmailLayout.html.twig' %}
+{% endblock %}

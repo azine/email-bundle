@@ -12,32 +12,31 @@ use Symfony\Component\DependencyInjection\Loader;
  */
 class AzineEmailExtension extends Extension
 {
-	const RECIPIENT_PROVIDER =			"recipient_provider";
-	const RECIPIENT_CLASS =				"recipient_class";
-	const RECIPIENT_NEWSLETTER_FIELD=	"recipient_newsletter_field";
-	const NO_REPLY =					"no_reply";
-	const NO_REPLY_EMAIL_ADDRESS =		"email";
-	const NO_REPLY_EMAIL_NAME =			"name";
-	const TEMPLATE_IMAGE_DIR =			"image_dir";
-	const ALLOWED_IMAGES_FOLDERS = 		"allowed_images_folders";
-	const TEMPLATE_PROVIDER = 			"template_provider";
-	const TEMPLATE_TWIG_SWIFT_MAILER =	"template_twig_swift_mailer";
-	const NOTIFIER_SERVICE =			"notifier_service";
-	const NEWSLETTER =					"newsletter";
-	const NEWSLETTER_INTERVAL = 		"interval";
-	const NEWSLETTER_SEND_TIME =		"send_time";
-	const WEB_VIEW_SERVICE =			"web_view_service";
-	const WEB_VIEW_RETENTION =			"web_view_retention";
-	const CAMPAIGN_PARAM_NAME =			"campaign_param_name";
-	const CAMPAIGN_KEYWORD_PARAM_NAME =	"campaign_keyword_param_name";
-	const PREFIX =						"azine_email_";
-	const TEMPLATES =					"templates";
-	const NEWSLETTER_TEMPLATE =			"newsletter";
-	const NOTIFICATIONS_TEMPLATE =		"notifications";
-	const CONTENT_ITEM_TEMPLATE =		"content_item";
+    const RECIPIENT_PROVIDER =			"recipient_provider";
+    const RECIPIENT_CLASS =				"recipient_class";
+    const RECIPIENT_NEWSLETTER_FIELD=	"recipient_newsletter_field";
+    const NO_REPLY =					"no_reply";
+    const NO_REPLY_EMAIL_ADDRESS =		"email";
+    const NO_REPLY_EMAIL_NAME =			"name";
+    const TEMPLATE_IMAGE_DIR =			"image_dir";
+    const ALLOWED_IMAGES_FOLDERS = 		"allowed_images_folders";
+    const TEMPLATE_PROVIDER = 			"template_provider";
+    const TEMPLATE_TWIG_SWIFT_MAILER =	"template_twig_swift_mailer";
+    const NOTIFIER_SERVICE =			"notifier_service";
+    const NEWSLETTER =					"newsletter";
+    const NEWSLETTER_INTERVAL = 		"interval";
+    const NEWSLETTER_SEND_TIME =		"send_time";
+    const WEB_VIEW_SERVICE =			"web_view_service";
+    const WEB_VIEW_RETENTION =			"web_view_retention";
+    const CAMPAIGN_PARAM_NAME =			"campaign_param_name";
+    const CAMPAIGN_KEYWORD_PARAM_NAME =	"campaign_keyword_param_name";
+    const PREFIX =						"azine_email_";
+    const TEMPLATES =					"templates";
+    const NEWSLETTER_TEMPLATE =			"newsletter";
+    const NOTIFICATIONS_TEMPLATE =		"notifications";
+    const CONTENT_ITEM_TEMPLATE =		"content_item";
 
-
-	/**
+    /**
      * {@inheritDoc}
      */
     public function load(array $configs, ContainerBuilder $container)
@@ -52,11 +51,11 @@ class AzineEmailExtension extends Extension
         $container->setAlias	($prefix.self::TEMPLATE_PROVIDER,			$config[self::TEMPLATE_PROVIDER]);
         $container->setAlias	($prefix.self::TEMPLATE_TWIG_SWIFT_MAILER,	$config[self::TEMPLATE_TWIG_SWIFT_MAILER]);
         $container->setParameter($prefix.'no_reply',	array(	'email' => 	$config[self::NO_REPLY][self::NO_REPLY_EMAIL_ADDRESS],
-        														'name' => 	$config[self::NO_REPLY][self::NO_REPLY_EMAIL_NAME]));
+                                                                'name' => 	$config[self::NO_REPLY][self::NO_REPLY_EMAIL_NAME]));
         $container->setParameter($prefix.self::TEMPLATE_IMAGE_DIR,			realpath($config[self::TEMPLATE_IMAGE_DIR]));
         $allowedFolders = array();
-        foreach ($config[self::ALLOWED_IMAGES_FOLDERS] as $folder){
-        	$allowedFolders[] = realpath($folder);
+        foreach ($config[self::ALLOWED_IMAGES_FOLDERS] as $folder) {
+            $allowedFolders[] = realpath($folder);
         }
         $container->setParameter($prefix.self::ALLOWED_IMAGES_FOLDERS,		$allowedFolders);
         $container->setAlias	($prefix.self::NOTIFIER_SERVICE,			$config[self::NOTIFIER_SERVICE]);
@@ -67,7 +66,6 @@ class AzineEmailExtension extends Extension
         $container->setParameter($prefix.self::TEMPLATES."_".self::NEWSLETTER_TEMPLATE,	$config[self::TEMPLATES][self::NEWSLETTER_TEMPLATE]);
         $container->setParameter($prefix.self::TEMPLATES."_".self::NOTIFICATIONS_TEMPLATE,	$config[self::TEMPLATES][self::NOTIFICATIONS_TEMPLATE]);
         $container->setParameter($prefix.self::TEMPLATES."_".self::CONTENT_ITEM_TEMPLATE,	$config[self::TEMPLATES][self::CONTENT_ITEM_TEMPLATE]);
-
 
         $container->setParameter($prefix.self::CAMPAIGN_PARAM_NAME,				$config[self::CAMPAIGN_PARAM_NAME]);
         $container->setParameter($prefix.self::CAMPAIGN_KEYWORD_PARAM_NAME,		$config[self::CAMPAIGN_KEYWORD_PARAM_NAME]);

@@ -2,7 +2,6 @@
 namespace Azine\EmailBundle\Tests\DependencyInjection;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Yaml\Parser;
 
@@ -24,82 +23,89 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
     /**
      * This should not throw an exception
      */
-    public function testFullConfig(){
-    	$loader = new AzineEmailExtension();
-    	$config = $this->getFullConfig();
-    	$loader->load(array($config), new ContainerBuilder());
+    public function testFullConfig()
+    {
+        $loader = new AzineEmailExtension();
+        $config = $this->getFullConfig();
+        $loader->load(array($config), new ContainerBuilder());
     }
 
     /**
      * This should throw an exception
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
-    public function testConfigWithMissingRecipientClass(){
-    	$loader = new AzineEmailExtension();
-    	$config = $this->getFullConfig();
+    public function testConfigWithMissingRecipientClass()
+    {
+        $loader = new AzineEmailExtension();
+        $config = $this->getFullConfig();
         unset($config['recipient_class']);
-    	$loader->load(array($config), new ContainerBuilder());
+        $loader->load(array($config), new ContainerBuilder());
     }
 
     /**
      * This should throw an exception
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
-    public function testConfigWithMissingTemplateProvider(){
-    	$loader = new AzineEmailExtension();
-    	$config = $this->getFullConfig();
+    public function testConfigWithMissingTemplateProvider()
+    {
+        $loader = new AzineEmailExtension();
+        $config = $this->getFullConfig();
         unset($config['template_provider']);
-    	$loader->load(array($config), new ContainerBuilder());
+        $loader->load(array($config), new ContainerBuilder());
     }
 
     /**
      * This should throw an exception
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
-    public function testConfigWithMissingEmailAddress(){
-    	$loader = new AzineEmailExtension();
-    	$config = $this->getFullConfig();
+    public function testConfigWithMissingEmailAddress()
+    {
+        $loader = new AzineEmailExtension();
+        $config = $this->getFullConfig();
         unset($config['no_reply']['email']);
-    	$loader->load(array($config), new ContainerBuilder());
+        $loader->load(array($config), new ContainerBuilder());
     }
 
     /**
      * This should throw an exception
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
-    public function testConfigWithMissingEmailName(){
-    	$loader = new AzineEmailExtension();
-    	$config = $this->getFullConfig();
+    public function testConfigWithMissingEmailName()
+    {
+        $loader = new AzineEmailExtension();
+        $config = $this->getFullConfig();
         unset($config['no_reply']['name']);
-    	$loader->load(array($config), new ContainerBuilder());
+        $loader->load(array($config), new ContainerBuilder());
     }
 
     /**
      * This should throw an exception
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
-    public function testConfigWithMissingEmail(){
-    	$loader = new AzineEmailExtension();
-    	$config = $this->getFullConfig();
+    public function testConfigWithMissingEmail()
+    {
+        $loader = new AzineEmailExtension();
+        $config = $this->getFullConfig();
         unset($config['no_reply']);
-    	$loader->load(array($config), new ContainerBuilder());
+        $loader->load(array($config), new ContainerBuilder());
     }
 
-    public function testCustomConfiguration(){
+    public function testCustomConfiguration()
+    {
         $this->configuration = new ContainerBuilder();
         $loader = new AzineEmailExtension();
         $config = $this->getFullConfig();
         $config['recipient_class'] 				= 'TestRecipientClass';
         $config['recipient_newsletter_field'] 	= 'some_field';
         $config['template_provider'] 			= 'TestTemplateProvider';
-		$config['notifier_service'] 			= 'TestNotifierService';
-		$config['recipient_provider']			= 'TestRecipientService';
-		$config['template_twig_swift_mailer'] 	= 'TestTwigSwiftMailer';
-		$config['no_reply']['email'] 			= 'test@email.com';
-		$config['no_reply']['name'] 			= 'test name';
-		$config['image_dir'] 					= '/tmp';
+        $config['notifier_service'] 			= 'TestNotifierService';
+        $config['recipient_provider']			= 'TestRecipientService';
+        $config['template_twig_swift_mailer'] 	= 'TestTwigSwiftMailer';
+        $config['no_reply']['email'] 			= 'test@email.com';
+        $config['no_reply']['name'] 			= 'test name';
+        $config['image_dir'] 					= '/tmp';
 
-		$loader->load(array($config), $this->configuration);
+        $loader->load(array($config), $this->configuration);
 
         $this->assertParameter('TestRecipientClass',	'azine_email_recipient_class');
         $this->assertParameter('some_field',			'azine_email_recipient_newsletter_field');
@@ -114,9 +120,7 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertAlias('testnotifierservice',		'azine_email_notifier_service');
         $this->assertAlias('testrecipientservice',		'azine_email_recipient_provider');
         $this->assertAlias('testtwigswiftmailer',		'azine_email_template_twig_swift_mailer');
-	}
-
-
+    }
 
     protected function createEmptyConfiguration()
     {
@@ -190,7 +194,7 @@ EOF;
     }
 
     /**
-     * @param mixed  $value
+     * @param string $value
      * @param string $key
      */
     private function assertParameter($value, $key)

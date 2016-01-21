@@ -1,0 +1,78 @@
+<!doctype html>
+<head>
+{% block htmlHeader -%}
+	<title>{% block title -%}{% endblock title %}</title>
+
+	{% block stylesheets -%}
+	<link type="text/css" rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" >
+	<style type="text/css">
+	.button{
+		background: none repeat scroll 0 0 #003E6D;
+		border: 1px solid #023053;
+		border-radius: 3px 3px 3px 3px;
+		box-shadow: 0 1px 0 #12629E inset;
+		color: #FFFFFF;
+		font-family: Arial,Helvetica,sans-serif;
+		font-size: 13px;
+		margin-right: 5px;
+		padding: 9px 15px 10px;
+		cursor: pointer;
+		display: inline-block;
+		line-height: 1;
+		position: relative;
+		text-align: center;
+		text-decoration: none;
+		transition: background-color 0.15s ease-in-out 0s;
+		width: auto;
+	}
+
+	.alert-box{
+		color: #454748;
+		margin: 15px;
+		z-index: 1000;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 3px 3px 3px 3px;
+		color: white;
+		display: block;
+		font-size: 14px;
+		font-weight: bold;
+		margin-bottom: 12px;
+		padding: 6px 7px 7px;
+		position: relative;
+		text-shadow: 0 -1px rgba(0, 0, 0, 0.3);
+	}
+
+	.info{
+		background: none repeat scroll 0 0 #2BA6CB;
+	}
+
+	.warn{
+		background: none repeat scroll 0 0 #DF940B;
+	}
+
+	</style>
+	{% endblock stylesheets %}
+{% endblock htmlHeader %}
+</head>
+<body>
+{% for key, flashes in app.session.flashbag.all %}
+	{% for message in flashes %}
+	<div id="flash" class="row">
+		<div class="eleven columns centered alert-box {{ key }}" id="{{ key }}-block">
+			{{ message | trans({}) | nl2br }}
+			<a href="" class="close">&times;</a>
+		</div>
+	</div>
+	{% endfor %}
+{% endfor %}
+{% block body -%}
+{% endblock body %}
+
+{% block javascripts -%}
+{% set jqueryVersion = "1.9.1" %}
+{% set jqueryUIVersion = "1.10.2" %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/{{ jqueryVersion }}/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/{{ jqueryUIVersion }}/jquery-ui.min.js"></script>
+{% endblock javascripts %}
+</body>
+</html>

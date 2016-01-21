@@ -2,29 +2,28 @@
 
 namespace Azine\EmailBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Notification
  */
-class Notification{
-	const IMPORTANCE_LOW = 1;
-	const IMPORTANCE_NORMAL = 2;
-	const IMPORTANCE_HIGH = 3;
-	/**
-	 * Initialize the created-date with "now"
-	 */
-	public function setCreatedValue()
-	{
-		$this->created = new \DateTime();
-	}
+class Notification
+{
+    const IMPORTANCE_LOW = 1;
+    const IMPORTANCE_NORMAL = 2;
+    const IMPORTANCE_HIGH = 3;
+    /**
+     * Initialize the created-date with "now"
+     */
+    public function setCreatedValue()
+    {
+        $this->created = new \DateTime();
+    }
 
 ///////////////////////////////////////////////////////////////////
 // generated stuff only below this line.
 // @codeCoverageIgnoreStart
 ///////////////////////////////////////////////////////////////////
 
-	/**
+    /**
      * @var integer
      */
     private $id;
@@ -69,7 +68,6 @@ class Notification{
      */
     private $created;
 
-
     /**
      * Get id
      *
@@ -83,7 +81,7 @@ class Notification{
     /**
      * Set recipient_id
      *
-     * @param integer $recipientId
+     * @param  integer      $recipientId
      * @return Notification
      */
     public function setRecipientId($recipientId)
@@ -106,7 +104,7 @@ class Notification{
     /**
      * Set title
      *
-     * @param string $title
+     * @param  string       $title
      * @return Notification
      */
     public function setTitle($title)
@@ -129,7 +127,7 @@ class Notification{
     /**
      * Set content
      *
-     * @param string $content
+     * @param  string       $content
      * @return Notification
      */
     public function setContent($content)
@@ -152,7 +150,7 @@ class Notification{
     /**
      * Set template
      *
-     * @param string $template
+     * @param  string       $template
      * @return Notification
      */
     public function setTemplate($template)
@@ -175,7 +173,7 @@ class Notification{
     /**
      * Set send_immediately
      *
-     * @param boolean $sendImmediately
+     * @param  boolean      $sendImmediately
      * @return Notification
      */
     public function setSendImmediately($sendImmediately)
@@ -198,7 +196,7 @@ class Notification{
     /**
      * Set importance
      *
-     * @param integer $importance
+     * @param  integer      $importance
      * @return Notification
      */
     public function setImportance($importance)
@@ -221,7 +219,7 @@ class Notification{
     /**
      * Set sent
      *
-     * @param \DateTime $sent
+     * @param  \DateTime    $sent
      * @return Notification
      */
     public function setSent($sent)
@@ -244,7 +242,7 @@ class Notification{
     /**
      * Set created
      *
-     * @param \DateTime $created
+     * @param  \DateTime    $created
      * @return Notification
      */
     public function setCreated($created)
@@ -268,11 +266,10 @@ class Notification{
      */
     private $variables;
 
-
     /**
      * Set variables
      *
-     * @param array $variables
+     * @param  array        $variables
      * @return Notification
      */
     public function setVariables($variables)
