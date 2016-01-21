@@ -4,6 +4,7 @@ namespace Azine\EmailBundle\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Filesystem\LockHandler;
 
 /**
  * Aggregate and send pending notifications or newsletters via email
@@ -38,6 +39,14 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // create the lock
+        $lock = new LockHandler($this->getName());
+        if (!$lock->lock()) {
+            $output->writeln('The command is already running in another process.');
+
+            return 0;
+        }
+
         $failedAddresses = array();
         $sentMails = $this->getContainer()->get('azine_email_notifier_service')->sendNotifications($failedAddresses);
 
@@ -48,5 +57,8 @@ EOF
                 $output->writeln("    ".$address);
             }
         }
+
+        // (optional) release the lock (otherwise, PHP will do it for you automatically)
+        $lock->release();
     }
 }
