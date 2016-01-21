@@ -372,6 +372,8 @@ Here are some examples how to configure your cronjobs to send the emails and cle
 0 	10 	* 	* 	5 	[ `expr \`date +\%s\` / 86400 \% 2` -eq 0 ] && /usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console emails:sendNewsletter -e prod >>/path/to/your/application/app/logs/cron.log 2>&1 
 
 # Send notifications every minute:
+# Beware! If processing this command takes longer than 1 minute (e.g. trying to send a lot of notifications in one run), 
+# then duplicate emails will be sent, as another run is started every 60s. This issue is fixed in the master branch, but only available for Symfony 2.6
 * 	* 	* 	* 	* 	/usr/local/bin/php -c /path/to/folder/with/php.ini-file/to/use /path/to/your/application/app/console emails:sendNotifications -e prod >>/path/to/your/application/app/logs/cron.log 2>&1 
 
 # Delete old web-view-emails every night:
