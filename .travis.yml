@@ -32,11 +32,11 @@ before_install:
   - composer self-update
 
 before_script:
-  - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini 
   - phpenv config-add travis.php.ini
   - travis_wait composer require symfony/symfony:${SYMFONY_VERSION} --prefer-source --no-update -v
   - travis_wait composer install --prefer-source
-  - ls -a /home/travis/build/azine/* -R
+  - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
+#  - ls -a /home/travis/build/azine/* -R
 
 script:
   - travis_wait phpunit --coverage-clover=coverage.clover /home/travis/build/azine/email-bundle/Tests/
