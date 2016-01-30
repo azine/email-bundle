@@ -26,23 +26,6 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * This is actually implemented in the base-class
-     * @return int
-     */
-    public function getId(){
-        return parent::getId();
-    }
-
-    /**
-     * This is actually implemented in the base-class
-     * @return string email address
-     */
-    public function getEmail(){
-        return parent::getEmail();
-    }
-
-
-    /**
      * @return string representation of this user
      */
     public function getDisplayName()
