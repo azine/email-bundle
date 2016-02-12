@@ -179,8 +179,12 @@ class AzineTemplateProvider implements TemplateProviderInterface
 
         if ($templateId == self::NEWSLETTER_TEMPLATE) {
             $campaignParams[$this->tracking_params_campaign_source] = "newsletter";
-        } else 	if ($templateId == self::NOTIFICATIONS_TEMPLATE) {
+        } else if ($templateId == self::NOTIFICATIONS_TEMPLATE) {
             $campaignParams[$this->tracking_params_campaign_source] = "mailnotify";
+
+            // don't track password-reset emails
+        } else if($templateId == self::FOS_USER_PWD_RESETTING_TEMPLATE || $templateId == self::FOS_USER_REGISTRATION_TEMPLATE){
+            $campaignParams = array();
         }
 
         return $campaignParams;
