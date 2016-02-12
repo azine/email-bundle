@@ -171,17 +171,19 @@ class AzineTemplateProvider implements TemplateProviderInterface
      * (non-PHPdoc)
      * @see Azine\EmailBundle\Services\TemplateProviderInterface::getCampaignParamsFor()
      */
-    public function getCampaignParamsFor($templateId, array $params = null)
-    {
+    public function getCampaignParamsFor($templateId, array $params = null) {
+        $campaignParams = array(
+            $this->tracking_params_campaign_medium => "email",
+            $this->tracking_params_campaign_name => date("y-m-d")
+        );
+
         if ($templateId == self::NEWSLETTER_TEMPLATE) {
-            return array($this->campaignParamName => "newsletter", $this->campaignKeyWordParamName => date("y-m-d"));
-
+            $campaignParams[$this->tracking_params_campaign_source] = "newsletter";
         } else 	if ($templateId == self::NOTIFICATIONS_TEMPLATE) {
-            return array($this->campaignParamName => "mailnotify", $this->campaignKeyWordParamName => date("y-m-d"));
-
+            $campaignParams[$this->tracking_params_campaign_source] = "mailnotify";
         }
 
-        return array();
+        return $campaignParams;
     }
 
     /**
@@ -267,14 +269,30 @@ class AzineTemplateProvider implements TemplateProviderInterface
     protected $paramArrays = array();
 
     /**
-     * @var string
+     * @var  string
      */
-    protected $campaignKeyWordParamName;
+    protected $tracking_params_campaign_source;
 
     /**
-     * @var string
+     * @var  string
      */
-    protected $campaignParamName;
+    protected $tracking_params_campaign_medium;
+
+    /**
+     * @var  string
+     */
+    protected $tracking_params_campaign_content;
+
+    /**
+     * @var  string
+     */
+    protected $tracking_params_campaign_name;
+
+    /**
+     * @var  string
+     */
+    protected $tracking_params_campaign_term;
+
 
     /**
      * Array to store all the arrays for the code snippets for all the different temlpates.
@@ -298,8 +316,11 @@ class AzineTemplateProvider implements TemplateProviderInterface
             }
         }
         $this->allowedImageFolders[md5($this->templateImageDir)] = $this->templateImageDir;
-        $this->campaignParamName = $parameters[AzineEmailExtension::CAMPAIGN_PARAM_NAME];
-        $this->campaignKeyWordParamName = $parameters[AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME];
+        $this->tracking_params_campaign_content = $parameters[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT];
+        $this->tracking_params_campaign_medium = $parameters[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM];
+        $this->tracking_params_campaign_name = $parameters[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME];
+        $this->tracking_params_campaign_source = $parameters[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE];
+        $this->tracking_params_campaign_term = $parameters[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_TERM];
     }
 
     /**

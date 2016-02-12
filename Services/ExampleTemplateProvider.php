@@ -94,8 +94,8 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
     {
         $campaignParams = array();
         //if ($templateId == "AcmeFooBundle:bar:mail.template") {
-        //	$campaignParams[$this->campaignParamName] = "foo-bar-campaign";
-        //	$campaignParams[$this->campaignKeyWordParamName] = "keyword";
+        //      $campaignParams[$this->tracking_params_campaign_name] = "foo-bar-campaign";
+        //      $campaignParams[$this->tracking_params_campaign_term] = "keyword";
         //} else {
             // get some other params
             $campaignParams = parent::getCampaignParamsFor($templateId, $params);

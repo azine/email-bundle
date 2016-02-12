@@ -24,9 +24,12 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $imagesDir = realpath(__DIR__."/../../Resources/htmlTemplateImages/");
         $mocks['templateProvider'] = new AzineTemplateProvider($mocks['router'], $mocks['translator'], array(	AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
                                                                                                                 AzineEmailExtension::TEMPLATE_IMAGE_DIR => $imagesDir,
-                                                                                                                AzineEmailExtension::CAMPAIGN_PARAM_NAME => "pk_campaign",
-                                                                                                                AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME => "pk_kwd",
-                                                                                                            ));
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME=> "utm_campaign",
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_TERM => "utm_term",
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => "utm_source",
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM => "utm_medium",
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => "utm_content",
+                                                                                                                ));
         $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
         $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
@@ -172,8 +175,11 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $imagesDir = realpath(__DIR__."/../../Resources/htmlTemplateImages/");
         $mocks['templateProvider'] = new AzineTemplateProvider($mocks['router'], $mocks['translator'], array(	AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
                                                                                                                 AzineEmailExtension::TEMPLATE_IMAGE_DIR => $imagesDir,
-                                                                                                                AzineEmailExtension::CAMPAIGN_PARAM_NAME => "pk_campaign",
-                                                                                                                AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME => "pk_kwd",
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME=> "utm_campaign",
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_TERM => "utm_term",
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => "utm_source",
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM => "utm_medium",
+                                                                                                                AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => "utm_content",
                                                                                                             ));
         $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 

@@ -28,8 +28,12 @@ class AzineEmailExtension extends Extension
     const NEWSLETTER_SEND_TIME =		"send_time";
     const WEB_VIEW_SERVICE =			"web_view_service";
     const WEB_VIEW_RETENTION =			"web_view_retention";
-    const CAMPAIGN_PARAM_NAME =			"campaign_param_name";
-    const CAMPAIGN_KEYWORD_PARAM_NAME =	"campaign_keyword_param_name";
+
+    const TRACKING_PARAM_CAMPAIGN_NAME    =	"tracking_params_campaign_name";
+    const TRACKING_PARAM_CAMPAIGN_TERM    =	"tracking_params_campaign_term";
+    const TRACKING_PARAM_CAMPAIGN_CONTENT =	"tracking_params_campaign_content";
+    const TRACKING_PARAM_CAMPAIGN_MEDIUM  =	"tracking_params_campaign_medium";
+    const TRACKING_PARAM_CAMPAIGN_SOURCE  =	"tracking_params_campaign_source";
     const PREFIX =						"azine_email_";
     const TEMPLATES =					"templates";
     const NEWSLETTER_TEMPLATE =			"newsletter";
@@ -63,12 +67,15 @@ class AzineEmailExtension extends Extension
         $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_INTERVAL,	$config[self::NEWSLETTER][self::NEWSLETTER_INTERVAL]);
         $container->setParameter($prefix.self::NEWSLETTER."_".self::NEWSLETTER_SEND_TIME,	$config[self::NEWSLETTER][self::NEWSLETTER_SEND_TIME]);
 
-        $container->setParameter($prefix.self::TEMPLATES."_".self::NEWSLETTER_TEMPLATE,	$config[self::TEMPLATES][self::NEWSLETTER_TEMPLATE]);
+        $container->setParameter($prefix.self::TEMPLATES."_".self::NEWSLETTER_TEMPLATE,	    $config[self::TEMPLATES][self::NEWSLETTER_TEMPLATE]);
         $container->setParameter($prefix.self::TEMPLATES."_".self::NOTIFICATIONS_TEMPLATE,	$config[self::TEMPLATES][self::NOTIFICATIONS_TEMPLATE]);
         $container->setParameter($prefix.self::TEMPLATES."_".self::CONTENT_ITEM_TEMPLATE,	$config[self::TEMPLATES][self::CONTENT_ITEM_TEMPLATE]);
 
-        $container->setParameter($prefix.self::CAMPAIGN_PARAM_NAME,				$config[self::CAMPAIGN_PARAM_NAME]);
-        $container->setParameter($prefix.self::CAMPAIGN_KEYWORD_PARAM_NAME,		$config[self::CAMPAIGN_KEYWORD_PARAM_NAME]);
+        $container->setParameter($prefix.self::TRACKING_PARAM_CAMPAIGN_CONTENT,	$config[self::TRACKING_PARAM_CAMPAIGN_CONTENT]);
+        $container->setParameter($prefix.self::TRACKING_PARAM_CAMPAIGN_MEDIUM,	$config[self::TRACKING_PARAM_CAMPAIGN_MEDIUM]);
+        $container->setParameter($prefix.self::TRACKING_PARAM_CAMPAIGN_NAME,	$config[self::TRACKING_PARAM_CAMPAIGN_NAME]);
+        $container->setParameter($prefix.self::TRACKING_PARAM_CAMPAIGN_SOURCE,	$config[self::TRACKING_PARAM_CAMPAIGN_SOURCE]);
+        $container->setParameter($prefix.self::TRACKING_PARAM_CAMPAIGN_TERM,	$config[self::TRACKING_PARAM_CAMPAIGN_TERM]);
 
         $container->setAlias	($prefix.self::WEB_VIEW_SERVICE,			$config[self::WEB_VIEW_SERVICE]);
         $container->setParameter($prefix.self::WEB_VIEW_RETENTION,			$config[self::WEB_VIEW_RETENTION]);

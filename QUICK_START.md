@@ -106,8 +106,11 @@ Update your services.yml to define your implementations of the services mentione
           parameters:
             image_dir:  "%azine_email_image_dir%"
             allowed_images_folders: "%azine_email_allowed_images_folders%"
-            campaign_param_name: "%azine_email_campaign_param_name%"
-            campaign_keyword_param_name: "%azine_email_campaign_keyword_param_name%"
+            tracking_params_campaign_name: "%azine_email_tracking_params_campaign_name%"
+            tracking_params_campaign_term: "%azine_email_tracking_params_campaign_term%"
+            tracking_params_campaign_content: "%azine_email_tracking_params_campaign_content%"
+            tracking_params_campaign_medium: "%azine_email_tracking_params_campaign_medium%"
+            tracking_params_campaign_source: "%azine_email_tracking_params_campaign_source%"
 
     # if you don't add new templates and your newsletter does not need any dummy-data
     # then the web_view_service is optional

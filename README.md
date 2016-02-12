@@ -136,11 +136,12 @@ azine_email:
         # template id (without ending) for notification content items
         content_item:         AzineEmailBundle:contentItem:message
 
-    # the parameter to be used do identify campaigns in urls
-    campaign_param_name:  pk_campaign # defaults work with piwik, but you can change them to work with adWords
-
-    # the parameter to be used do identify campaign-keywords in urls
-    campaign_keyword_param_name:  pk_kwd # defaults work with piwik, but you can change them to work with adWords
+    # the parameters for link tracking. see https://support.google.com/analytics/answer/1033867 for more infos.
+    tracking_params_campaign_name:    utm_name     #defaluts to utm_name, piwik and google analytics both understand these parameters
+    tracking_params_campaign_term:    utm_term     #defaluts to utm_term, piwik and google analytics both understand these parameters
+    tracking_params_campaign_content: utm_content  #defaluts to utm_content, piwik and google analytics both understand these parameters
+    tracking_params_campaign_medium:  utm_medium   #defaluts to utm_medium, piwik and google analytics both understand these parameters
+    tracking_params_campaign_source:  utm_source   #defaluts to utm_source, piwik and google analytics both understand these parameters
 
     # number of days that emails should be available in web-view
     web_view_retention:   90

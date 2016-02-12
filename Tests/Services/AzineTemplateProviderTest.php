@@ -19,8 +19,11 @@ class AzineTemplateProviderTest extends \PHPUnit_Framework_TestCase
 
         $params = array(	AzineEmailExtension::TEMPLATE_IMAGE_DIR => realpath(__DIR__."/../../Resources/htmlTemplateImages/"),
                             AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array(realpath(__DIR__."/../../Resources/htmlTemplateImages/")),
-                            AzineEmailExtension::CAMPAIGN_PARAM_NAME => "pk_campaign",
-                            AzineEmailExtension::CAMPAIGN_KEYWORD_PARAM_NAME => "pk_kwd",
+                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME=> "utm_campaign",
+                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_TERM => "utm_term",
+                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => "utm_source",
+                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM => "utm_medium",
+                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => "utm_content",
                     );
 
         return array('router' => $routerMock, "translator" => $translatorMock, 'params' => $params);
@@ -130,16 +133,16 @@ class AzineTemplateProviderTest extends \PHPUnit_Framework_TestCase
         $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
 
         $campaignParams1 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
-        $this->assertEquals(2, sizeof($campaignParams1));
-        $this->assertEquals("newsletter", $campaignParams1["pk_campaign"]);
+        $this->assertEquals(3, sizeof($campaignParams1));
+        $this->assertEquals("newsletter", $campaignParams1["utm_source"]);
 
         $campaignParams2 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE);
-        $this->assertEquals(2, sizeof($campaignParams2));
-        $this->assertEquals("mailnotify", $campaignParams2["pk_campaign"]);
+        $this->assertEquals(3, sizeof($campaignParams2));
+        $this->assertEquals("mailnotify", $campaignParams2["utm_source"]);
 
         $campaignParams3 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE);
         $this->assertTrue(is_array($campaignParams3));
-        $this->assertEquals(0, sizeof($campaignParams3));
+        $this->assertEquals(2, sizeof($campaignParams3));
     }
 
     public function testIsFileAllowed()
