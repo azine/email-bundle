@@ -55,6 +55,7 @@ services:
           translator:         "@translator.default"
           templateProvider:   "@azine_email_template_provider"
           entityManager:      "@doctrine.orm.entity_manager"
+          emailOpenTrackingUrlBuilder: "@azine_email_email_open_tracking_code_builder"
           parameters:
             template:
               confirmation :  "%fos_user.registration.confirmation.template%"
@@ -73,10 +74,27 @@ services:
           newsletterField:    "%azine_email_recipient_newsletter_field%"
 
 ###################################################################
+## Email open tracking code builder
+###################################################################
+    azine.email.open.tracking.code.builder.ga.or.piwik:
+        class: Azine\EmailBundle\Services\AzineEmailOpenTrackingCodeBuilder
+        arguments:
+          trackingUrlTemplate: "%azine_email_email_open_tracking_url%"
+          parameters:
+            tracking_params_campaign_name: "%azine_email_tracking_params_campaign_name%"
+            tracking_params_campaign_term: "%azine_email_tracking_params_campaign_term%"
+            tracking_params_campaign_content: "%azine_email_tracking_params_campaign_content%"
+            tracking_params_campaign_medium: "%azine_email_tracking_params_campaign_medium%"
+            tracking_params_campaign_source: "%azine_email_tracking_params_campaign_source%"
+
+###################################################################
 ## Twig-Filter
 ###################################################################
     azine.email.bundle.twig.filters:
         class: Azine\EmailBundle\Services\AzineEmailTwigExtension
         public: false
+        arguments:
+          templateProvider:   "@azine_email_template_provider"
+          translator:         "@translator.default"
         tags:
             - { name: twig.extension }

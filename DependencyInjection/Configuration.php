@@ -39,7 +39,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode(AzineEmailExtension::NEWSLETTER)->info("newsletter configuration")
                     ->addDefaultsIfNotSet()
                     ->children()
-                           ->scalarNode(AzineEmailExtension::NEWSLETTER_INTERVAL)			->defaultValue('14')		->info("number of days between newsletters")->end()
+                        ->scalarNode(AzineEmailExtension::NEWSLETTER_INTERVAL)		->defaultValue('14')		->info("number of days between newsletters")->end()
                         ->scalarNode(AzineEmailExtension::NEWSLETTER_SEND_TIME)			->defaultValue('10:00')		->info("time of the day, when newsletters should be sent, 24h-format => e.g. 23:59")->end()
                     ->end()
                 ->end()
@@ -58,6 +58,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode	(AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT)	->defaultValue('utm_content')	->info("See https://support.google.com/analytics/answer/1033867 for more infos")->end()
                 ->scalarNode	(AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM)	->defaultValue('utm_medium')	->info("See https://support.google.com/analytics/answer/1033867 for more infos")->end()
                 ->scalarNode	(AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE)	->defaultValue('utm_source')	->info("See https://support.google.com/analytics/answer/1033867 for more infos")->end()
+                ->scalarNode	(AzineEmailExtension::EMAIL_TRACKING_BASE_URL)	        ->defaultValue(null)	        ->info("See the README.md file for more information")->end()
+                ->scalarNode	(AzineEmailExtension::EMAIL_TRACKING_CODE_BUILDER)	    ->defaultValue('azine.email.open.tracking.code.builder.ga.or.piwik')->info("Defaults to the AzineEmailOpenTrackingCodeBuilder. See the README.md file for more information")->end()
 
                 ->scalarNode	(AzineEmailExtension::WEB_VIEW_RETENTION)				->defaultValue('90')			->info("number of days that emails should be available in web-view")->end()
                 ->scalarNode	(AzineEmailExtension::WEB_VIEW_SERVICE)					->defaultValue('azine_email.example.web.view.service')			->info("the service-id of your implementation of the web view service to be used")->end()

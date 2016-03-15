@@ -1,6 +1,7 @@
 <?php
 namespace Azine\EmailBundle\Tests\Controller;
 
+use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Tests\FindInFileUtil;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\Entity\SentEmail;
@@ -104,13 +105,26 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $templateProviderMock->expects($this->exactly(3))->method('addTemplateVariablesFor')->will($this->returnValue($emailVars));
         $templateProviderMock->expects($this->exactly(3))->method('makeImagePathsWebRelative')->will($this->returnValue($emailVars));
         $templateProviderMock->expects($this->exactly(3))->method('addTemplateSnippetsWithImagesFor')->will($this->returnValue($emailVars));
+        $templateProviderMock->expects($this->exactly(3))->method('getCampaignParamsFor')->will($this->returnValue(array("utm_campaign" => "name", "utm_medium" => "medium")));
+
+
+        $trackingCodeBuilderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailOpenTrackingCodeBuilder")->setConstructorArgs(array("http://www.google-analytics.com/?", array(
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME=> "utm_campaign",
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_TERM => "utm_term",
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => "utm_source",
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM => "utm_medium",
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => "utm_content",
+        )))->getMock();
+        $trackingCodeBuilderMock->expects($this->exactly(3))->method('getTrackingImgCode')->will($this->returnValue("http://www.google-analytics.com/?"));
+
 
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(21))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(27))->method("get")->will($this->returnValueMap(array(
                 array('request', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestMock),
                 array('azine_email_web_view_service', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $webViewServiceMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
+                array('azine_email_email_open_tracking_code_builder', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $trackingCodeBuilderMock),
 
         )));
         $containerMock->expects($this->exactly(3))->method("getParameter")->with("azine_email_no_reply")->will($this->returnValue(array('email' => "no-reply-email-mock@email.com", 'name' => 'no-reply-name')));
