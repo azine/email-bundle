@@ -49,7 +49,7 @@ class AzineEmailTemplateController extends ContainerAware
      */
     public function webPreViewAction($template, $format = null)
     {
-        if (!$format) {
+        if ($format !== "txt") {
             $format = "html";
         }
 
@@ -82,6 +82,26 @@ class AzineEmailTemplateController extends ContainerAware
 
         // render & return email
         $response = $this->renderResponse("$template.$format.twig", $emailVars);
+
+        // add campaign tracking params
+        $campaignParams = $this->getTemplateProviderService()->getCampaignParamsFor($template, $emailVars);
+        if(sizeof($campaignParams) > 0) {
+            $htmlBody = $response->getContent();
+            $htmlBody = AzineEmailTwigExtension::addCampaignParamsToAllUrls($htmlBody, $campaignParams);
+
+            $emailOpenTrackingCodeBuilder = $this->container->get('azine_email_email_open_tracking_code_builder');
+            if ($emailOpenTrackingCodeBuilder) {
+                // add an image at the end of the html tag with the tracking-params to track email-opens
+                $imgTrackingCode = $emailOpenTrackingCodeBuilder->getTrackingImgCode($template, $campaignParams, $emailVars, "dummy", "dummy@from.email.com", null, null);
+                if ($imgTrackingCode && strlen($imgTrackingCode) > 0) {
+                    // replace the tracking url, so no request is made to the real tracking system.
+                    $imgTrackingCode = str_replace("://", "://webview-dummy-domain.", $imgTrackingCode);
+                    $htmlCloseTagPosition = strpos($htmlBody, "</html>");
+                    $htmlBody = substr_replace($htmlBody, $imgTrackingCode, $htmlCloseTagPosition, 0);
+                }
+            }
+            $response->setContent($htmlBody);
+        }
 
         // if the requested format is txt, remove the html-part
         if ($format == "txt") {

@@ -1,10 +1,23 @@
 <?php
 namespace Azine\EmailBundle\Services;
 
+use Symfony\Component\Translation\TranslatorInterface;
+
 class AzineEmailTwigExtension extends \Twig_Extension
 {
-    public function __construct()
-    {
+    /**
+     * @var TemplateProviderInterface
+     */
+    private $templateProvider;
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    public function __construct(TemplateProviderInterface $templateProvider, TranslatorInterface $translator){
+        $this->templateProvider = $templateProvider;
+        $this->translator = $translator;
     }
 
     /**
@@ -15,6 +28,7 @@ class AzineEmailTwigExtension extends \Twig_Extension
         return array(
             'textWrap' => new \Twig_SimpleFilter('textWrap', array($this, 'textWrap')),
             'urlEncodeText' => new \Twig_SimpleFilter('urlEncodeText', array($this, 'urlEncodeText'), array('is_safe' => array('html'))),
+            'addCampaignParamsForTemplate' => new \Twig_SimpleFilter('addCampaignParamsForTemplate', array($this, 'addCampaignParamsForTemplate'), array('is_safe' => array('html'))),
         );
     }
 
@@ -64,6 +78,11 @@ class AzineEmailTwigExtension extends \Twig_Extension
         return 'azine_email_bundle_twig_extension';
     }
 
+    public function addCampaignParamsForTemplate($html, $templateId, $templateParams){
+        $campaignParams = $this->templateProvider->getCampaignParamsFor($templateId, $templateParams);
+        return $this->addCampaignParamsToAllUrls($html, $campaignParams);
+    }
+
     /**
      * Add the campaign-parameters to all URLs in the html
      * @param  string $html
@@ -72,6 +91,7 @@ class AzineEmailTwigExtension extends \Twig_Extension
      */
     public static function addCampaignParamsToAllUrls($html, $campaignParams)
     {
+
         $urlPattern = '/(href=[\'|"])(http[s]?\:\/\/\S*)([\'|"])/';
 
         $filteredHtml = preg_replace_callback($urlPattern, function ($matches) use ($campaignParams) {
@@ -79,7 +99,15 @@ class AzineEmailTwigExtension extends \Twig_Extension
                                                                     $url = $matches[2];
                                                                     $end = $matches[3];
 
-                                                                    $urlParams = http_build_query($campaignParams);
+                                                                    // avoid duplicate params and don't replace existing params
+                                                                    $params = array();
+                                                                    foreach($campaignParams as $nextKey => $nextValue){
+                                                                        if(strpos($url, $nextKey) === false){
+                                                                            $params[$nextKey] = $nextValue;
+                                                                        }
+                                                                    }
+
+                                                                    $urlParams = http_build_query($params);
 
                                                                     if (strpos($url,"?") === false) {
                                                                         $urlParams = "?".$urlParams;

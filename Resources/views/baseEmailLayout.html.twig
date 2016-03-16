@@ -81,7 +81,9 @@ the first loop get's all the arrays, the second loop get's the template from the
 						{% for contentItemArrays in contentItems  %}
 							{% for contentItemTemplate, contentItemParams in contentItemArrays %}
 								{{ cellSeparator }}{# You can split your content into sections with the cellSepartor-variable. #}
-								{% include contentItemTemplate ~ '.html.twig' with contentItemParams %}
+								{% filter addCampaignParamsForTemplate(contentItemTemplate, contentItemParams) %}
+									{% include contentItemTemplate ~ '.html.twig' with contentItemParams %}
+								{% endfilter %}
 			  				{% endfor %}
 			  			{% endfor %}{# end for contentItems #}
 			  		{% endif %}

@@ -10,11 +10,12 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testFilters()
     {
-        $twigExtension = new AzineEmailTwigExtension();
+        $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
         $filters = $twigExtension->getFilters();
-        $this->assertEquals(2, sizeof($filters), "There should only be one filter.");
+        $this->assertEquals(3, sizeof($filters), "There should only be three filters.");
         $this->assertTrue(array_key_exists("textWrap", $filters),"The filter textWrap should exist.");
         $this->assertTrue(array_key_exists("urlEncodeText", $filters),"The filter urlEncodeText should exist.");
+        $this->assertTrue(array_key_exists("addCampaignParamsForTemplate", $filters),"The filter addCampaignParamsForTemplate should exist.");
 
         $filter = $filters["textWrap"];
         $this->assertTrue($filter instanceof \Twig_SimpleFilter, "Twig_SimpleFilter expected as filter for textWrap.");
@@ -24,7 +25,7 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testTextWrap()
     {
-        $twigExtension = new AzineEmailTwigExtension();
+        $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
         $wrapped = $twigExtension->textWrap($this->longText);
         $nlIndex = strpos($wrapped, "\n");
         $this->assertLessThanOrEqual(75, $nlIndex);
@@ -33,7 +34,7 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testTextWrap60()
     {
-        $twigExtension = new AzineEmailTwigExtension();
+        $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
         $wrapped = $twigExtension->textWrap($this->longText, 60);
         $nlIndex = strpos($wrapped, "\n");
         $this->assertLessThanOrEqual(60, $nlIndex);
@@ -42,7 +43,7 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testTextWrap100()
     {
-        $twigExtension = new AzineEmailTwigExtension();
+        $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
         $wrapped = $twigExtension->textWrap($this->longText, 100);
         $nlIndex = strpos($wrapped, "\n");
         $this->assertLessThanOrEqual(100, $nlIndex);
@@ -51,7 +52,7 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testUrlEncodeText()
     {
-        $twigExtension = new AzineEmailTwigExtension();
+        $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
 
         $percent = "%";
         $amp = "&";
@@ -74,6 +75,15 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertStringCount("%25", $textUrlEncoded, 2);
         $this->assertStringCount("%", $textUrlEncoded, 20);
 
+    }
+
+    /**
+     * @return AzineEmailTwigExtension
+     */
+    private function getAzineEmailTwigExtensionWithMocks(){
+        $templateProvider = $this->getMockBuilder("Azine\EmailBundle\Services\TemplateProviderInterface")->disableOriginalConstructor()->getMock();
+        $translator = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
+        return new AzineEmailTwigExtension($templateProvider, $translator);
     }
 
     /**

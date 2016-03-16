@@ -107,41 +107,47 @@ azine_email:
         email:                no-reply@example.com # Required
 
         # the name to appear with the 'no-reply'-address.
-        name:                 notification daemon # Required
+        name:                 'notification daemon' # Required
 
     # absolute path to the image-folder containing the images used in your templates.
-    image_dir:            %kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/
+    image_dir:            '%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/'
 
-    # list of folders from which images are allowed to be embedded into emails
+    # list of folders from which images are allowed to be embeded into emails
     allowed_images_folders:  []
 
     # newsletter configuration
     newsletter:
 
         # number of days between newsletters
-        interval:             14
+        interval:             '14'
 
         # time of the day, when newsletters should be sent, 24h-format => e.g. 23:59
-        send_time:            10:00
+        send_time:            '10:00'
 
     # templates configuration
     templates:
 
         # wrapper template id (without ending) for the newsletter
-        newsletter:           AzineEmailBundle::newsletterEmailLayout
+        newsletter:           'AzineEmailBundle::newsletterEmailLayout'
 
         # wrapper template id (without ending) for notifications
-        notifications:        AzineEmailBundle::notificationsEmailLayout
+        notifications:        'AzineEmailBundle::notificationsEmailLayout'
 
         # template id (without ending) for notification content items
-        content_item:         AzineEmailBundle:contentItem:message
+        content_item:         'AzineEmailBundle:contentItem:message'
 
     # the parameters for link tracking. see https://support.google.com/analytics/answer/1033867 for more infos.
-    tracking_params_campaign_name:    utm_name     #defaluts to utm_name, piwik and google analytics both understand these parameters
+    tracking_params_campaign_name:    utm_campaign #defaluts to utm_name, piwik and google analytics both understand these parameters
     tracking_params_campaign_term:    utm_term     #defaluts to utm_term, piwik and google analytics both understand these parameters
     tracking_params_campaign_content: utm_content  #defaluts to utm_content, piwik and google analytics both understand these parameters
     tracking_params_campaign_medium:  utm_medium   #defaluts to utm_medium, piwik and google analytics both understand these parameters
     tracking_params_campaign_source:  utm_source   #defaluts to utm_source, piwik and google analytics both understand these parameters
+
+    # See the chapter further below for more information
+    email_open_tracking_url:  null
+
+    # Defaults to the AzineEmailOpenTrackingCodeBuilder. Depending on the email_open_tracking_url it will create tracking images for piwik or google analytics. 
+    email_open_tracking_code_builder:  azine.email.open.tracking.code.builder.ga.or.piwik
 
     # number of days that emails should be available in web-view
     web_view_retention:   90
@@ -519,6 +525,61 @@ PS: make sure your application is allowed to connect to the other
 smpt. This might be blocked on shared hosting accounts. => ask 
 your admin to un-block it.
 
+## Customize the tracking values in email links
+In your implementation of the TemplateProvider, you can implement the 
+function `getCampaignParamsFor($templateId, $params)` to define the 
+values for the campaign tracking parameters in the links inside your 
+emails.
+ 
+You can define the values for each tracking parameter on an email 
+template level and for emails that are composed from multiple nested 
+content items, you can define values for these content item templates 
+as well. And finally inside all the templates you can add campaign 
+parameter values manually to individual links.
+
+In this hierarchy (email template > content item template > individual link) 
+values are not overwritten if they are defined on the more granular level.
+ 
+You can check the resulting links in the WebPreView of the email.
+
+## Track email-opens with a tracking image (e.g. with piwik or google-analytics)
+To be able to track with Piwik or GoogleAnalytics (or the like) if an email 
+has been opened, you can specify an image tracking url in your configuration.
+
+```
+#app/config/config.yml
+azine_email:
+  # for GoogleAnalytics
+  email_open_tracking_url: "https://www.google-analytics.com/collect?v=1&..." 
+
+  # for Piwik
+  email_open_tracking_url: "https://your.host.com/piwik-directory/piwik.php?idsite={$IDSITE}&bots=1&rec=1"
+```
+
+If you configure the `email_open_tracking_url` in your config.yml, then the 
+provided url will be complemented with the tracking parameters and value and 
+a html img tag will be inserted into the html code at the end of your email.
+ 
+If you wan't to change the way the tracking image url is complemented with
+the tracking parameters and values, then you can create and use your own 
+implementation of the EmailOpenTrackingCodeBuilderInterface and update your
+config.yml to use that implementation.
+
+```
+// app/config/config.yml
+azine_email:
+  # Defaults to the AzineEmailOpenTrackingCodeBuilder. See the README.md file for more information
+  email_open_tracking_code_builder:  your.email.open.tracking.code.builder
+```                 
+
+See these links for more details on email tracking with images:
+GoogleAnalytics: https://developers.google.com/analytics/devguides/collection/protocol/v1/email
+Piwik: http://piwik.org/docs/tracking-api/#image-tracker-code
+Blogpost: http://dyn.com/blog/tracking-email-opens-via-google-analytics/
+
+The tracking-image will also be inserted in the WebPreView of your emails,
+but to avoid false tracking events, the url will be modified to not
+point to your email-open-tracking system.
 
 ## Build-Status ec.
 

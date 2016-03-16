@@ -59,6 +59,11 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      */
     private $immediateMailer;
 
+    /**
+     * @var EmailOpenTrackingCodeBuilderInterface
+     */
+    private $emailOpenTrackingCodeBuilder;
+
     private $encodedItemIdPattern;
     private $currentHost;
     private $templateCache = array();
@@ -82,6 +87,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                                     Translator $translator,
                                     TemplateProviderInterface $templateProvider,
                                     EntityManager $entityManager,
+                                    EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder,
                                     array $parameters,
                                     \Swift_Mailer $immediateMailer = null)
     {
@@ -93,6 +99,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $this->entityManager = $entityManager;
         $this->noReplyEmail = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS];
         $this->noReplyName = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_NAME];
+        $this->emailOpenTrackingCodeBuilder = $emailOpenTrackingCodeBuilder;
         $this->routerContext = $router->getContext();
         $this->currentHost = $this->routerContext->getHost();
         $this->encodedItemIdPattern = "/^cid:.*@/";
@@ -146,7 +153,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $this->embedImages($message, $params);
 
         // change the locale for the email-recipients
-        if ($emailLocale != null) {
+        if ($emailLocale !== null && strlen($emailLocale) > 0) {
             $currentUserLocale = $this->translator->getLocale();
 
             // change the router-context locale
@@ -175,6 +182,16 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
         if (sizeof($campaignParams) > 0) {
             $htmlBody = AzineEmailTwigExtension::addCampaignParamsToAllUrls($htmlBody, $campaignParams);
+        }
+
+        // if email-tracking is enabled
+        if($this->emailOpenTrackingCodeBuilder){
+            // add an image at the end of the html tag with the tracking-params to track email-opens
+            $imgTrackingCode = $this->emailOpenTrackingCodeBuilder->getTrackingImgCode($templateBaseId, $campaignParams, $params, $message->getId(), $to, $cc, $bcc);
+            if($imgTrackingCode && strlen($imgTrackingCode) > 0) {
+                $htmlCloseTagPosition = strpos($htmlBody, "</html>");
+                $htmlBody = substr_replace($htmlBody, $imgTrackingCode, $htmlCloseTagPosition, 0);
+            }
         }
 
         $message->setBody($htmlBody, 'text/html');
