@@ -142,7 +142,7 @@ class AzineTemplateProviderTest extends \PHPUnit_Framework_TestCase
 
         $campaignParams3 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE);
         $this->assertTrue(is_array($campaignParams3));
-        $this->assertEquals(2, sizeof($campaignParams3));
+        $this->assertEquals(3, sizeof($campaignParams3));
     }
 
     public function testIsFileAllowed()

@@ -189,7 +189,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
             // add an image at the end of the html tag with the tracking-params to track email-opens
             $imgTrackingCode = $this->emailOpenTrackingCodeBuilder->getTrackingImgCode($templateBaseId, $campaignParams, $params, $message->getId(), $to, $cc, $bcc);
             if($imgTrackingCode && strlen($imgTrackingCode) > 0) {
-                $htmlCloseTagPosition = strpos($htmlBody, "</html>");
+                $htmlCloseTagPosition = strpos($htmlBody, "</body>");
                 $htmlBody = substr_replace($htmlBody, $imgTrackingCode, $htmlCloseTagPosition, 0);
             }
         }
