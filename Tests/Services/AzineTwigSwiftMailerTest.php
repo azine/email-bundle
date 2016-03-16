@@ -365,31 +365,31 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testSendConfirmationEmailMessage(){
-        $user = $this->getUserMock();
-        $azineMailer = $this->prepareForSendTest(AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE);
+        $azineMailer = $this->prepareForSendTest();
         $azineMailer->sendConfirmationEmailMessage($this->getUserMock());
     }
 
     public function testSendResettingEmailMessage(){
-        $user = $this->getUserMock();
-        $azineMailer = $this->prepareForSendTest(AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE);
-        $azineMailer->sendResettingEmailMessage($user);
+        $azineMailer = $this->prepareForSendTest();
+        $azineMailer->sendResettingEmailMessage($this->getUserMock());
     }
 
     /**
      * @param $templateBaseId
      * @return AzineTwigSwiftMailer
      */
-    private function prepareForSendTest($templateBaseId){
-        $mocks = $this->getMockSetup();
+    private function prepareForSendTest(){
+        $mocks = $this->getMockSetup(array($this, 'returnOne'));
 
         // as the subject from FOS-templates is embeded in the twig-template, the render-block is called 3 instead of only 2 times
         $mocks['baseTemplateMock']->expects($this->exactly(3))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
 
         $mocks['parameters']['template'] = array();
-        $mocks['parameters']['template']['confirmation'] = $templateBaseId.".txt.twig";
+        $mocks['parameters']['template']['confirmation'] = AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE.".txt.twig";
+        $mocks['parameters']['template']['resetting'] = AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE.".txt.twig";
         $mocks['parameters']['from_email'] = array();
         $mocks['parameters']['from_email']['confirmation'] = 'from@email.com';
+        $mocks['parameters']['from_email']['resetting'] = 'from@email.com';
 
         $mocks['router']->expects($this->once())->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
