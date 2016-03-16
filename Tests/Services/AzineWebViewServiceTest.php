@@ -6,8 +6,7 @@ use Azine\EmailBundle\Services\AzineWebViewService;
 class AzineWebViewServiceTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
-     * @return \Symfony\Component\Routing\Generator\UrlGeneratorInterface
+     * @return \PHPUnit_Framework_MockObject_MockObject mock of the UrlGeneratorInterface
      */
     private function getMockRouter()
     {

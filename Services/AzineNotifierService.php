@@ -284,7 +284,7 @@ class AzineNotifierService implements NotifierServiceInterface
             // send the mail for this recipient
             $failedAddress = $this->sendNotificationsFor($recipientId, $notificationsTemplate, $params);
 
-            if ($failedAddress != null) {
+            if ($failedAddress !== null && strlen($failedAddress) > 0) {
                 $failedAddresses[] = $failedAddress;
             }
         }
@@ -381,7 +381,7 @@ class AzineNotifierService implements NotifierServiceInterface
         foreach ($recipientIds as $recipientId) {
             $failedAddress = $this->sendNewsletterFor($recipientId, $params, $newsletterTemplate);
 
-            if ($failedAddress != null) {
+            if ($failedAddress !== null && strlen($failedAddress) > 0) {
                 $failedAddresses[] = $failedAddress;
             }
         }
@@ -639,7 +639,7 @@ class AzineNotifierService implements NotifierServiceInterface
     {
         $contentItemTemplate = $this->configParameter[AzineEmailExtension::TEMPLATES."_".AzineEmailExtension::CONTENT_ITEM_TEMPLATE];
         $templateVars = array();
-        if ($goToUrl != null) {
+        if ($goToUrl !== null && strlen($goToUrl) > 0) {
             $templateVars['goToUrl'] = $goToUrl;
         }
         $this->addNotification($recipientId, $title, $content, $contentItemTemplate, $this->templateProvider->addTemplateVariablesFor($contentItemTemplate, $templateVars), Notification::IMPORTANCE_NORMAL, false);

@@ -10,7 +10,7 @@ interface NotifierServiceInterface
      * Send all pending notifications to their recipients
      *
      * @param $failedAddresses array modified by reference, so after the function returns, the array contains the failed email-addresses.
-     * @return array of failed email addressess
+     * @return int number of sent emails
      */
     public function sendNotifications(array &$failedAddresses);
 
@@ -18,7 +18,7 @@ interface NotifierServiceInterface
      * Send the Newsletter to all recipients.
      *
      * @param $failedAddresses array modified by reference, so after the function returns, the array contains the failed email-addresses.
-     * @return array of failed email addressess
+     * @return int number of sent emails
      */
     public function sendNewsletter(array &$failedAddresses);
 
