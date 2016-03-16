@@ -365,11 +365,13 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testSendConfirmationEmailMessage(){
+        $user = $this->getUserMock();
         $azineMailer = $this->prepareForSendTest(AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE);
         $azineMailer->sendConfirmationEmailMessage($this->getUserMock());
     }
 
     public function testSendResettingEmailMessage(){
+        $user = $this->getUserMock();
         $azineMailer = $this->prepareForSendTest(AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE);
         $azineMailer->sendResettingEmailMessage($user);
     }
@@ -393,7 +395,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
 
         $mocks['translator']->expects($this->exactly(2))->method('getLocale')->will($this->returnValue("en"));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['entityManager'], $mocks['trackingCodeImgBuilder'], $mocks['parameters']);
         return $azineMailer;
     }
 }
