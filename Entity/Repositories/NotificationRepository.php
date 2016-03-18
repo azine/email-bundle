@@ -18,9 +18,7 @@ class NotificationRepository extends EntityRepository{
      * @return array of Notification
      */
     public function getNotificationsToSend($recipientId){
-        $qb = $this->createQueryBuilder()
-            ->select("n")
-            ->from("Azine\EmailBundle\Entity\Notification", "n")
+        $qb = $this->createQueryBuilder("n")
             ->andWhere("n.sent is null")
             ->andWhere("n.recipient_id = :recipientId")
             ->setParameter('recipientId', $recipientId)
@@ -37,9 +35,7 @@ class NotificationRepository extends EntityRepository{
      * @return array of Notification
      */
     public function getNotificationsToSendImmediately($recipientId){
-        $qb = $this->createQueryBuilder()
-            ->select("n")
-            ->from("Azine\EmailBundle\Entity\Notification", "n")
+        $qb = $this->createQueryBuilder("n")
             ->andWhere("n.sent is null")
             ->andWhere("n.send_immediately = true")
             ->andWhere("n.recipient_id = :recipientId")
@@ -56,7 +52,7 @@ class NotificationRepository extends EntityRepository{
      * @return array
      */
     public function getNotificationRecipientIds(){
-        $qb = $this->createQueryBuilder()
+        $qb = $this->createQueryBuilder(null)
             ->select("n.recipient_id")
             ->distinct()
             ->from("Azine\EmailBundle\Entity\Notification", "n")
@@ -76,7 +72,7 @@ class NotificationRepository extends EntityRepository{
      * @param $recipientId
      */
     public function markAllNotificationsAsSentFarInThePast($recipientId){
-        $qb = $this->createQueryBuilder()
+        $qb = $this->createQueryBuilder(null)
             ->update("Azine\EmailBundle\Entity\Notification", "n")
             ->set("n.sent", ":farInThePast")
             ->andWhere("n.sent is null")
@@ -92,7 +88,7 @@ class NotificationRepository extends EntityRepository{
      * @return \DateTime
      */
     public function getLastNotificationDate($recipientId){
-        $qb = $this->createQueryBuilder()
+        $qb = $this->createQueryBuilder(null)
             ->select("max(n.sent)")
             ->from("Azine\EmailBundle\Entity\Notification", "n")
             ->andWhere("n.recipient_id = :recipientId")
