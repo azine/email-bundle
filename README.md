@@ -6,9 +6,43 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 - simplify the rendering and sending of nicely styled html-emails from within your application
 - send notifications/update-infos to your recipients, immediately or aggregated and scheduled.
 - send newsletters to the recipients which wish to recieve it.
+- preview the email-rendering in your browser and sent test mails to you, to view in your favorite email client.
 - view sent emails in a web-view in the browser, for the case the email isn't displayed well in the users email-client.
+- link campaign tracking with your analytics tool (google analytics or piwik or ...)
+- track email opens with your analytics tool (google analytics or piwik or ...)
+- works nicely with transactional email services like mailgun.com.
 
-You can easily use it with transactional email services like mailgun.com.
+## Table of contents
+* [Quick start guide &amp; examples:](#quick-start-guide--examples)
+* [Requirements](#requirements)
+      * [1. Swift-Mailer with working configuration](#1-swift-mailer-with-working-configuration)
+      * [2. Doctrine for notification spooling](#2-doctrine-for-notification-spooling)
+      * [3. FOSUserBundle](#3-fosuserbundle)
+* [Installation](#installation)
+* [Configuration options](#configuration-options)
+* [Customise the content and subjects of your emails](#customise-the-content-and-subjects-of-your-emails)
+* [Customise the layout of your emails](#customise-the-layout-of-your-emails)
+  * [Your own implementation of TemplateProviderInterface](#your-own-implementation-of-templateproviderinterface)
+  * [Your own Images](#your-own-images)
+  * [Your own Twig-Templates](#your-own-twig-templates)
+    * [1. the wrapper-templates](#1-the-wrapper-templates)
+    * [2. the content item-templates:](#2-the-content-item-templates)
+* [Make your emails available in the web-view and web-pre-view](#make-your-emails-available-in-the-web-view-and-web-pre-view)
+  * [Configuring the web-view and web-pre-view](#configuring-the-web-view-and-web-pre-view)
+  * [Implement WebViewServiceInterface](#implement-webviewserviceinterface)
+  * [Update your database](#update-your-database)
+  * [Define which mails to store for web-view](#define-which-mails-to-store-for-web-view)
+  * [Deleting old "SentEmails"](#deleting-old-sentemails)
+* [Operations](#operations)
+  * [Deleting failed mail-files from spool-folder](#deleting-failed-mail-files-from-spool-folder)
+  * [Examples of Cron-Jobs we use in operation.](#examples-of-cron-jobs-we-use-in-operation)
+* [TWIG-Filter textWrap](#twig-filter-textwrap)
+* [Use two different mailers for "normal" and for "urgent" emails](#use-two-different-mailers-for-normal-and-for-urgent-emails)
+* [Use transactional email services e.g.e mailgun.com](#use-transactional-email-services-ege-mailguncom)
+* [GoogleAnalytics &amp; Piwik: Customize the tracking values in email links](#googleanalytics--piwik-customize-the-tracking-values-in-email-links)
+* [Email-open-tracking with a tracking image (e.g. with piwik or google-analytics)](#email-open-tracking-with-a-tracking-image-eg-with-piwik-or-google-analytics)
+* [Build-Status ec.](#build-status-ec)
+
 
 ## Quick start guide & examples:
 - [How to configure](QUICK_START.md)
@@ -157,7 +191,7 @@ azine_email:
 
 ```
 
-## Customise the content of you emails
+## Customise the content and subjects of your emails
 You must implement your version of the notifier service in which you pull the content
 of you notification- or newsletter-emails together. In you subclass of AzineNotifierService you can/should implement
 the following functions:
@@ -264,28 +298,29 @@ When rendering those templates you have access to the styles and snippets define
 for this template in your TemplateProvider.
 
 
-## Make your emails available in the web-view 
-In the "web-view" you can take a look at the rendered html-emails in your browser and 
-send test-emails to your own email-address to view it in your favorite email-client.
+## Make your emails available in the web-view and web-pre-view
+In the "web-pre-view" you can take a look at the content and layout of your email 
+before sending them and you can send test-emails to your own email-address to view 
+it in your favorite email-client.
 
-Also users reading you email can take a look at the email in their browser, if their 
-favorite email client messes up the layout. It adds a link at the top of you email
-to direct your users to the web-view : 
+In the "web-view" users reading you email can take a look at the email in their 
+browser, if their favorite email client messes up the layout. The bundle adds a 
+link at the top of you email to direct your users to the web-view : 
 "If this email isn't displayed properly, see the web-version"
 
-### Configuring the web-view
-In order to use the web-view you must implement your version of WebViewServiceInterface , 
-configure it as service in your services.yml/.xml and set it in your config.yml 
-as `azine_email_web_view_service`.
+### Configuring the web-view and web-pre-view
+In order to use the web-view you must:
+1) implement your version of `WebViewServiceInterface`. To minimize your effort, you can subclass the `AzineWebViewService`.
+2) configure it as service in your `services.yml` and 
+3) set it in your `config.yml` as `azine_email_web_view_service`.
 
-You can define how long those mails shall be kept available by setting the 
-value for `azine_email_web_view_retention`. The default is 90 days.
+You can define how many days the sent mails shall be kept available by 
+setting the value for `azine_email_web_view_retention`. The default is 90 days.
 
-The web-view uses the following routes that:
-
+The web-view uses the following routes:
 ```yml
 // ...EmailBundle/Resources/config/routing.yml
-# route for users to see emails
+# route for users to see an emails
 azine_email_webview:
     pattern:  /email/webview/{token}
     defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:webView" }
@@ -295,7 +330,7 @@ azine_email_serve_template_image:
     pattern:  /email/image/{folderKey}/{filename}
     defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:serveImage"}
 
-# index with all the email-templates you configured in you implementation of WebViewServiceInterface
+# index with all the email-templates you configured in you implementation of `WebViewServiceInterface`
 azine_email_template_index:
     pattern:  /admin/email/
     defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:index" }
@@ -324,36 +359,42 @@ azine_email_bundle:
 ...
 ```
 
-#### Implement WebViewServiceInterface
+### Implement WebViewServiceInterface
 The easiest way for you is to extend the `AzineWebViewService` and implement the three public functions
 - `public function getTemplatesForWebPreView()`
 - `public function getTestMailAccounts()`
 - `public function getDummyVarsFor($template, $locale)`
 and maybe the 
-- `public function __constructor(...)` if you need any extra services to gather the dummy-data
+- `public function __constructor(...)` if you need any extra services to gather the dummy-data to populate the web-pre-view.
 
 You can take a look at the `ExampleWebViewService` what to do in those functions.
 
-#### Update your database
+### Update your database
 The web-view stores all sent emails in the database. In order to do so, the entity 
-SentEmail must be available.
+`SentEmail` must be available.
 
 It is defined in `SentEmail.orm.yml` and you can update you database either with 
 the command `doctrine:schema:update` or via migrations.
 
-#### Define which mails to store for web-view
+### Define which mails to store for web-view
 You can decide which mails you want to make available in web-view by overriding 
 the function `saveWebViewFor($template)` in your TemplateProvider.
 
-See ExampleTemplateProvider for hints on how to do this.
+See `ExampleTemplateProvider` for hints on how to do this.
 
-#### Deleting old "SentEmails"
+### Deleting old "SentEmails"
+Sent emails that are available in the web-view are stored in the database. 
+As you want to get rid of old emails, there is a Symfony command to handle 
+this for you. 
+
 The symfony console-command `emails:remove-old-web-view-emails` will remove all "SentEmail" 
-that are older than the number of days you defined in `azine_email_web_view_retention`.
+that are older than the number of days you defined in `azine_email_web_view_retention` in
+your `config.yml`.
 
-You can configure a cron-job to call this command.
+You can configure a cron-job to call this command regularly. See [Cron-Job examples](#cron-job-examples) below.
 
-#### Deleting failed mail-files from spool-folder
+## Operations 
+### Deleting failed mail-files from spool-folder
 Some emails you want to send might fail and if you configured the swiftmailer to use file spooling,
 the spool-files for these mails will stay in you spool-folder named `*.message.sending`.
 
@@ -363,12 +404,12 @@ fails repeatedly, you might end up with a spool-folder filled with mail-files th
 To delete those files, you can use the `emails:clear-and-log-failures` command from this package.
 
 Add a cron-job to do this for your application once per day, or if you have a lot of failing messages,
-once per hour.
+once per hour. See [Cron-Job examples](#cron-job-examples) below.
 
 Using the `date` parameter for the command, you can define the duration during which the
 mailer should attempt to send those mails, before they are deleted by this command.
 
-## Cron-Job examples
+### Examples of Cron-Jobs we use in operation.
 Here are some examples how to configure your cronjobs to send the emails and cleanup periodically.
 
 ```bash
@@ -394,7 +435,6 @@ Here are some examples how to configure your cronjobs to send the emails and cle
 
 ```
 
-
 ## TWIG-Filter textWrap
 This bundle also adds a twig filter that allows you to wrap text using the php 
 function wordwrap. It defaults to a line width of 75 chars.
@@ -405,7 +445,7 @@ or
 {{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
 ```
 
-## Use a different mailer for "normal" and for "urgent" emails
+## Use two different mailers for "normal" and for "urgent" emails
 In most cases you'll probably prefer UI-performance over speed of email-delivery. But for example for the password-reset- or for email-confirmation-emails
 you want the user to receive the mail a.s.a.p and not after the next spool-mailing.
 
@@ -525,7 +565,7 @@ PS: make sure your application is allowed to connect to the other
 smpt. This might be blocked on shared hosting accounts. => ask 
 your admin to un-block it.
 
-## Customize the tracking values in email links
+## GoogleAnalytics & Piwik: Customize the tracking values in email links
 In your implementation of the TemplateProvider, you can implement the 
 function `getCampaignParamsFor($templateId, $params)` to define the 
 values for the campaign tracking parameters in the links inside your 
@@ -542,11 +582,11 @@ values are not overwritten if they are defined on the more granular level.
  
 You can check the resulting links in the WebPreView of the email.
 
-## Track email-opens with a tracking image (e.g. with piwik or google-analytics)
+## Email-open-tracking with a tracking image (e.g. with piwik or google-analytics)
 To be able to track with Piwik or GoogleAnalytics (or the like) if an email 
 has been opened, you can specify an image tracking url in your configuration.
 
-```
+```yml
 #app/config/config.yml
 azine_email:
   # for GoogleAnalytics
@@ -557,7 +597,7 @@ azine_email:
 ```
 
 If you configure the `email_open_tracking_url` in your config.yml, then the 
-provided url will be complemented with the tracking parameters and value and 
+provided url will be complemented with the tracking parameters and values and 
 a html img tag will be inserted into the html code at the end of your email.
  
 If you wan't to change the way the tracking image url is complemented with
@@ -565,7 +605,7 @@ the tracking parameters and values, then you can create and use your own
 implementation of the EmailOpenTrackingCodeBuilderInterface and update your
 config.yml to use that implementation.
 
-```
+```yml
 // app/config/config.yml
 azine_email:
   # Defaults to the AzineEmailOpenTrackingCodeBuilder. See the README.md file for more information
@@ -582,10 +622,4 @@ but to avoid false tracking events, the url will be modified to not
 point to your email-open-tracking system.
 
 ## Build-Status ec.
-
-[![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle)
-[![Total Downloads](https://poser.pugx.org/azine/email-bundle/downloads.png)](https://packagist.org/packages/azine/email-bundle)
-[![Latest Stable Version](https://poser.pugx.org/azine/email-bundle/v/stable.png)](https://packagist.org/packages/azine/email-bundle)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/email-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/email-bundle/)
-[![Code Coverage](https://scrutinizer-ci.com/g/azine/email-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/email-bundle/)
-[![Dependency Status](https://www.versioneye.com/user/projects/567eae02eb4f470030000001/badge.svg?style=flat)](https://www.versioneye.com/user/projects/567eae02eb4f470030000001)
+[![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle) [![Total Downloads](https://poser.pugx.org/azine/email-bundle/downloads.png)](https://packagist.org/packages/azine/email-bundle) [![Latest Stable Version](https://poser.pugx.org/azine/email-bundle/v/stable.png)](https://packagist.org/packages/azine/email-bundle) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/email-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/email-bundle/) [![Code Coverage](https://scrutinizer-ci.com/g/azine/email-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/email-bundle/) [![Dependency Status](https://www.versioneye.com/user/projects/567eae02eb4f470030000001/badge.svg?style=flat)](https://www.versioneye.com/user/projects/567eae02eb4f470030000001) 

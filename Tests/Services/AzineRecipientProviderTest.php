@@ -21,7 +21,10 @@ class AzineRecipientProviderTest extends \PHPUnit_Framework_TestCase
         $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $entityManagerMock->expects($this->once())->method("getRepository")->will($this->returnValue($repositoryMock));
 
-        $recipientProvider = new AzineRecipientProvider($entityManagerMock, 'a-user-class', 'newsletterField');
+        $managerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $managerRegistryMock->expects($this->any())->method("getManager")->will($this->returnValue($entityManagerMock));
+
+        $recipientProvider = new AzineRecipientProvider($managerRegistryMock, 'a-user-class', 'newsletterField');
 
         $recipient = $recipientProvider->getRecipient($id);
         $this->assertEquals($id, $recipient->getId());
@@ -43,7 +46,10 @@ class AzineRecipientProviderTest extends \PHPUnit_Framework_TestCase
         $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $entityManagerMock->expects($this->once())->method("createQueryBuilder")->will($this->returnValue($queryBuilderMock));
 
-        $recipientProvider = new AzineRecipientProvider($entityManagerMock, 'a-user-class', 'newsletterField');
+        $managerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $managerRegistryMock->expects($this->any())->method("getManager")->will($this->returnValue($entityManagerMock));
+
+        $recipientProvider = new AzineRecipientProvider($managerRegistryMock, 'a-user-class', 'newsletterField');
         $recipients = $recipientProvider->getNewsletterRecipientIDs();
         $this->assertEquals($recipientsArray, $recipients);
     }

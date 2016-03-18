@@ -2,7 +2,6 @@
 namespace Azine\EmailBundle\Services;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -53,8 +52,8 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
     protected $imageHtmlCode = "<img src='%s' style='border:0' alt='' />";
 
     /**
-     * @param $trackingUrlTemplate the url configured in your config.yml or null if you didn't specify a tracking url.
-     * @param $parameters array with the parameter names for the campaign tracking
+     * @param string $trackingUrlTemplate the url configured in your config.yml or null if you didn't specify a tracking url.
+     * @param array $parameters array with the parameter names for the campaign tracking
      */
     public function __construct($trackingUrlTemplate, $parameters){
         $this->trackingUrlTemplate = $trackingUrlTemplate;
@@ -66,9 +65,9 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
     }
 
     /**
-     * @param $templateBaseId the template used for rendering the email (without the .html.twig or .txt.twig extension)
+     * @param string $templateBaseId the template used for rendering the email (without the .html.twig or .txt.twig extension)
      * @param array $campaignParams the campaign-parameters used for this email
-     * @param the $messageId the id of the message
+     * @param string the $messageId the id of the message
      * @param email $to to-recipient-email(s) or null
      * @param email $cc cc-recipient-email(s) or null
      * @param email $bcc bcc-recipient-email(s) or null
@@ -96,9 +95,9 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
 
     /**
      * concatenate all recipients into an array and implode with ';' to a string
-     * @param $to
-     * @param $cc
-     * @param $bcc
+     * @param string|array $to
+     * @param string|array $cc
+     * @param string|array $bcc
      * @return string
      */
     protected function merge($to, $cc, $bcc){
@@ -121,12 +120,12 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
      * http://dyn.com/blog/tracking-email-opens-via-google-analytics/
      * https://developers.google.com/analytics/devguides/collection/protocol/v1/email#protocol
      *
-     * @param $baseUrl string something like: https://www.google-analytics.com/collect?v=1&cm=email&t=event&ec=email&ea=open&tid=TRACKING_ID replace the TRACKING_ID with your google analytics tracking ID.
-     * @param $templateBaseId string
+     * @param string $baseUrl string something like: https://www.google-analytics.com/collect?v=1&cm=email&t=event&ec=email&ea=open&tid=TRACKING_ID replace the TRACKING_ID with your google analytics tracking ID.
+     * @param string $templateBaseId
      * @param array $campaignParams
      * @param array $emailTemplateParams
-     * @param $messageId string
-     * @param $recipients string
+     * @param string $messageId
+     * @param string|array $recipients
      */
     protected function getGoogleAnalyticsUrl($baseUrl, $templateBaseId, array $campaignParams, array $emailTemplateParams, $messageId, $recipients){
         $url = $baseUrl.
@@ -145,12 +144,12 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
      * Build tracking image code with an URL according to these sources:
      *
      *
-     * @param $baseUrl string something like: https://your.host.com/piwik-directory/piwik.php?&rec=1&bots=1&e_c=email&e_a=open&e_v=1&idsite=SITE_ID replace the path to your piwik.php and the SITE_ID according to your needs.
-     * @param $templateBaseId string
+     * @param string $baseUrl string something like: https://your.host.com/piwik-directory/piwik.php?&rec=1&bots=1&e_c=email&e_a=open&e_v=1&idsite=SITE_ID replace the path to your piwik.php and the SITE_ID according to your needs.
+     * @param string $templateBaseId string
      * @param array $campaignParams
      * @param array $emailTemplateParams
-     * @param $messageId string
-     * @param $recipients string
+     * @param string $messageId
+     * @param string $recipients
      */
     protected function getPiwikUrl($baseUrl, $templateBaseId, array $campaignParams, array $emailTemplateParams, $messageId, $recipients){
         $url = $baseUrl.
@@ -164,8 +163,8 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
     }
 
     /**
-     * @param $campaignParams
-     * @param $templateId
+     * @param string $campaignParams
+     * @param string $templateId
      * @return string if no source-value is defined in the $campaignParams, $templateId will be used.
      */
     protected function getCampaignSource($campaignParams, $templateId){
@@ -176,8 +175,8 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
     }
 
     /**
-     * @param $campaignParams
-     * @param $templateId
+     * @param array $campaignParams
+     * @param string $templateId
      * @return string if no name-value is defined in the $campaignParams, $templateId will be used.
      */
     protected function getCampaignName($campaignParams){

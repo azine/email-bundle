@@ -25,11 +25,10 @@ class AzineEmailTwigExtension extends \Twig_Extension
      */
     public function getFilters()
     {
-        return array(
-            'textWrap' => new \Twig_SimpleFilter('textWrap', array($this, 'textWrap')),
-            'urlEncodeText' => new \Twig_SimpleFilter('urlEncodeText', array($this, 'urlEncodeText'), array('is_safe' => array('html'))),
-            'addCampaignParamsForTemplate' => new \Twig_SimpleFilter('addCampaignParamsForTemplate', array($this, 'addCampaignParamsForTemplate'), array('is_safe' => array('html'))),
-        );
+        $filters[] = new \Twig_SimpleFilter('textWrap', array($this, 'textWrap'));
+        $filters[] = new \Twig_SimpleFilter('urlEncodeText', array($this, 'urlEncodeText'), array('is_safe' => array('html')));
+        $filters[] = new \Twig_SimpleFilter('addCampaignParamsForTemplate', array($this, 'addCampaignParamsForTemplate'), array('is_safe' => array('html')));
+        return $filters;
     }
 
     public function urlEncodeText($text)

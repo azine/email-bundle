@@ -12,11 +12,11 @@ services:
           parameters:
             image_dir:  "%azine_email_image_dir%"
             allowed_images_folders: "%azine_email_allowed_images_folders%"
-            tracking_params_campaign_name: "%azine_email_tracking_params_campaign_name%"
-            tracking_params_campaign_term: "%azine_email_tracking_params_campaign_term%"
+            tracking_params_campaign_name:    "%azine_email_tracking_params_campaign_name%"
+            tracking_params_campaign_term:    "%azine_email_tracking_params_campaign_term%"
             tracking_params_campaign_content: "%azine_email_tracking_params_campaign_content%"
-            tracking_params_campaign_medium: "%azine_email_tracking_params_campaign_medium%"
-            tracking_params_campaign_source: "%azine_email_tracking_params_campaign_source%"
+            tracking_params_campaign_medium:  "%azine_email_tracking_params_campaign_medium%"
+            tracking_params_campaign_source:  "%azine_email_tracking_params_campaign_source%"
 
     azine_email.example.notifier_service:
         class: Azine\EmailBundle\Services\AzineNotifierService
@@ -25,13 +25,13 @@ services:
           twig:               "@twig"
           logger:             "@logger"
           router:             "@router"
-          entityManager:      "@doctrine.orm.entity_manager"
+          managerRegistry:    "@doctrine"
           templateProvider:   "@azine_email_template_provider"
           recipientProvider:  "@azine_email_recipient_provider"
           translatorService:  "@translator.default"
           parameters:
-            newsletter_interval : "%azine_email_newsletter_interval%"
-            newsletter_send_time: "%azine_email_newsletter_send_time%"
+            newsletter_interval :     "%azine_email_newsletter_interval%"
+            newsletter_send_time:     "%azine_email_newsletter_send_time%"
             templates_newsletter:     "%azine_email_templates_newsletter%"
             templates_notifications:  "%azine_email_templates_notifications%"
             templates_content_item:   "%azine_email_templates_content_item%"
@@ -54,7 +54,7 @@ services:
           logger:             "@logger"
           translator:         "@translator.default"
           templateProvider:   "@azine_email_template_provider"
-          entityManager:      "@doctrine.orm.entity_manager"
+          managerRegistry:    "@doctrine"
           emailOpenTrackingUrlBuilder: "@azine_email_email_open_tracking_code_builder"
           parameters:
             template:
@@ -69,8 +69,8 @@ services:
     azine_email.default.recipient_provider:
         class: Azine\EmailBundle\Services\AzineRecipientProvider
         arguments:
-          entityManager:      "@doctrine.orm.entity_manager"
-          recipient_class:   "%azine_email_recipient_class%"
+          managerRegistry:    "@doctrine"
+          recipient_class:    "%azine_email_recipient_class%"
           newsletterField:    "%azine_email_recipient_newsletter_field%"
 
 ###################################################################
@@ -81,11 +81,11 @@ services:
         arguments:
           trackingUrlTemplate: "%azine_email_email_open_tracking_url%"
           parameters:
-            tracking_params_campaign_name: "%azine_email_tracking_params_campaign_name%"
-            tracking_params_campaign_term: "%azine_email_tracking_params_campaign_term%"
+            tracking_params_campaign_name:    "%azine_email_tracking_params_campaign_name%"
+            tracking_params_campaign_term:    "%azine_email_tracking_params_campaign_term%"
             tracking_params_campaign_content: "%azine_email_tracking_params_campaign_content%"
-            tracking_params_campaign_medium: "%azine_email_tracking_params_campaign_medium%"
-            tracking_params_campaign_source: "%azine_email_tracking_params_campaign_source%"
+            tracking_params_campaign_medium:  "%azine_email_tracking_params_campaign_medium%"
+            tracking_params_campaign_source:  "%azine_email_tracking_params_campaign_source%"
 
 ###################################################################
 ## Twig-Filter

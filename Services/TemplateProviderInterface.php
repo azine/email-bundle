@@ -53,6 +53,7 @@ interface TemplateProviderInterface
 
     /**
      * Get the filesystem-folder for the given key
+     * @param $key
      * @return string|boolean the filesystem-folder or false
      */
     public function getFolderFrom($key);
@@ -79,7 +80,7 @@ interface TemplateProviderInterface
      * If you work with GoogleAnalytics take a look at this page: https://support.google.com/analytics/answer/1033867
      *
      * @param string $templateId the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
-     * @param  array $template parameters already loaded
+     * @param array $params campaing parameters already loaded
      * @return array of (string => string)
      */
     public function getCampaignParamsFor($templateId, array $params = null);

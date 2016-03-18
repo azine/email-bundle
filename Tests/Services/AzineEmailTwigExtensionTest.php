@@ -12,13 +12,17 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
         $filters = $twigExtension->getFilters();
+        $filterNames = array();
         $this->assertEquals(3, sizeof($filters), "There should only be three filters.");
-        $this->assertTrue(array_key_exists("textWrap", $filters),"The filter textWrap should exist.");
-        $this->assertTrue(array_key_exists("urlEncodeText", $filters),"The filter urlEncodeText should exist.");
-        $this->assertTrue(array_key_exists("addCampaignParamsForTemplate", $filters),"The filter addCampaignParamsForTemplate should exist.");
 
-        $filter = $filters["textWrap"];
-        $this->assertTrue($filter instanceof \Twig_SimpleFilter, "Twig_SimpleFilter expected as filter for textWrap.");
+        foreach ($filters as $filter) {
+            /** @var $filter \Twig_SimpleFilter */
+            $this->assertTrue($filter instanceof \Twig_SimpleFilter, "Twig_SimpleFilter expected as filter");
+            $filterNames[] = $filter->getName();
+        }
+        $this->assertContains("textWrap", $filterNames,"The filter textWrap should exist.");
+        $this->assertContains("urlEncodeText", $filterNames,"The filter urlEncodeText should exist.");
+        $this->assertContains("addCampaignParamsForTemplate", $filterNames,"The filter addCampaignParamsForTemplate should exist.");
 
         $this->assertEquals('azine_email_bundle_twig_extension', $twigExtension->getName());
     }

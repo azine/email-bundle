@@ -1,5 +1,6 @@
 <?php
 namespace Azine\EmailBundle\Services;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\Notification;
@@ -166,21 +167,21 @@ class AzineNotifierService implements NotifierServiceInterface
      * @param \Twig_Environment                $twig
      * @param Logger                           $logger
      * @param UrlGeneratorInterface            $router
-     * @param EntityManager                    $entityManager
+     * @param ManagerRegistry                  $managerRegistry
      * @param TemplateProviderInterface        $templateProvider
      * @param RecipientProviderInterface       $recipientProvider
      * @param Translator                       $translatorService
      * @param array                            $parameters
      */
     public function __construct(TemplateTwigSwiftMailerInterface $mailer, \Twig_Environment $twig, Logger $logger, UrlGeneratorInterface $router,
-            EntityManager $entityManager, TemplateProviderInterface $templateProvider, RecipientProviderInterface $recipientProvider,
+                               ManagerRegistry $managerRegistry, TemplateProviderInterface $templateProvider, RecipientProviderInterface $recipientProvider,
             Translator $translatorService, array $parameters) {
 
         $this->mailer = $mailer;
         $this->twig = $twig;
         $this->logger = $logger;
         $this->router = $router;
-        $this->em = $entityManager;
+        $this->managerRegistry = $managerRegistry;
         $this->templateProvider = $templateProvider;
         $this->recipientProvider = $recipientProvider;
         $this->translatorService = $translatorService;
@@ -223,9 +224,9 @@ class AzineNotifierService implements NotifierServiceInterface
     protected $recipientProvider;
 
     /**
-     * @var EntityManager
+     * @var ManagerRegistry
      */
-    protected $em;
+    protected $managerRegistry;
 
     /**
      * Array of configuration-parameters from the config.yml
@@ -445,7 +446,7 @@ class AzineNotifierService implements NotifierServiceInterface
         $notificationMode = $recipient->getNotificationMode();
 
         // get the date/time of the last notification
-        $qb = $this->em->createQueryBuilder()
+        $qb = $this->managerRegistry->getManager()->createQueryBuilder()
             ->select("max(n.sent)")
             ->from("Azine\EmailBundle\Entity\Notification", "n")
             ->andWhere("n.recipient_id = :recipientId")
@@ -478,7 +479,7 @@ class AzineNotifierService implements NotifierServiceInterface
 
         // regularly sent notifications now
         if ($sendNotifications) {
-            $qb = $this->em->createQueryBuilder()
+            $qb = $this->managerRegistry->getManager()->createQueryBuilder()
                 ->select("n")
                 ->from("Azine\EmailBundle\Entity\Notification", "n")
                 ->andWhere("n.sent is null")
@@ -491,7 +492,7 @@ class AzineNotifierService implements NotifierServiceInterface
 
         // if notifications exist, that should be sent immediately, then send those now disregarding the users mailing-preferences.
         } else {
-            $qb = $this->em->createQueryBuilder()
+            $qb = $this->managerRegistry->getManager()->createQueryBuilder()
                 ->select("n")
                 ->from("Azine\EmailBundle\Entity\Notification", "n")
                 ->andWhere("n.sent is null")
@@ -513,7 +514,7 @@ class AzineNotifierService implements NotifierServiceInterface
      */
     protected function getNotificationRecipientIds()
     {
-        $qb = $this->em->createQueryBuilder()
+        $qb = $this->managerRegistry->getManager()->createQueryBuilder()
             ->select("n.recipient_id")
             ->distinct()
             ->from("Azine\EmailBundle\Entity\Notification", "n")
@@ -536,9 +537,9 @@ class AzineNotifierService implements NotifierServiceInterface
     {
         foreach ($notifications as $notification) {
             $notification->setSent(new \DateTime());
-            $this->em->persist($notification);
+            $this->managerRegistry->getManager()->persist($notification);
         }
-        $this->em->flush();
+        $this->managerRegistry->getManager()->flush();
     }
 
     /**
@@ -547,7 +548,7 @@ class AzineNotifierService implements NotifierServiceInterface
      */
     protected function markAllNotificationsAsSentFarInThePast(RecipientInterface $recipient)
     {
-        $qb = $this->em->createQueryBuilder()
+        $qb = $this->managerRegistry->getManager()->createQueryBuilder()
             ->update("Azine\EmailBundle\Entity\Notification", "n")
             ->set("n.sent", ":farInThePast")
             ->andWhere("n.sent is null")
@@ -615,8 +616,8 @@ class AzineNotifierService implements NotifierServiceInterface
         $notification->setImportance($importance);
         $notification->setSendImmediately($sendImmediately);
         $notification->setVariables($templateVars);
-        $this->em->persist($notification);
-        $this->em->flush($notification);
+        $this->managerRegistry->getManager()->persist($notification);
+        $this->managerRegistry->getManager()->flush($notification);
 
         return $notification;
     }

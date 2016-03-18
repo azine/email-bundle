@@ -1,9 +1,9 @@
 <?php
 namespace Azine\EmailBundle\Services;
 
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Doctrine\ORM\EntityManager;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
@@ -33,9 +33,9 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     protected $templateProvider;
 
     /**
-     * @var EntityManager
+     * @var ManagerRegistry
      */
-    protected $entityManager;
+    protected $managerRegistry;
 
     /**
      *
@@ -86,7 +86,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                                     Logger $logger,
                                     Translator $translator,
                                     TemplateProviderInterface $templateProvider,
-                                    EntityManager $entityManager,
+                                    ManagerRegistry $managerRegistry,
                                     EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder,
                                     array $parameters,
                                     \Swift_Mailer $immediateMailer = null)
@@ -96,7 +96,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $this->logger = $logger;
         $this->translator = $translator;
         $this->templateProvider = $templateProvider;
-        $this->entityManager = $entityManager;
+        $this->managerRegistry = $managerRegistry;
         $this->noReplyEmail = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS];
         $this->noReplyName = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_NAME];
         $this->emailOpenTrackingCodeBuilder = $emailOpenTrackingCodeBuilder;
@@ -284,8 +284,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
             $sentEmail->setRecipients($successfulRecipients);
 
             // write to db
-            $this->entityManager->persist($sentEmail);
-            $this->entityManager->flush($sentEmail);
+            $this->managerRegistry->getManager()->persist($sentEmail);
+            $this->managerRegistry->getManager()->flush($sentEmail);
         }
 
         return $messagesSent;

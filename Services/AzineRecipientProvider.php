@@ -1,15 +1,15 @@
 <?php
 namespace Azine\EmailBundle\Services;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * Default implementation of the RecipientProviderInterface
  */
  class AzineRecipientProvider implements RecipientProviderInterface
  {
-    /** @var EntityManager */
-    private $em;
+    /** @var ManagerRegistry */
+    private $managerRegistry;
 
     /** @var string your recipient class */
     private $userClass;
@@ -23,9 +23,9 @@ use Doctrine\ORM\EntityManager;
      * @param string        $userClass
      * @param string        $newsletterField
      */
-    public function __construct(EntityManager $em, $userClass, $newsletterField)
+    public function __construct(ManagerRegistry $managerRegistry, $userClass, $newsletterField)
     {
-        $this->em = $em;
+        $this->managerRegistry = $managerRegistry;
         $this->userClass = $userClass;
         $this->newsletterField = $newsletterField;
     }
@@ -36,7 +36,7 @@ use Doctrine\ORM\EntityManager;
      */
     public function getRecipient($id)
     {
-        return $this->em->getRepository($this->userClass)->find($id);
+        return $this->managerRegistry->getManager()->getRepository($this->userClass)->find($id);
     }
 
     /**
@@ -45,7 +45,7 @@ use Doctrine\ORM\EntityManager;
      */
     public function getNewsletterRecipientIDs()
     {
-        $qb = $this->em->createQueryBuilder()
+        $qb = $this->managerRegistry->getManager()->createQueryBuilder()
             ->select("n.id")
             ->from($this->userClass, "n")
             ->where('n.'.$this->newsletterField.' = true')

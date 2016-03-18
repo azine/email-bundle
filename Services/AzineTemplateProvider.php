@@ -220,7 +220,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
     /**
      * Override this function to define which emails you want to make the web-view available and for which not.
      *
-     * @return string[] of string => the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
+     * @return array of string => the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
      */
     protected function getTemplatesToStoreForWebView()
     {
