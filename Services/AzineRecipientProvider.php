@@ -6,8 +6,8 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 /**
  * Default implementation of the RecipientProviderInterface
  */
- class AzineRecipientProvider implements RecipientProviderInterface
- {
+class AzineRecipientProvider implements RecipientProviderInterface
+{
     /** @var ManagerRegistry */
     private $managerRegistry;
 
@@ -19,9 +19,9 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 
     /**
      *
-     * @param EntityManager $em
-     * @param string        $userClass
-     * @param string        $newsletterField
+     * @param ManagerRegistry $managerRegistry
+     * @param string          $userClass
+     * @param string          $newsletterField
      */
     public function __construct(ManagerRegistry $managerRegistry, $userClass, $newsletterField)
     {

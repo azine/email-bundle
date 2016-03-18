@@ -24,8 +24,10 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase
         $mocks['logger'] = $this->getMockBuilder("Monolog\Logger")->disableOriginalConstructor()->getMock();
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
         $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
+        $mocks['notificationRepository'] = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\NotificationRepository")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry']->expects($this->any())->method("getManager")->will($this->returnValue($mocks['entityManager']));
+        $mocks['managerRegistry']->expects($this->any())->method("getRepository")->will($this->returnValue($mocks['notificationRepository']));
         $mocks['templateProvider'] = $this->getMockBuilder("Azine\EmailBundle\Services\TemplateProviderInterface")->disableOriginalConstructor()->getMock();
         $mocks['recipientProvider'] = $this->getMockBuilder("Azine\EmailBundle\Services\RecipientProviderInterface")->disableOriginalConstructor()->getMock();
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
@@ -135,43 +137,19 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase
         $notification->setVariables(array('blabla' => 'blablaValue'));
         $notification->setTitle("a title");
 
-        $notificationsQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $notificationsQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock(array($notification))));
-        $notificationsQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
-        $notificationsQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
-        $notificationsQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
-        $notificationsQueryBuilderMock->expects($this->any())->method("orderBy")->will($this->returnSelf());
-
-        $notificationsRecipientQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $recipientQueryResult = array(array('recipient_id' => 11),array('recipient_id' => 12),array('recipient_id' => 13),array('recipient_id' => 14),);
-        $notificationsRecipientQueryBuilderMock->expects($this->once())->method("getQuery")->will($this->returnValue(new AzineQueryMock($recipientQueryResult)));
-        $notificationsRecipientQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
-        $notificationsRecipientQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
-        $notificationsRecipientQueryBuilderMock->expects($this->any())->method("distinct")->will($this->returnSelf());
-
-        $maxSentQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $maxSentQueryResult = array(array(1 => "@0"));
-        $maxSentQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock($maxSentQueryResult)));
-        $maxSentQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
-        $maxSentQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
-        $maxSentQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
-
-        $queryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $queryBuilderMock->expects($this->any())->method("select")->will($this->returnValueMap(array(
-                                                                                    array("max(n.sent)", $maxSentQueryBuilderMock),
-                                                                                    array("n.recipient_id", $notificationsRecipientQueryBuilderMock),
-                                                                                    array("n", $notificationsQueryBuilderMock)
-                                                                                )));
-
-        $mocks['entityManager']->expects($this->exactly(9))->method("createQueryBuilder")->will($this->returnValue($queryBuilderMock));
+        $mocks['notificationRepository']->expects($this->once())->method('getNotificationRecipientIds')->will($this->returnValue($recipientIds));
+        $mocks['notificationRepository']->expects($this->exactly(4))->method('getNotificationsToSend')->will($this->returnValue(array($notification)));
+        $mocks['notificationRepository']->expects($this->never())->method('getNotificationsToSendImmediately');
+        $mocks['notificationRepository']->expects($this->never())->method('markAllNotificationsAsSentFarInThePast');
+        $mocks['notificationRepository']->expects($this->exactly(4))->method('getLastNotificationDate')->will($this->returnValue(new \DateTime("@0")));
 
         $mocks['logger']->expects($this->never())->method("warning");
         $mocks['logger']->expects($this->once())->method("error"); // see sendSingleEmailCallBack, one mail-address fails
 
         $notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['logger'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
         $sentMails = $notifier->sendNotifications($failedAddresses);
-        $this->assertEquals(1, sizeof($failedAddresses));
-        $this->assertEquals(sizeof($recipientIds)-sizeof($failedAddresses), $sentMails);
+        $this->assertEquals(1, sizeof($failedAddresses), "One failed address was expected.");
+        $this->assertEquals(sizeof($recipientIds)-sizeof($failedAddresses), $sentMails, "Not the right number of emails has been sent successfully. Expected ".sizeof($recipientIds)-sizeof($failedAddresses));
 
     }
 
@@ -183,37 +161,11 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase
         $this->mockRecipients($mocks['recipientProvider'], $recipientIds);
         $mocks['mailer']->expects($this->never())->method("sendSingleEmail")->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
 
-        $notificationsQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $notificationsQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock(array())));
-        $notificationsQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
-        $notificationsQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
-        $notificationsQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
-        $notificationsQueryBuilderMock->expects($this->any())->method("orderBy")->will($this->returnSelf());
-
-        $notificationsRecipientQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $recipientQueryResult = array(array('recipient_id' => 11),array('recipient_id' => 12),array('recipient_id' => 13),array('recipient_id' => 14),);
-        $notificationsRecipientQueryBuilderMock->expects($this->once())->method("getQuery")->will($this->returnValue(new AzineQueryMock($recipientQueryResult)));
-        $notificationsRecipientQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
-        $notificationsRecipientQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
-        $notificationsRecipientQueryBuilderMock->expects($this->any())->method("distinct")->will($this->returnSelf());
-
-        $maxSentQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $maxSentQueryResult = array(array(1 => "@0"));
-        $maxSentQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock($maxSentQueryResult)));
-        $maxSentQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
-        $maxSentQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
-        $maxSentQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
-
-        $queryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $queryBuilderMock->expects($this->any())->method("select")->will($this->returnValueMap(array(
-                array("max(n.sent)", $maxSentQueryBuilderMock),
-                array("n.recipient_id", $notificationsRecipientQueryBuilderMock),
-                array("n", $notificationsQueryBuilderMock)
-        )));
-
-        $mocks['entityManager']->expects($this->exactly(9))->method("createQueryBuilder")->will($this->returnValue($queryBuilderMock));
-        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
-        $mocks['managerRegistry']->expects($this->any())->method("getManager")->will($this->returnValue($mocks['entityManager']));
+        $mocks['notificationRepository']->expects($this->once())->method('getNotificationRecipientIds')->will($this->returnValue($recipientIds));
+        $mocks['notificationRepository']->expects($this->exactly(4))->method('getNotificationsToSend')->will($this->returnValue(array()));
+        $mocks['notificationRepository']->expects($this->never())->method('getNotificationsToSendImmediately');
+        $mocks['notificationRepository']->expects($this->never())->method('markAllNotificationsAsSentFarInThePast');
+        $mocks['notificationRepository']->expects($this->exactly(4))->method('getLastNotificationDate')->will($this->returnValue(new \DateTime("@0")));
 
         $mocks['logger']->expects($this->never())->method("warning");
         $mocks['logger']->expects($this->never())->method("error"); // see sendSingleEmailCallBack, one mail-address fails
@@ -240,37 +192,11 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase
         $notification->setVariables(array('blabla' => 'blablaValue'));
         $notification->setTitle("a title");
 
-        $notificationsQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $notificationsQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock(array($notification))));
-        $notificationsQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
-        $notificationsQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
-        $notificationsQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
-        $notificationsQueryBuilderMock->expects($this->any())->method("orderBy")->will($this->returnSelf());
-
-        $notificationsRecipientQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $recipientQueryResult = array(array('recipient_id' => 11),array('recipient_id' => 12),array('recipient_id' => 13),array('recipient_id' => 14),);
-        $notificationsRecipientQueryBuilderMock->expects($this->once())->method("getQuery")->will($this->returnValue(new AzineQueryMock($recipientQueryResult)));
-        $notificationsRecipientQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
-        $notificationsRecipientQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
-        $notificationsRecipientQueryBuilderMock->expects($this->any())->method("distinct")->will($this->returnSelf());
-
-        $maxSentQueryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $maxSentQueryResult = array(array(1 => "@0"));
-        $maxSentQueryBuilderMock->expects($this->exactly(4))->method("getQuery")->will($this->returnValue(new AzineQueryMock($maxSentQueryResult)));
-        $maxSentQueryBuilderMock->expects($this->any())->method("from")->will($this->returnSelf());
-        $maxSentQueryBuilderMock->expects($this->any())->method("andWhere")->will($this->returnSelf());
-        $maxSentQueryBuilderMock->expects($this->any())->method("setParameter")->will($this->returnSelf());
-
-        $queryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $queryBuilderMock->expects($this->any())->method("select")->will($this->returnValueMap(array(
-                array("max(n.sent)", $maxSentQueryBuilderMock),
-                array("n.recipient_id", $notificationsRecipientQueryBuilderMock),
-                array("n", $notificationsQueryBuilderMock)
-        )));
-
-        $mocks['entityManager']->expects($this->exactly(9))->method("createQueryBuilder")->will($this->returnValue($queryBuilderMock));
-        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
-        $mocks['managerRegistry']->expects($this->any())->method("getManager")->will($this->returnValue($mocks['entityManager']));
+        $mocks['notificationRepository']->expects($this->once())->method('getNotificationRecipientIds')->will($this->returnValue($recipientIds));
+        $mocks['notificationRepository']->expects($this->exactly(4))->method('getNotificationsToSend')->will($this->returnValue(array($notification)));
+        $mocks['notificationRepository']->expects($this->never())->method('getNotificationsToSendImmediately');
+        $mocks['notificationRepository']->expects($this->never())->method('markAllNotificationsAsSentFarInThePast');
+        $mocks['notificationRepository']->expects($this->exactly(4))->method('getLastNotificationDate')->will($this->returnValue(new \DateTime("@0")));
 
         $mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method("sendSingleEmail");
         $mocks['logger']->expects($this->never())->method("warning");
@@ -306,13 +232,6 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase
         // create service-instance
         $mocks = $this->getMockSetup();
 
-        $queryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $queryBuilderMock->expects($this->once())->method("update")->will($this->returnSelf());
-        $queryBuilderMock->expects($this->once())->method("set")->will($this->returnSelf());
-        $queryBuilderMock->expects($this->exactly(2))->method("andWhere")->will($this->returnSelf());
-        $queryBuilderMock->expects($this->exactly(2))->method("setParameter")->will($this->returnSelf());
-        $queryBuilderMock->expects($this->once())->method("getQuery")->will($this->returnValue(new AzineQueryMock(true)));
-        $mocks['entityManager']->expects($this->once())->method("createQueryBuilder")->will($this->returnValue($queryBuilderMock));
         $recipientIds = array(11,12,13,14);
         $mocks['recipientProvider']->expects($this->once())->method("getNewsletterRecipientIDs")->will($this->returnValue($recipientIds));
 

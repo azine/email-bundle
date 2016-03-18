@@ -81,7 +81,6 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
 
         $recipients = md5($this->merge($to, $cc, $bcc));
 
-        $trackingUrl = '';
         if(strpos($this->trackingUrlTemplate, 'www.google-analytics.com') !== false) {
             $trackingUrl = $this->getGoogleAnalyticsUrl($this->trackingUrlTemplate, $templateBaseId, $campaignParams, $emailTemplateParams, $messageId, $recipients);
         } else {
@@ -176,8 +175,7 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
 
     /**
      * @param array $campaignParams
-     * @param string $templateId
-     * @return string if no name-value is defined in the $campaignParams, $templateId will be used.
+     * @return string if no name-value is defined in the $campaignParams, date("y-m-d") will be used.
      */
     protected function getCampaignName($campaignParams){
         if(array_key_exists($this->tracking_params_campaign_name, $campaignParams)){
