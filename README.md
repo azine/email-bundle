@@ -44,7 +44,7 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 * [Build-Status ec.](#build-status-ec)
 
 
-## Quick start guide & examples:
+## Quick start guide & examples
 - [How to configure](QUICK_START.md)
 - [Examples on how to use the plugin](USAGE_EXAMPLES.md)
 
@@ -275,7 +275,7 @@ contain the following blocks:
 - body_txt
 - body_html
 
-#### 2. the content item-templates: 
+#### 2. the content item-templates
 In a newsletter- or notification-email you probably have different kind of 
 items you would like to include. 
 
@@ -613,13 +613,13 @@ azine_email:
 ```                 
 
 See these links for more details on email tracking with images:
-GoogleAnalytics: https://developers.google.com/analytics/devguides/collection/protocol/v1/email
-Piwik: http://piwik.org/docs/tracking-api/#image-tracker-code
-Blogpost: http://dyn.com/blog/tracking-email-opens-via-google-analytics/
+- GoogleAnalytics: https://developers.google.com/analytics/devguides/collection/protocol/v1/email
+- Piwik: http://piwik.org/docs/tracking-api/#image-tracker-code
+- Blogpost: http://dyn.com/blog/tracking-email-opens-via-google-analytics/
 
 The tracking-image will also be inserted in the WebPreView of your emails,
 but to avoid false tracking events, the url will be modified to not
 point to your email-open-tracking system.
 
-## Build-Status ec.
+## Build-Status etc.
 [![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle) [![Total Downloads](https://poser.pugx.org/azine/email-bundle/downloads.png)](https://packagist.org/packages/azine/email-bundle) [![Latest Stable Version](https://poser.pugx.org/azine/email-bundle/v/stable.png)](https://packagist.org/packages/azine/email-bundle) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/email-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/email-bundle/) [![Code Coverage](https://scrutinizer-ci.com/g/azine/email-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/email-bundle/) [![Dependency Status](https://www.versioneye.com/user/projects/567eae02eb4f470030000001/badge.svg?style=flat)](https://www.versioneye.com/user/projects/567eae02eb4f470030000001) 
