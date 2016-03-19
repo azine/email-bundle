@@ -88,6 +88,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                                     TemplateProviderInterface $templateProvider,
                                     ManagerRegistry $managerRegistry,
                                     EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder,
+                                    AzineEmailTwigExtension $emailTwigExtension,
                                     array $parameters,
                                     \Swift_Mailer $immediateMailer = null)
     {
@@ -103,6 +104,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $this->routerContext = $router->getContext();
         $this->currentHost = $this->routerContext->getHost();
         $this->encodedItemIdPattern = "/^cid:.*@/";
+        $this->emailTwigExtension = $emailTwigExtension;
     }
 
     /**
@@ -181,7 +183,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $campaignParams = $this->templateProvider->getCampaignParamsFor($templateBaseId, $params);
 
         if (sizeof($campaignParams) > 0) {
-            $htmlBody = AzineEmailTwigExtension::addCampaignParamsToAllUrls($htmlBody, $campaignParams);
+            $htmlBody = $this->emailTwigExtension->addCampaignParamsToAllUrls($htmlBody, $campaignParams);
         }
 
         // if email-tracking is enabled

@@ -56,6 +56,7 @@ services:
           templateProvider:   "@azine_email_template_provider"
           managerRegistry:    "@doctrine"
           emailOpenTrackingUrlBuilder: "@azine_email_email_open_tracking_code_builder"
+          emailTwigExtension: "@azine.email.bundle.twig.filters"
           parameters:
             template:
               confirmation :  "%fos_user.registration.confirmation.template%"
@@ -96,5 +97,6 @@ services:
         arguments:
           templateProvider:   "@azine_email_template_provider"
           translator:         "@translator.default"
+          domainsToTrack:     "%azine_email_domains_for_tracking%"
         tags:
             - { name: twig.extension }

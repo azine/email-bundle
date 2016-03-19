@@ -15,9 +15,20 @@ class AzineEmailTwigExtension extends \Twig_Extension
      */
     private $translator;
 
-    public function __construct(TemplateProviderInterface $templateProvider, TranslatorInterface $translator){
+    /**
+     * @var array
+     */
+    private $domainsToTrack;
+
+    /**
+     * @param TemplateProviderInterface $templateProvider
+     * @param TranslatorInterface $translator
+     * @param array of string $domainsToTrack
+     */
+    public function __construct(TemplateProviderInterface $templateProvider, TranslatorInterface $translator, array $domainsToTrack = array()){
         $this->templateProvider = $templateProvider;
         $this->translator = $translator;
+        $this->domainsToTrack = $domainsToTrack;
     }
 
     /**
@@ -88,7 +99,7 @@ class AzineEmailTwigExtension extends \Twig_Extension
      * @param  array  $campaignParams
      * @return string
      */
-    public static function addCampaignParamsToAllUrls($html, $campaignParams)
+    public function addCampaignParamsToAllUrls($html, $campaignParams)
     {
 
         $urlPattern = '/(href=[\'|"])(http[s]?\:\/\/\S*)([\'|"])/';
@@ -97,6 +108,13 @@ class AzineEmailTwigExtension extends \Twig_Extension
                                                                     $start = $matches[1];
                                                                     $url = $matches[2];
                                                                     $end = $matches[3];
+                                                                    $domain = parse_url($url, PHP_URL_HOST);
+
+                                                                    // if the url is not in the list of domains to track then
+                                                                    if(array_search($domain, $this->domainsToTrack) === false){
+                                                                        // don't append tracking parameters to the url
+                                                                        return $start.$url.$end;
+                                                                    }
 
                                                                     // avoid duplicate params and don't replace existing params
                                                                     $params = array();

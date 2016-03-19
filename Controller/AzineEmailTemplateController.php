@@ -87,7 +87,7 @@ class AzineEmailTemplateController extends ContainerAware
         $campaignParams = $this->getTemplateProviderService()->getCampaignParamsFor($template, $emailVars);
         if(sizeof($campaignParams) > 0) {
             $htmlBody = $response->getContent();
-            $htmlBody = AzineEmailTwigExtension::addCampaignParamsToAllUrls($htmlBody, $campaignParams);
+            $htmlBody = $this->container->get("azine.email.bundle.twig.filters")->addCampaignParamsToAllUrls($htmlBody, $campaignParams);
 
             $emailOpenTrackingCodeBuilder = $this->container->get('azine_email_email_open_tracking_code_builder');
             if ($emailOpenTrackingCodeBuilder) {
@@ -148,7 +148,7 @@ class AzineEmailTemplateController extends ContainerAware
                 $campaignParams = $templateProvider->getCampaignParamsFor($template, $emailVars);
 
                 if (sizeof($campaignParams) > 0) {
-                    $response->setContent(AzineEmailTwigExtension::addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
+                    $response->setContent($this->container->get("azine.email.bundle.twig.filters")->addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
                 }
 
                 return $response;

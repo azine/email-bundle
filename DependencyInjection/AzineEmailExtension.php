@@ -36,6 +36,7 @@ class AzineEmailExtension extends Extension
     const TRACKING_PARAM_CAMPAIGN_SOURCE  =	"tracking_params_campaign_source";
     const EMAIL_TRACKING_BASE_URL         = "email_open_tracking_url";
     const EMAIL_TRACKING_CODE_BUILDER     = "email_open_tracking_code_builder";
+    const DOMAINS_FOR_TRACKING            = "domains_for_tracking";
     const PREFIX =						"azine_email_";
     const TEMPLATES =					"templates";
     const NEWSLETTER_TEMPLATE =			"newsletter";
@@ -79,6 +80,7 @@ class AzineEmailExtension extends Extension
         $container->setParameter($prefix.self::TRACKING_PARAM_CAMPAIGN_SOURCE,	$config[self::TRACKING_PARAM_CAMPAIGN_SOURCE]);
         $container->setParameter($prefix.self::TRACKING_PARAM_CAMPAIGN_TERM,	$config[self::TRACKING_PARAM_CAMPAIGN_TERM]);
         $container->setParameter($prefix.self::EMAIL_TRACKING_BASE_URL,	        $config[self::EMAIL_TRACKING_BASE_URL]);
+        $container->setParameter($prefix.self::DOMAINS_FOR_TRACKING,	        $config[self::DOMAINS_FOR_TRACKING]);
         $container->setAlias    ($prefix.self::EMAIL_TRACKING_CODE_BUILDER,     $config[self::EMAIL_TRACKING_CODE_BUILDER]);
 
         $container->setAlias	($prefix.self::WEB_VIEW_SERVICE,			$config[self::WEB_VIEW_SERVICE]);
