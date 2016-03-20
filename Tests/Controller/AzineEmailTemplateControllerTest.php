@@ -2,6 +2,7 @@
 namespace Azine\EmailBundle\Tests\Controller;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
+use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 use Azine\EmailBundle\Tests\FindInFileUtil;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\Entity\SentEmail;
@@ -115,14 +116,17 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         )))->getMock();
         $trackingCodeBuilderMock->expects($this->exactly(3))->method('getTrackingImgCode')->will($this->returnValue("http://www.google-analytics.com/?"));
 
+        $azineEmailTwigExtension = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailTwigExtension")->disableOriginalConstructor()->getMock();
+        $azineEmailTwigExtension->expects($this->exactly(3))->method("addCampaignParamsToAllUrls")->will($this->returnArgument(0));
 
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(27))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(30))->method("get")->will($this->returnValueMap(array(
                 array('request', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestMock),
                 array('azine_email_web_view_service', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $webViewServiceMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
                 array('azine_email_email_open_tracking_code_builder', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $trackingCodeBuilderMock),
+                array('azine.email.bundle.twig.filters', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $azineEmailTwigExtension),
 
         )));
         $containerMock->expects($this->exactly(3))->method("getParameter")->with("azine_email_no_reply")->will($this->returnValue(array('email' => "no-reply-email-mock@email.com", 'name' => 'no-reply-name')));
@@ -360,16 +364,22 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
         $securityContextMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
 
+        $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
+        $translatorMock->expects($this->any())->method('trans')->will($this->returnArgument(0));
+
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
         $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue("tokenId"));
         $templateProviderMock->expects($this->once())->method('getCampaignParamsFor')->will($this->returnValue(array("campaign" => "newsletter","keyword" => "2013-11-19")));
 
+        $emailTwigExtension = new AzineEmailTwigExtension($templateProviderMock, $translatorMock, array('testurl.com'));
+
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(5))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(6))->method("get")->will($this->returnValueMap(array(
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
                 array('security.context', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $securityContextMock),
+                array('azine.email.bundle.twig.filters', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $emailTwigExtension),
         )));
         $containerMock->expects($this->once())->method("has")->with('security.context')->will($this->returnValue(true));
 

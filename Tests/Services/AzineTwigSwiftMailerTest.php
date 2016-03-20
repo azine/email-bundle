@@ -1,6 +1,7 @@
 <?php
 namespace Azine\EmailBundle\Tests\Services;
 
+use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
@@ -60,6 +61,8 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
             AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => "utm_content",
             )))->getMock();
         $mocks['trackingCodeImgBuilder']->expects($this->any())->method('getTrackingImgCode')->will($this->returnValue("<img src='https://www.google-analytics.com/?tid=blabla&utm_medium=email' style='border:0' alt='' />"));
+
+        $mocks['emailTwigExtension'] = new AzineEmailTwigExtension($mocks['templateProvider'], $mocks['translator'], array('testurl.com'));
 
         return $mocks;
     }
@@ -134,7 +137,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
         $mocks['router']->expects($this->exactly(12))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $to = "to@mail.com";
         $toName = "ToName";
@@ -201,9 +204,11 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
 
         $mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
         $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
-        //$mocks['router']->expects($this->exactly(12))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['parameters']);
+        $mocks['emailTwigExtension'] = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailTwigExtension")->disableOriginalConstructor()->getMock();
+        $mocks['emailTwigExtension']->expects($this->exactly(1))->method("addCampaignParamsToAllUrls")->will($this->returnArgument(0));
+
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $to = "to@mail.com";
         $toName = "ToName";
@@ -222,7 +227,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
         $mocks['router']->expects($this->exactly(6))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $failedRecipients = array();
         $from = "from@email.com";
@@ -315,8 +320,10 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
             AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => "utm_content",
         )))->getMock();
 
+        $mocks['emailTwigExtension'] = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailTwigExtension")->disableOriginalConstructor()->getMock();
+        $mocks['emailTwigExtension']->expects($this->exactly(1))->method("addCampaignParamsToAllUrls")->will($this->returnArgument(0));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $failedRecipients = array();
         $from = "from@email.com";
@@ -350,7 +357,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
         $mocks['router']->expects($this->exactly(0))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $failedRecipients = array();
         $from = "from@email.com";
@@ -405,7 +412,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
 
         $mocks['translator']->expects($this->exactly(2))->method('getLocale')->will($this->returnValue("en"));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
         return $azineMailer;
     }
 }
