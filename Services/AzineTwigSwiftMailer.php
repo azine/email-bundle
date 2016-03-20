@@ -64,6 +64,11 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      */
     private $emailOpenTrackingCodeBuilder;
 
+    /**
+     * @var AzineEmailTwigExtension
+     */
+    private $emailTwigExtension;
+
     private $encodedItemIdPattern;
     private $currentHost;
     private $templateCache = array();
