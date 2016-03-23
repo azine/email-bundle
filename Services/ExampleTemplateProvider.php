@@ -4,7 +4,7 @@ namespace Azine\EmailBundle\Services;
 /**
  * This Service provides the templates and template-variables to be used for emails
  * This class is only an example. Implement your own!
- * @codeCoverageIgnoreStart
+ * @codeCoverageIgnore
  * @author Dominik Businger
  */
 class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateProviderInterface

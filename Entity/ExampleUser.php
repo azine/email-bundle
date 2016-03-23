@@ -7,6 +7,8 @@ use FOS\UserBundle\Model\User;
 
 /**
  * ExampleUser
+ * This class is only an example. Implement your own!
+ * @codeCoverageIgnore
  */
 class ExampleUser extends User implements RecipientInterface {
 
