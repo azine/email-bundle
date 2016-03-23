@@ -13,7 +13,7 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 - works nicely with transactional email services like mailgun.com.
 
 ## Table of contents
-* [Quick start guide &amp; examples:](#quick-start-guide--examples)
+* [Quick start guide &amp; examples](#quick-start-guide--examples)
 * [Requirements](#requirements)
       * [1. Swift-Mailer with working configuration](#1-swift-mailer-with-working-configuration)
       * [2. Doctrine for notification spooling](#2-doctrine-for-notification-spooling)
@@ -26,7 +26,7 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
   * [Your own Images](#your-own-images)
   * [Your own Twig-Templates](#your-own-twig-templates)
     * [1. the wrapper-templates](#1-the-wrapper-templates)
-    * [2. the content item-templates:](#2-the-content-item-templates)
+    * [2. the content item-templates](#2-the-content-item-templates)
 * [Make your emails available in the web-view and web-pre-view](#make-your-emails-available-in-the-web-view-and-web-pre-view)
   * [Configuring the web-view and web-pre-view](#configuring-the-web-view-and-web-pre-view)
   * [Implement WebViewServiceInterface](#implement-webviewserviceinterface)
@@ -36,12 +36,17 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 * [Operations](#operations)
   * [Deleting failed mail-files from spool-folder](#deleting-failed-mail-files-from-spool-folder)
   * [Examples of Cron-Jobs we use in operation.](#examples-of-cron-jobs-we-use-in-operation)
-* [TWIG-Filter textWrap](#twig-filter-textwrap)
+* [TWIG-Filters](#twig-filters)
+  * [textWrap](#textwrap)
+  * [urlEncodeText](#urlencodetext)
+  * [stripAndConvertTags](#stripandconverttags)
+  * [addCampaignParamsForTemplate](#addcampaignparamsfortemplate)
 * [Use two different mailers for "normal" and for "urgent" emails](#use-two-different-mailers-for-normal-and-for-urgent-emails)
 * [Use transactional email services e.g.e mailgun.com](#use-transactional-email-services-ege-mailguncom)
 * [GoogleAnalytics &amp; Piwik: Customize the tracking values in email links](#googleanalytics--piwik-customize-the-tracking-values-in-email-links)
 * [Email-open-tracking with a tracking image (e.g. with piwik or google-analytics)](#email-open-tracking-with-a-tracking-image-eg-with-piwik-or-google-analytics)
-* [Build-Status ec.](#build-status-ec)
+* [Build-Status etc.](#build-status-etc)
+
 
 
 ## Quick start guide & examples
@@ -435,14 +440,49 @@ Here are some examples how to configure your cronjobs to send the emails and cle
 
 ```
 
-## TWIG-Filter textWrap
-This bundle also adds a twig filter that allows you to wrap text using the php 
-function wordwrap. It defaults to a line width of 75 chars.
+## TWIG-Filters 
+This bundle also adds some twig filters that are useful when writing emails. 
+
+### textWrap
+The `textWrap` filter allows you to wrap text using the php function wordwrap. 
+It defaults to a line width of 75 chars.
 
 ```twig
 {{ "This text should be wrapped after 75 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap }}
 or
 {{ "This text should be wrapped after 30 characters, as it is too long for just one line. But there is not line break in the text so far" | textWrap(30) }}
+```
+### urlEncodeText
+This filter will url encode text. With url encoded text, you can, for example, create mailto-links that will create an email with the subject and body already pre-filled.
+
+```twig
+{% set subject = "I love your service. Thanx a lot" | trans | urlEncodeText %}
+{% set body = "Hi,\n\nI just wanted to say thank you!\n\nBest regards,\n%username%" | trans({'%username%' : user.name}) | urlEncodeText %}
+<a href="mailto:support@azine.com?subject={{ subject }}&body={{ body }}">Mail to us</a>
+```
+### stripAndConvertTags
+When writing html emails, you should always supply a reasonably similar text version of your email. 
+
+If you do not have a text version of your html content, you can convert the html-code into something acceptable with this filter.
+
+```twig
+// some.email.txt.twig
+{{ htmlContent | stripAndConvertTags }}
+```
+This will:
+- replace all "a" html elements with text built as follows: "link text: url" or just "url", depending on the link text.
+- strip all html tags => see [strip_tags](http://php.net/manual/function.strip-tags.php)
+- replace htmlentites with their original character => see [html_entity_decode](http://php.net/manual/function.html-entity-decode.php)
+
+### addCampaignParamsForTemplate
+This filter will get the tracking campaign parameters and values for the given twig-template and merge them with the given campaign parameters. 
+Then all links in the template will be complemented with the campaign parameters that are not yet present.
+
+```twig
+// used for examlpe in Azine/EmailBundle/Resources/views/baseEmailLayout.html.twig
+{% filter addCampaignParamsForTemplate(contentItemTemplate, contentItemParams) %}
+    {% include contentItemTemplate ~ '.html.twig' with contentItemParams %}
+{% endfilter %}
 ```
 
 ## Use two different mailers for "normal" and for "urgent" emails
