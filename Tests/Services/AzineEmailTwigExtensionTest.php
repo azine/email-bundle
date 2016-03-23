@@ -13,7 +13,7 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
         $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
         $filters = $twigExtension->getFilters();
         $filterNames = array();
-        $this->assertEquals(3, sizeof($filters), "There should only be three filters.");
+        $this->assertEquals(4, sizeof($filters), "There should only be three filters.");
 
         foreach ($filters as $filter) {
             /** @var $filter \Twig_SimpleFilter */
@@ -78,6 +78,31 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertStringCount("%5C", $textUrlEncoded, 2);
         $this->assertStringCount("%25", $textUrlEncoded, 2);
         $this->assertStringCount("%", $textUrlEncoded, 20);
+
+    }
+
+    public function testStripAndConvertTags(){
+        $html = "Some text<a href=\"http://acme.com/link1\"><div><img src=\"http://acme.com/img.jpg\">link text1</div></a>
+Some more text
+        <a href='http://acme.com/link2'>
+  <div>
+    <img src='http://acme.com/img.jpg'>
+            link text2
+        </div>
+</a>
+        Even some more text
+        <a href=\"http://acme.com/link3\">acme.com</a> or <a href=\"http://acme.com/link4\">here</a>
+        End of text
+        ";
+
+        $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
+        $txt = $twigExtension->stripAndConvertTags($html);
+
+        $this->assertContains("link text1: http://acme.com/link1", $txt, "Link with html as link-text didn't work as expected.");
+        $this->assertContains("link text2: http://acme.com/link2", $txt, "Link with html and linebreaks as link-text didn't work as expected.");
+        $this->assertContains("http://acme.com/link3", $txt, "Link with url as link-text didn't work as expected.");
+        $this->assertNotContains("link text3: http://acme.com/link3", $txt, "Link with url as link-text didn't work as expected.");
+        $this->assertContains("here: http://acme.com/link4", $txt, "Link with url as link-text didn't work as expected.");
 
     }
 

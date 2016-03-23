@@ -39,6 +39,7 @@ class AzineEmailTwigExtension extends \Twig_Extension
         $filters[] = new \Twig_SimpleFilter('textWrap', array($this, 'textWrap'));
         $filters[] = new \Twig_SimpleFilter('urlEncodeText', array($this, 'urlEncodeText'), array('is_safe' => array('html')));
         $filters[] = new \Twig_SimpleFilter('addCampaignParamsForTemplate', array($this, 'addCampaignParamsForTemplate'), array('is_safe' => array('html')));
+        $filters[] = new \Twig_SimpleFilter('stripAndConvertTags', array($this, 'stripAndConvertTags'), array('is_safe' => array('html')));
         return $filters;
     }
 
@@ -139,5 +140,36 @@ class AzineEmailTwigExtension extends \Twig_Extension
                                                                 }, $html);
 
         return $filteredHtml;
+    }
+
+    /**
+     * Convert:
+     * - a-tags to show the link and if the link-text is not contained in the link, also the link-text
+     * - remove double-whitespaces and whitespaces at line beginnings and ends.
+     * - html-special chars to their original representation (php => htmlspecialchars_decode)
+     * and then remove all html-tags (php => strip_tags)
+     */
+    public function stripAndConvertTags($html){
+
+        $linkConvertedHtml = preg_replace_callback('/<a.*?href=[\'|"](.+?)[\'|"].*?>(.*?)<\/a>/s', function ($matches) {
+            $url = $matches[1];
+            $text = trim(strip_tags($matches[2]));
+
+            if(strlen($text) == 0 || stripos($url, $text) !== false){
+                $replacement = $url;
+            } else {
+                $replacement = $text . ": " . $url;
+            }
+
+            return $replacement;
+
+        }, $html);
+
+        $txt = strip_tags($linkConvertedHtml);
+        $txt = preg_replace('/[[:blank:]]+/', ' ', $txt);
+        $txt = preg_replace("/\n[[:blank:]]/", "\n", $txt);
+        $txt = preg_replace("/[[:blank:]]\n/", "\n", $txt);
+        $txt = html_entity_decode($txt);
+        return $txt;
     }
 }
