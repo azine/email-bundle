@@ -83,7 +83,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $response = $controller->indexAction();
+        $controller->indexAction();
     }
 
     public function testWebPreViewAction()
@@ -134,9 +134,9 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
 
-        $response = $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
+        $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
 
-        $response = $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE, "html");
+        $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE, "html");
 
         $response = $controller->webPreViewAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE, "txt");
         $this->assertEquals("text/plain", $response->headers->get("Content-Type"));
@@ -191,7 +191,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $response = $controller->webViewAction($token);
+        $controller->webViewAction($token);
     }
 
     public function testWebViewAction_Anonymous_access_allowed()
@@ -236,7 +236,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $response = $controller->webViewAction($token);
+        $controller->webViewAction($token);
     }
 
     /**
@@ -328,7 +328,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $response = $controller->webViewAction($token);
+        $controller->webViewAction($token);
     }
 
     public function testWebViewAction_Admin_with_CampaignParams()
@@ -413,7 +413,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $response = $controller->webViewAction($token);
+        $controller->webViewAction($token);
     }
 
     public function testServeImageAction()
@@ -456,7 +456,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $response = $controller->serveImageAction($folderKey, $filename);
+        $controller->serveImageAction($folderKey, $filename);
     }
 
     public function testSendTestEmailAction()
