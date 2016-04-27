@@ -52,7 +52,7 @@ class NotificationRepository extends EntityRepository{
      * @return array
      */
     public function getNotificationRecipientIds(){
-        $qb = $this->createQueryBuilder(null)
+        $qb = $this->getEntityManager()->createQueryBuilder()
             ->select("n.recipient_id")
             ->distinct()
             ->from("Azine\EmailBundle\Entity\Notification", "n")
@@ -72,7 +72,7 @@ class NotificationRepository extends EntityRepository{
      * @param $recipientId
      */
     public function markAllNotificationsAsSentFarInThePast($recipientId){
-        $qb = $this->createQueryBuilder(null)
+        $qb = $this->getEntityManager()->createQueryBuilder()
             ->update("Azine\EmailBundle\Entity\Notification", "n")
             ->set("n.sent", ":farInThePast")
             ->andWhere("n.sent is null")
@@ -88,7 +88,7 @@ class NotificationRepository extends EntityRepository{
      * @return \DateTime
      */
     public function getLastNotificationDate($recipientId){
-        $qb = $this->createQueryBuilder(null)
+        $qb = $this->getEntityManager()->createQueryBuilder()
             ->select("max(n.sent)")
             ->from("Azine\EmailBundle\Entity\Notification", "n")
             ->andWhere("n.recipient_id = :recipientId")

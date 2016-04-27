@@ -603,7 +603,7 @@ class AzineNotifierService implements NotifierServiceInterface
      * @return NotificationRepository
      */
     protected function getNotificationRepository(){
-        return $this->managerRegistry->getRepository('AzineEmailBundle::Notification');
+        return $this->managerRegistry->getRepository('AzineEmailBundle:Notification');
     }
 
 }
