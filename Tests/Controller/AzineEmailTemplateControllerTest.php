@@ -174,8 +174,8 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
 
-        $securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
-        $securityContextMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
+        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
 
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
         $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue("tokenId"));
@@ -185,9 +185,9 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
-                array('security.context', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $securityContextMock),
+                array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
         )));
-        $containerMock->expects($this->once())->method("has")->with('security.context')->will($this->returnValue(true));
+        $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
@@ -219,8 +219,8 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
         $securityTokenMock->expects($this->never())->method('getUser');
 
-        $securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
-        $securityContextMock->expects($this->never())->method('getToken');
+        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock->expects($this->never())->method('getToken');
 
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
         $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue("tokenId"));
@@ -230,7 +230,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
-                array('security.context', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $securityContextMock),
+                array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
         )));
         $containerMock->expects($this->never())->method("has");
 
@@ -268,8 +268,8 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
 
-        $securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
-        $securityContextMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
+        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
 
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->setMethods(array('trans'))->getMock();
         $translatorMock->expects($this->once())->method("trans")->will($this->returnValue("translation"));
@@ -277,10 +277,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
         $containerMock->expects($this->exactly(3))->method("get")->will($this->returnValueMap(array(
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
-                array('security.context', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $securityContextMock),
+                array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
                 array('translator', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $translatorMock),
         )));
-        $containerMock->expects($this->once())->method("has")->with('security.context')->will($this->returnValue(true));
+        $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
@@ -312,8 +312,8 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
         $securityTokenMock->expects($this->once())->method('getUser')->will($this->returnValue(null));
 
-        $securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
-        $securityContextMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
+        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
 
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->setMethods(array('trans'))->getMock();
         $translatorMock->expects($this->once())->method("trans")->will($this->returnValue("translation"));
@@ -321,10 +321,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
         $containerMock->expects($this->exactly(3))->method("get")->will($this->returnValueMap(array(
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
-                array('security.context', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $securityContextMock),
+                array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
                 array('translator', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $translatorMock),
         )));
-        $containerMock->expects($this->once())->method("has")->with('security.context')->will($this->returnValue(true));
+        $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
@@ -361,8 +361,8 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
 
-        $securityContextMock = $this->getMockBuilder("Symfony\Component\Security\Core\SecurityContext")->disableOriginalConstructor()->getMock();
-        $securityContextMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
+        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
 
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $translatorMock->expects($this->any())->method('trans')->will($this->returnArgument(0));
@@ -378,10 +378,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
-                array('security.context', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $securityContextMock),
+                array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
                 array('azine.email.bundle.twig.filters', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $emailTwigExtension),
         )));
-        $containerMock->expects($this->once())->method("has")->with('security.context')->will($this->returnValue(true));
+        $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
@@ -495,7 +495,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $recipientProvider = $container->get('azine_email_recipient_provider');
         $users = $recipientProvider->getNewsletterRecipientIDs();
         $token->setUser($recipientProvider->getRecipient($users[0]));
-        $container->get('security.context')->setToken($token);
+        $container->get('security.token_storage')->setToken($token);
 
         // instantiate the controller and try to send the email
         $controller = new AzineEmailTemplateController();

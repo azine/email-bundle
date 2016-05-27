@@ -186,13 +186,13 @@ class AzineEmailTemplateController extends ContainerAware
 
         // get the current user
         $currentUser = null;
-        if (!$this->container->has('security.context')) {
+        if (!$this->container->has('security.token_storage')) {
             // @codeCoverageIgnoreStart
             throw new \LogicException('The SecurityBundle is not registered in your application.');
             // @codeCoverageIgnoreEnd
 
         } else {
-            $token = $this->container->get('security.context')->getToken();
+            $token = $this->container->get('security.token_storage')->getToken();
 
             // check if the token is not null and the user in the token an object
             if ($token instanceof TokenInterface && is_object($token->getUser())) {
