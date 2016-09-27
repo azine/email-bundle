@@ -281,13 +281,15 @@ class AzineNotifierService implements NotifierServiceInterface
 
         $notificationsTemplate = $this->configParameter[AzineEmailExtension::TEMPLATES."_".AzineEmailExtension::NOTIFICATIONS_TEMPLATE];
 
+        $sentCount = 0;
         foreach ($recipientIds as $recipientId) {
 
             // send the mail for this recipient
             $failedAddress = $this->sendNotificationsFor($recipientId, $notificationsTemplate, $params);
-
             if ($failedAddress !== null && strlen($failedAddress) > 0) {
                 $failedAddresses[] = $failedAddress;
+            } else {
+                $sentCount++;
             }
         }
 
@@ -296,7 +298,7 @@ class AzineNotifierService implements NotifierServiceInterface
             $this->logger->warn("Failed to send message to :\n".print_r($failedAddresses, true));
         }
 
-        return sizeof($recipientIds) - sizeof($failedAddresses);
+        return $sentCount;
     }
 
     /**
