@@ -4,6 +4,7 @@ namespace Azine\EmailBundle\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Filesystem\LockHandler;
 
 /**
  * Send Newsletter via email
@@ -39,6 +40,13 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // create the lock
+        $lock = new LockHandler($this->getName());
+        if (!$lock->lock()) {
+            $output->writeln('The command is already running in another process.');
+            return 0;
+        }
+
         $failedAddresses = array();
         $output->writeln(date(\DateTime::RFC2822)." : starting to send newsletter emails.");
 
