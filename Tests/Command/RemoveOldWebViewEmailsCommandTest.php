@@ -77,7 +77,8 @@ class RemoveOldWebViewEmailsCommandTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param integer|null $days
-     * @param integer      $deletedWebMails
+     * @param integer $deletedWebMails
+     * @return \PHPUnit_Framework_MockObject_MockObject
      */
     private function getMockSetup($days, $deletedWebMails, $useKeep = false)
     {
