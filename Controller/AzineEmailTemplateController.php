@@ -46,6 +46,7 @@ class AzineEmailTemplateController extends ContainerAware
     /**
      * Show a web-preview-version of an email-template, filled with dummy-content
      * @param string $format
+     * @return Response
      */
     public function webPreViewAction($template, $format = null)
     {
@@ -85,6 +86,7 @@ class AzineEmailTemplateController extends ContainerAware
 
         // add campaign tracking params
         $campaignParams = $this->getTemplateProviderService()->getCampaignParamsFor($template, $emailVars);
+        $campaignParams['utm_medium'] = 'webPreview';
         if(sizeof($campaignParams) > 0) {
             $htmlBody = $response->getContent();
             $htmlBody = $this->container->get("azine.email.bundle.twig.filters")->addCampaignParamsToAllUrls($htmlBody, $campaignParams);
