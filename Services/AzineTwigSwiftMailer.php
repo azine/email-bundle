@@ -44,12 +44,12 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     protected $routerContext;
 
     /**
-     * @var email to use for "no-reply"
+     * @var string email to use for "no-reply"
      */
     protected $noReplyEmail;
 
     /**
-     * @var name to use for "no-reply"
+     * @var string name to use for "no-reply"
      */
     protected $noReplyName;
 
@@ -77,13 +77,17 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
     /**
      *
-     * @param \Swift_Mailer         $mailer
+     * @param \Swift_Mailer $mailer
      * @param UrlGeneratorInterface $router
-     * @param \Twig_Environment     $twig
-     * @param Logger                $logger
-     * @param Translator            $translator
-     * @param array                 $parameters
-     * @param \Swift_Mailer         $immediateMailer
+     * @param \Twig_Environment $twig
+     * @param Logger $logger
+     * @param Translator $translator
+     * @param TemplateProviderInterface $templateProvider
+     * @param ManagerRegistry $managerRegistry
+     * @param EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder
+     * @param AzineEmailTwigExtension $emailTwigExtension
+     * @param array $parameters
+     * @param \Swift_Mailer $immediateMailer
      */
     public function __construct(    \Swift_Mailer $mailer,
                                     UrlGeneratorInterface $router,
@@ -115,6 +119,24 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     /**
      * (non-PHPdoc)
      * @see Azine\EmailBundle\Services.TemplateTwigSwiftMailerInterface::sendEmail()
+     * @param array $failedRecipients
+     * @param string $subject
+     * @param String $from
+     * @param String $fromName
+     * @param array|String $to
+     * @param String $toName
+     * @param array|String $cc
+     * @param String $ccName
+     * @param array|String $bcc
+     * @param String $bccName
+     * @param $replyTo
+     * @param $replyToName
+     * @param array $params
+     * @param $template
+     * @param array $attachments
+     * @param null $emailLocale
+     * @param \Swift_Message $message
+     * @return int
      */
     public function sendEmail(&$failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null, \Swift_Message &$message = null)
     {
@@ -360,7 +382,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      */
     private function embedImages(&$message, &$params)
     {
-        // loop throug the array
+        // loop through the array
         foreach ($params as $key => $value) {
 
             // if the current value is an array
@@ -385,8 +407,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                 // the $filePath isn't a regular file
                 } else {
                     // ignore the imageDir itself, but log all other directories and symlinks that were not embeded
-                    if ($value != $this->templateProvider->getTemplateImageDir() ) {
-                        $this->logger->info("'$value' is not a regular file and will not be embeded in the email.");
+                    if ($value != $this->templateProvider->getTemplateImageDir() && $this->logger->isHandling(Logger::INFO) ) {
+                        $this->logger->info("'$value' is not a regular file and will not be embedded in the email.");
                     }
 
                     // add a null-value to the cache for this path, so we don't try again.
@@ -433,7 +455,9 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                 if ($id == $filePath) {		// $id and $value must not be the same => this happens if the file cannot be found/read
                     // @codeCoverageIgnoreStart
                     // log error
-                    $this->logger->error('The image $value was not correctly embedded in the email.', array('image' => $filePath, 'resulting id' => $id));
+                    if($this->logger->isHandling(Logger::ERROR)) {
+                        $this->logger->error('The image $value was not correctly embedded in the email.', array('image' => $filePath, 'resulting id' => $id));
+                    }
                     // add a null-value to the cache for this path, so we don't try again.
                     $this->imageCache[$filePath] = null;
 
@@ -453,6 +477,16 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     /**
      * (non-PHPdoc)
      * @see Azine\EmailBundle\Services.TemplateTwigSwiftMailerInterface::sendSingleEmail()
+     * @param string $to
+     * @param string $toName
+     * @param string $subject
+     * @param array $params
+     * @param string $template
+     * @param string $emailLocale
+     * @param null $from
+     * @param null $fromName
+     * @param \Swift_Message $message
+     * @return bool
      */
     public function sendSingleEmail($to, $toName, $subject, array $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null)
     {
