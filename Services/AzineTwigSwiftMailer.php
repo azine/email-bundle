@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
-use Monolog\Logger;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
 
@@ -21,11 +20,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * @var Translator
      */
     protected $translator;
-
-    /**
-     * @var Logger
-     */
-    protected $logger;
 
     /**
      * @var TemplateProviderInterface
@@ -80,7 +74,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * @param \Swift_Mailer $mailer
      * @param UrlGeneratorInterface $router
      * @param \Twig_Environment $twig
-     * @param Logger $logger
      * @param Translator $translator
      * @param TemplateProviderInterface $templateProvider
      * @param ManagerRegistry $managerRegistry
@@ -92,7 +85,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     public function __construct(    \Swift_Mailer $mailer,
                                     UrlGeneratorInterface $router,
                                     \Twig_Environment $twig,
-                                    Logger $logger,
                                     Translator $translator,
                                     TemplateProviderInterface $templateProvider,
                                     ManagerRegistry $managerRegistry,
@@ -103,7 +95,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     {
         parent::__construct($mailer, $router, $twig, $parameters);
         $this->immediateMailer = $immediateMailer;
-        $this->logger = $logger;
         $this->translator = $translator;
         $this->templateProvider = $templateProvider;
         $this->managerRegistry = $managerRegistry;
@@ -313,8 +304,11 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
             $sentEmail->setRecipients($successfulRecipients);
 
             // write to db
-            $this->managerRegistry->getManager()->persist($sentEmail);
-            $this->managerRegistry->getManager()->flush($sentEmail);
+            $em = $this->managerRegistry->getManager();
+            $em->persist($sentEmail);
+            $em->flush($sentEmail);
+            $em->clear();
+            gc_collect_cycles();
         }
 
         return $messagesSent;
@@ -406,11 +400,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
                 // the $filePath isn't a regular file
                 } else {
-                    // ignore the imageDir itself, but log all other directories and symlinks that were not embeded
-                    if ($value != $this->templateProvider->getTemplateImageDir() && $this->logger->isHandling(Logger::INFO) ) {
-                        $this->logger->info("'$value' is not a regular file and will not be embedded in the email.");
-                    }
-
                     // add a null-value to the cache for this path, so we don't try again.
                     $this->imageCache[$value] = null;
                 }
@@ -451,13 +440,9 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                 $image = \Swift_Image::fromPath($filePath);
                 $id = $image->getId();
 
-                // log an error if the image could not be embedded properly
-                if ($id == $filePath) {		// $id and $value must not be the same => this happens if the file cannot be found/read
+                // $id and $value must not be the same => this happens if the file cannot be found/read
+                if ($id == $filePath) {
                     // @codeCoverageIgnoreStart
-                    // log error
-                    if($this->logger->isHandling(Logger::ERROR)) {
-                        $this->logger->error('The image $value was not correctly embedded in the email.', array('image' => $filePath, 'resulting id' => $id));
-                    }
                     // add a null-value to the cache for this path, so we don't try again.
                     $this->imageCache[$filePath] = null;
 

@@ -44,6 +44,16 @@ interface TemplateProviderInterface
      */
     public function getTemplateImageDir();
 
+
+    /**
+     * Recursively replace all absolute image paths in the $emailVars array with relative web urls
+     * @see \Azine\EmailBundle\Services\AzineTemplateProvider::makeImagePathsWebRelative for a reference implementation
+     * @param array $emailVars
+     * @param $locale
+     * @return mixed emailVars-array with relative paths for images
+     */
+    public function makeImagePathsWebRelative(array $emailVars, $locale);
+
     /**
      * Check if an image that should be embeded into an email is stored in an "allowed_images_folder" see config.yml
      * @param string the filesystem path to the file

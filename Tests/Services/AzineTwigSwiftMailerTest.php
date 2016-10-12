@@ -17,8 +17,6 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
         $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
 
-        $mocks['logger'] = $this->getMockBuilder("Monolog\Logger")->disableOriginalConstructor()->getMock();
-
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue("azine.translation.mock"));
 
@@ -137,7 +135,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
         $mocks['router']->expects($this->exactly(12))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $to = "to@mail.com";
         $toName = "ToName";
@@ -158,8 +156,6 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
         $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
         $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
-
-        $mocks['logger'] = $this->getMockBuilder("Monolog\Logger")->disableOriginalConstructor()->getMock();
 
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue("azine.translation.mock"));
@@ -208,7 +204,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['emailTwigExtension'] = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailTwigExtension")->disableOriginalConstructor()->getMock();
         $mocks['emailTwigExtension']->expects($this->exactly(1))->method("addCampaignParamsToAllUrls")->will($this->returnArgument(0));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $to = "to@mail.com";
         $toName = "ToName";
@@ -227,7 +223,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
         $mocks['router']->expects($this->exactly(6))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $failedRecipients = array();
         $from = "from@email.com";
@@ -273,8 +269,6 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
         $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
         $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
-
-        $mocks['logger'] = $this->getMockBuilder("Monolog\Logger")->disableOriginalConstructor()->getMock();
 
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue("azine.translation.mock"));
@@ -323,7 +317,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['emailTwigExtension'] = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailTwigExtension")->disableOriginalConstructor()->getMock();
         $mocks['emailTwigExtension']->expects($this->exactly(1))->method("addCampaignParamsToAllUrls")->will($this->returnArgument(0));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $failedRecipients = array();
         $from = "from@email.com";
@@ -357,7 +351,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
         $mocks['router']->expects($this->exactly(0))->method('generate')->will($this->returnCallback(array($this, 'generateCallback')));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
 
         $failedRecipients = array();
         $from = "from@email.com";
@@ -412,7 +406,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
 
         $mocks['translator']->expects($this->exactly(2))->method('getLocale')->will($this->returnValue("en"));
 
-        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['logger'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
+        $azineMailer = new AzineTwigSwiftMailer($mocks['mailer'], $mocks['router'], $mocks['twig'], $mocks['translator'], $mocks['templateProvider'], $mocks['managerRegistry'], $mocks['trackingCodeImgBuilder'], $mocks['emailTwigExtension'], $mocks['parameters']);
         return $azineMailer;
     }
 }

@@ -6,8 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\Notification;
 use Azine\EmailBundle\Entity\RecipientInterface;
-use Doctrine\ORM\EntityManager;
-use Monolog\Logger;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -166,7 +164,6 @@ class AzineNotifierService implements NotifierServiceInterface
      *
      * @param TemplateTwigSwiftMailerInterface $mailer
      * @param \Twig_Environment                $twig
-     * @param Logger                           $logger
      * @param UrlGeneratorInterface            $router
      * @param ManagerRegistry                  $managerRegistry
      * @param TemplateProviderInterface        $templateProvider
@@ -174,13 +171,12 @@ class AzineNotifierService implements NotifierServiceInterface
      * @param Translator                       $translatorService
      * @param array                            $parameters
      */
-    public function __construct(TemplateTwigSwiftMailerInterface $mailer, \Twig_Environment $twig, Logger $logger, UrlGeneratorInterface $router,
+    public function __construct(TemplateTwigSwiftMailerInterface $mailer, \Twig_Environment $twig, UrlGeneratorInterface $router,
                                ManagerRegistry $managerRegistry, TemplateProviderInterface $templateProvider, RecipientProviderInterface $recipientProvider,
             Translator $translatorService, array $parameters) {
 
         $this->mailer = $mailer;
         $this->twig = $twig;
-        $this->logger = $logger;
         $this->router = $router;
         $this->managerRegistry = $managerRegistry;
         $this->templateProvider = $templateProvider;
@@ -203,11 +199,6 @@ class AzineNotifierService implements NotifierServiceInterface
      * @var \Twig_Environment
      */
     protected $twig;
-
-    /**
-     * @var Logger
-     */
-    protected $logger;
 
     /**
      * @var UrlGeneratorInterface
@@ -293,11 +284,6 @@ class AzineNotifierService implements NotifierServiceInterface
             }
         }
 
-        // log mail-errors as warnings
-        if (sizeof($failedAddresses) > 0) {
-            $this->logger->warn("Failed to send message to :\n".print_r($failedAddresses, true));
-        }
-
         return $sentCount;
     }
 
@@ -351,14 +337,10 @@ class AzineNotifierService implements NotifierServiceInterface
         if ($sent) {
             // save the updated notifications
             $this->setNotificationsAsSent($notifications);
-
             return null;
 
         } else {
-            $this->logger->error("The notification for ".$recipient->getDisplayName()." <".$recipient->getEmail()."> could not be sent!", $params);
-
-            return $recipient->getEmail();
-
+           return $recipient->getEmail();
         }
     }
 
@@ -415,8 +397,6 @@ class AzineNotifierService implements NotifierServiceInterface
         $recipientParams['_locale'] = $recipient->getPreferredLocale();
 
         if (sizeof($recipientParams[self::CONTENT_ITEMS]) == 0) {
-            $this->logger->warning("The newsletter for '".$recipient->getDisplayName()." <".$recipient->getEmail().">' has not been sent. It would have been empty.", $params);
-
             return $recipient->getEmail();
         }
 
@@ -430,11 +410,9 @@ class AzineNotifierService implements NotifierServiceInterface
             return null;
 
         } else {
-            $this->logger->error("The newsletter for ".$recipient->getDisplayName()." <".$recipient->getEmail()."> could not be sent!", $params);
-
             return $recipient->getEmail();
-
         }
+
     }
 
     /**

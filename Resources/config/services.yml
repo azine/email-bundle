@@ -23,7 +23,6 @@ services:
         arguments:
           mailer:             "@azine_email_template_twig_swift_mailer"
           twig:               "@twig"
-          logger:             "@logger"
           router:             "@router"
           managerRegistry:    "@doctrine"
           templateProvider:   "@azine_email_template_provider"
@@ -51,7 +50,6 @@ services:
           mailer:             "@mailer"
           router:             "@router"
           twig:               "@twig"
-          logger:             "@logger"
           translator:         "@translator.default"
           templateProvider:   "@azine_email_template_provider"
           managerRegistry:    "@doctrine"

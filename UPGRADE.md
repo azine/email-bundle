@@ -1,13 +1,18 @@
 Azine Email Bundle Upgrade Instructions
 ==================
 
-## From 2.1 to dev-master
-While cleaning up some code in the bundle (removing potential errors) a few BC breaks were introduced.  
+## From 3.0 to 0dev-master
+Nothing to do so far
 
-Reason for the BC-Break: As it is a bad idea, to inject the `EntityManager` into a service, as the `EntityManager` could get closed before the usage. It is better to inject the `ManagerRegistry` and get the `EntityManager` from there. 
+## From 2.1 to 3.0
+While cleaning up some code in the bundle (removing potential errors and fixing a memory leak) a few BC breaks were introduced. They should be rather straight forward to fix though.
+
+Reasons for the BC-Breaks: 
+- As it is a bad idea, to inject the `EntityManager` into a service, as the `EntityManager` could get closed before the usage. It is better to inject the `ManagerRegistry` and get the `EntityManager` from there.
+- The usage of the `Logger` in the AzineTwigSwiftMailer and the AzineNotifierService caused a memory leak. 
 
 ### Required changes
-If you have subclassed any of the following classes from this bundle, you will have to update your services.yml and your implementation as well.
+If you have sub-classed any of the following classes from this bundle, you will have to update your services.yml and your implementation as well.
  - `Azine\EmailBundle\Services\AzineNotifierService`
  - `Azine\EmailBundle\Services\AzineTwigSwiftMailer`
  - `Azine\EmailBundle\Services\AzineRecipientProvider`
@@ -19,7 +24,7 @@ Before:
 arguments:
           entityManager: "@doctrine.orm.entity_manager"
 ```
-After:
+After: rename the EntityManager(Registry) and remove the logger from the arguments list
 ```
 arguments:
           managerRegistry: "@doctrine"
@@ -37,7 +42,7 @@ Before:
         $this->em = $entityManager;
 ```
 
-After:
+After: rename the EntityManager(Registry) and remove the logger from the constructor 
 ```
     /**
      * @var ManagerRegistry
