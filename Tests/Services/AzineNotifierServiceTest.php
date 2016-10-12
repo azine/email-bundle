@@ -3,13 +3,7 @@ namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Services\ExampleNotifierService;
 use Azine\EmailBundle\Entity\Notification;
-use Azine\EmailBundle\Services\TemplateProviderInterface;
 use Azine\EmailBundle\Services\AzineNotifierService;
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Monolog\Logger;
-use Azine\EmailBundle\Services\TemplateTwigSwiftMailerInterface;
-use Azine\EmailBundle\Tests\AzineQueryMock;
 use Azine\EmailBundle\Entity\RecipientInterface;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Services\AzineTemplateProvider;

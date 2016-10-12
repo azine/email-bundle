@@ -3,7 +3,6 @@ namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Tests\AzineQueryMock;
 use Doctrine\DBAL\LockMode;
-use Azine\EmailBundle\Entity\RecipientInterface;
 use Azine\EmailBundle\Services\AzineRecipientProvider;
 
 class AzineRecipientProviderTest extends \PHPUnit_Framework_TestCase
