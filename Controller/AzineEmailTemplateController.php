@@ -1,8 +1,8 @@
 <?php
+
 namespace Azine\EmailBundle\Controller;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
@@ -11,8 +11,24 @@ use Azine\EmailBundle\Entity\SentEmail;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\DependencyInjection\ContainerAware;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Azine\EmailBundle\Services\TemplateProviderInterface;
+
+/**
+ * This controller provides the following actions:
+ *
+ * index: view a list of all your templates with the option to send a test mail with "dummy"-data to an email-address of your choice (see WebViewServiceInterface::getTemplatesForWebPreView() & WebViewServiceInterface::getTestMailAccounts) .
+ * webPreView: shows the selected html- or txt-email-template filled with the dummy-data you defined (in the WebViewServiceInterface::getDummyVarsFor() function).
+ * webView: shows an email that has been sent (and stored as SentEmail-entity in the database)
+ * sendTestMail: sends an email filled with the dummy-data you defined to the selected email-address.
+ * serveImage: serve an image from the template-image-folder
+ *
+ * @author dominik
+ */
+class AzineEmailTemplateController implements ContainerAwareInterface
+{
+    use ContainerAwareTrait;
 
 /**
  * This controller provides the following actions:
