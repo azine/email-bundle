@@ -48,7 +48,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         throw new \Exception("unexpected template $template");
     }
 
-    public function testIndexAction()
+    public function testIndexAction(Request $request)
     {
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->setMethods(array('get'))->getMock();
         $requestMock->expects($this->once())->method('get')->will($this->returnValue("a-custom@email.com"));
@@ -83,7 +83,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $controller->indexAction(Request $request);
+        $controller->indexAction($request);
     }
 
     public function testWebPreViewAction()
