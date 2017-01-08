@@ -52,8 +52,9 @@ class AzineEmailTemplateController extends Controller
      * @param string $format
      * @return Response
      */
-    public function webPreViewAction(Request $request, $template, $format = null)
+    public function webPreViewAction($template, $format = null)
     {
+        $request = $this->get('request');
         if ($format !== "txt") {
             $format = "html";
         }
