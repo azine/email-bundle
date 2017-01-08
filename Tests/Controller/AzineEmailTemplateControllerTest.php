@@ -83,7 +83,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $controller->indexAction();
+        $controller->indexAction( $requestMock );
     }
 
     public function testWebPreViewAction()
@@ -500,7 +500,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         // instantiate the controller and try to send the email
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($container);
-        $response = $controller->sendTestEmailAction(AzineTemplateProvider::NEWSLETTER_TEMPLATE, $to);
+        $response = $controller->sendTestEmailAction($container->get('request'), AzineTemplateProvider::NEWSLETTER_TEMPLATE, $to);
 
         $this->assertEquals(302, $response->getStatusCode(), "Status-Code 302 expected.");
         $uri = $router->generate("azine_email_template_index");
@@ -588,7 +588,7 @@ Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von 
 
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $jsonResponse = $controller->checkSpamScoreOfSentEmailAction();
+        $jsonResponse = $controller->checkSpamScoreOfSentEmailAction( $requestMock );
 
         $json = $jsonResponse->getContent();
         if (strpos($json, "Getting the spam-info failed") !== false) {
