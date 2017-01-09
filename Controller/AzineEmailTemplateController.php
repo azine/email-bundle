@@ -455,7 +455,7 @@ class AzineEmailTemplateController extends Controller
                     cURL-Error: " . $spamReport['curlError'] . "
                     SpamReportMsg: " . $spamReport['message'];
 
-                } elseif ($spamReport != null && is_array($spamReport)) {
+                } elseif ($spamReport !== null && is_array($spamReport)) {
                     $spamInfo = "Getting the spam-info failed. This was returned:
 ---Start----------------------------------------------
 " . implode(";\n", $spamReport) ."
