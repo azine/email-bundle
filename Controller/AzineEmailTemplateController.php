@@ -1,8 +1,8 @@
 <?php
+
 namespace Azine\EmailBundle\Controller;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
@@ -11,7 +11,10 @@ use Azine\EmailBundle\Entity\SentEmail;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\DependencyInjection\ContainerAware;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Azine\EmailBundle\Services\TemplateProviderInterface;
 
 /**
@@ -25,22 +28,26 @@ use Azine\EmailBundle\Services\TemplateProviderInterface;
  *
  * @author dominik
  */
-class AzineEmailTemplateController extends ContainerAware
+
+class AzineEmailTemplateController extends Controller
 {
+
     /**
      * Show a set of options to view html- and text-versions of email in the browser and send them as emails to test-accounts
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
-        $customEmail = $this->container->get('request')->get('customEmail', 'custom@email.com');
-        $templates = $this->container->get('azine_email_web_view_service')->getTemplatesForWebPreView();
-        $emails = $this->container->get('azine_email_web_view_service')->getTestMailAccounts();
+        $customEmail = $request->get('customEmail', 'custom@email.com');
+        $templates = $this->get('azine_email_web_view_service')->getTemplatesForWebPreView();
+        $emails = $this->get('azine_email_web_view_service')->getTestMailAccounts();
 
-        return $this->container->get('templating')->renderResponse("AzineEmailBundle:Webview:index.html.twig",
-                                                                     array(	'customEmail'	=> $customEmail,
-                                                                            'templates'		=> $templates,
-                                                                            'emails'		=> $emails,
-                                                                            ));
+        return $this->get('templating')
+                    ->renderResponse("AzineEmailBundle:Webview:index.html.twig",
+                    array(	
+                        'customEmail' => $customEmail,
+                        'templates'   => $templates,
+                        'emails'      => $emails,
+                    ));
     }
 
     /**
@@ -48,18 +55,18 @@ class AzineEmailTemplateController extends ContainerAware
      * @param string $format
      * @return Response
      */
-    public function webPreViewAction($template, $format = null)
+    public function webPreViewAction(Request $request, $template, $format = null)
     {
+        
         if ($format !== "txt") {
             $format = "html";
         }
 
-        $request = $this->container->get('request');
         $locale = $request->getLocale();
 
         // merge request vars with dummyVars, but make sure request vars remain as they are.
         $emailVars = array_merge(array(), $request->query->all());
-        $emailVars = $this->container->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale, $emailVars);
+        $emailVars = $this->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale, $emailVars);
         $emailVars = array_merge($emailVars, $request->query->all());
 
         // add the styles
@@ -67,7 +74,7 @@ class AzineEmailTemplateController extends ContainerAware
 
         // add the from-email for the footer-text
         if (!array_key_exists('fromEmail', $emailVars)) {
-            $noReply = $this->container->getParameter('azine_email_no_reply');
+            $noReply = $this->getParameter('azine_email_no_reply');
             $emailVars['fromEmail'] = $noReply['email'];
             $emailVars['fromName'] = $noReply['name'];
         }
@@ -79,7 +86,7 @@ class AzineEmailTemplateController extends ContainerAware
         $emailVars = $this->getTemplateProviderService()->makeImagePathsWebRelative($emailVars, $locale);
 
         // add code-snippets
-        $emailVars = $this->getTemplateProviderService()->addTemplateSnippetsWithImagesFor($template, $emailVars, $this->container->get('request')->getLocale());
+        $emailVars = $this->getTemplateProviderService()->addTemplateSnippetsWithImagesFor($template, $emailVars, $locale);
 
         // render & return email
         $response = $this->renderResponse("$template.$format.twig", $emailVars);
@@ -89,9 +96,9 @@ class AzineEmailTemplateController extends ContainerAware
         $campaignParams['utm_medium'] = 'webPreview';
         if(sizeof($campaignParams) > 0) {
             $htmlBody = $response->getContent();
-            $htmlBody = $this->container->get("azine.email.bundle.twig.filters")->addCampaignParamsToAllUrls($htmlBody, $campaignParams);
+            $htmlBody = $this->get("azine.email.bundle.twig.filters")->addCampaignParamsToAllUrls($htmlBody, $campaignParams);
 
-            $emailOpenTrackingCodeBuilder = $this->container->get('azine_email_email_open_tracking_code_builder');
+            $emailOpenTrackingCodeBuilder = $this->get('azine_email_email_open_tracking_code_builder');
             if ($emailOpenTrackingCodeBuilder) {
                 // add an image at the end of the html tag with the tracking-params to track email-opens
                 $imgTrackingCode = $emailOpenTrackingCodeBuilder->getTrackingImgCode($template, $campaignParams, $emailVars, "dummy", "dummy@from.email.com", null, null);
@@ -123,7 +130,7 @@ class AzineEmailTemplateController extends ContainerAware
      * Show a web-version of an email that has been sent to recipients and has been stored in the database.
      * @param string $token
      */
-    public function webViewAction($token)
+    public function webViewAction ($token)
     {
         // find email recipients, template & params
         $sentEmail = $this->getSentEmailForToken($token);
@@ -150,20 +157,20 @@ class AzineEmailTemplateController extends ContainerAware
                 $campaignParams = $templateProvider->getCampaignParamsFor($template, $emailVars);
 
                 if (sizeof($campaignParams) > 0) {
-                    $response->setContent($this->container->get("azine.email.bundle.twig.filters")->addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
+                    $response->setContent($this->get("azine.email.bundle.twig.filters")->addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
                 }
 
                 return $response;
 
             // if the user is not allowed to see this mail
             } else {
-                $msg = $this->container->get('translator')->trans('web.pre.view.test.mail.access.denied');
+                $msg = $this->get('translator')->trans('web.pre.view.test.mail.access.denied');
                 throw new AccessDeniedException($msg);
             }
         }
 
         // the parameters-array is null => the email is not available in webView
-        $days = $this->container->getParameter("azine_email_web_view_retention");
+        $days = $this->getParameter("azine_email_web_view_retention");
         $response = $this->renderResponse("AzineEmailBundle:Webview:mail.not.available.html.twig", array('days' => $days));
         $response->setStatusCode(404);
 
@@ -188,13 +195,13 @@ class AzineEmailTemplateController extends ContainerAware
 
         // get the current user
         $currentUser = null;
-        if (!$this->container->has('security.token_storage')) {
+        if (!$this->has('security.token_storage')) {
             // @codeCoverageIgnoreStart
             throw new \LogicException('The SecurityBundle is not registered in your application.');
             // @codeCoverageIgnoreEnd
 
         } else {
-            $token = $this->container->get('security.token_storage')->getToken();
+            $token = $this->get('security.token_storage')->getToken();
 
             // check if the token is not null and the user in the token an object
             if ($token instanceof TokenInterface && is_object($token->getUser())) {
@@ -235,7 +242,7 @@ class AzineEmailTemplateController extends ContainerAware
      */
     private function reAttachAllEntities(array &$vars)
     {
-        $em = $this->container->get('doctrine')->getManager();
+        $em = $this->get('doctrine')->getManager();
         foreach ($vars as $key => $next) {
             if (is_object($next) && method_exists($next, 'getId')) {
                 $className = get_class($next);
@@ -278,7 +285,7 @@ class AzineEmailTemplateController extends ContainerAware
      */
     protected function getTemplateProviderService()
     {
-        return $this->container->get('azine_email_template_provider');
+        return $this->get('azine_email_template_provider');
     }
 
     /**
@@ -289,7 +296,7 @@ class AzineEmailTemplateController extends ContainerAware
      */
     protected function renderResponse($view, array $parameters = array(), Response $response = null)
     {
-        return $this->container->get('templating')->renderResponse($view, $parameters, $response);
+        return $this->get('templating')->renderResponse($view, $parameters, $response);
     }
 
     /**
@@ -299,7 +306,7 @@ class AzineEmailTemplateController extends ContainerAware
      */
     protected function getSentEmailForToken($token)
     {
-        $sentEmail = $this->container->get('doctrine')->getRepository('AzineEmailBundle:SentEmail')->findOneByToken($token);
+        $sentEmail = $this->get('doctrine')->getRepository('AzineEmailBundle:SentEmail')->findOneByToken($token);
 
         return $sentEmail;
     }
@@ -310,17 +317,17 @@ class AzineEmailTemplateController extends ContainerAware
      * @param  string                                             $email
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function sendTestEmailAction($template, $email)
+    public function sendTestEmailAction(Request $request, $template, $email)
     {
-        $locale = $this->container->get('request')->getLocale();
+        $locale = $request->getLocale();
 
         // get the email-vars for email-sending => absolute fs-paths to images
-        $emailVars = $this->container->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale);
+        $emailVars = $this->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale);
 
         // send the mail
         $message = \Swift_Message::newInstance();
-        $mailer = $this->container->get("azine_email_template_twig_swift_mailer");
-        $sent = $mailer->sendSingleEmail($email, "Test Recipient", $emailVars['subject'], $emailVars, $template.".txt.twig", $this->container->get('request')->getLocale(), $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName']." (Test)", $message);
+        $mailer = $this->get("azine_email_template_twig_swift_mailer");
+        $sent = $mailer->sendSingleEmail($email, "Test Recipient", $emailVars['subject'], $emailVars, $template.".txt.twig", $locale, $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName']." (Test)", $message);
 
         $spamReport = $this->getSpamIndexReportForSwiftMessage($message);
         if (is_array($spamReport)) {
@@ -342,30 +349,30 @@ class AzineEmailTemplateController extends ContainerAware
             }
 
             if ($spamScore <= 2) {
-                $this->container->get('session')->getFlashBag()->add('info', $spamInfo);
+                $request->getSession()->getFlashBag()->add('info', $spamInfo);
             } elseif ($spamScore > 2 && $spamScore < 5) {
-                $this->container->get('session')->getFlashBag()->add('warn', $spamInfo);
+                $request->getSession()->getFlashBag()->add('warn', $spamInfo);
             } else {
-                $this->container->get('session')->getFlashBag()->add('error', $spamInfo);
+                $request->getSession()->getFlashBag()->add('error', $spamInfo);
             }
 
         }
 
         // inform about sent/failed emails
         if ($sent) {
-            $msg = $this->container->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
-            $this->container->get('session')->getFlashBag()->add('info', $msg);
+            $msg = $this->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
+            $this->getSession()->getFlashBag()->add('info', $msg);
 
             //@codeCoverageIgnoreStart
         } else {
             // this only happens if the mail-server has a problem
-            $msg = $this->container->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
-            $this->container->get('session')->getFlashBag()->add('warn', $msg);
+            $msg = $this->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
+            $this->getSession()->getFlashBag()->add('warn', $msg);
             //@codeCoverageIgnoreStart
         }
 
         // show the index page again.
-        return new RedirectResponse($this->container->get('router')->generate('azine_email_template_index', array('customEmail' => $email)));
+        return new RedirectResponse($this->get('router')->generate('azine_email_template_index', array('customEmail' => $email)));
     }
 
     /**
@@ -388,7 +395,7 @@ class AzineEmailTemplateController extends ContainerAware
         // check if cURL is loaded/available
         if (!function_exists('curl_init')) {
             // @codeCoverageIgnoreStart
-            return array(	"success" => false,
+            return array(   "success" => false,
                             "curlHttpCode" => "-",
                             "curlError" => "-",
                             "message" => "No Spam-Check done. cURL module is not available.",
@@ -432,9 +439,9 @@ class AzineEmailTemplateController extends ContainerAware
     /**
      * Ajax action to check the spam-score for the pasted email-source
      */
-    public function checkSpamScoreOfSentEmailAction()
+    public function checkSpamScoreOfSentEmailAction(Request $request)
     {
-        $msgString = $this->container->get('request')->get('emailSource');
+        $msgString = $request->get('emailSource');
         $spamReport = $this->getSpamIndexReport($msgString);
         $spamInfo = "";
         if (is_array($spamReport)) {
