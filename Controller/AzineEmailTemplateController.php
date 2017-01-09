@@ -134,7 +134,7 @@ class AzineEmailTemplateController extends Controller
         $sentEmail = $this->getSentEmailForToken($token);
 
         // check if the sent email is available
-        if ($sentEmail != null) {
+        if ($sentEmail !== null) {
 
             // check if the current user is allowed to see the email
             if ($this->userIsAllowedToSeeThisMail($sentEmail)) {
@@ -187,7 +187,7 @@ class AzineEmailTemplateController extends Controller
         $recipients = $mail->getRecipients();
 
         // it is a public email
-        if ($recipients == null) {
+        if ($recipients === null) {
             return true;
         }
 
@@ -208,7 +208,7 @@ class AzineEmailTemplateController extends Controller
         }
 
         // it is not a public email, and a user is logged in
-        if ($currentUser != null) {
+        if ($currentUser !== null) {
 
             // the user is among the recipients
             if(array_search($currentUser->getEmail(), $recipients) !== false)
@@ -359,13 +359,13 @@ class AzineEmailTemplateController extends Controller
         // inform about sent/failed emails
         if ($sent) {
             $msg = $this->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
-            $this->getSession()->getFlashBag()->add('info', $msg);
+            $request->getSession()->getFlashBag()->add('info', $msg);
 
             //@codeCoverageIgnoreStart
         } else {
             // this only happens if the mail-server has a problem
             $msg = $this->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
-            $this->getSession()->getFlashBag()->add('warn', $msg);
+            $request->getSession()->getFlashBag()->add('warn', $msg);
             //@codeCoverageIgnoreStart
         }
 

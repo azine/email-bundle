@@ -94,7 +94,7 @@ class NotificationRepository extends EntityRepository{
             ->andWhere("n.recipient_id = :recipientId")
             ->setParameter('recipientId', $recipientId);
         $results = $qb->getQuery()->execute();
-        if ($results[0][1] == null) {
+        if ($results[0][1] === null) {
             // the user has not received any notifications yet ever
             $lastNotification = new \DateTime("@0");
         } else {
