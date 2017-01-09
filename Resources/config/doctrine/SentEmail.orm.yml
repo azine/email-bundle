@@ -9,7 +9,7 @@ Azine\EmailBundle\Entity\SentEmail:
             generator:
                 strategy: AUTO
     fields:
-        recipients:  { type: array, nullable true  } # array of recipients, can be null, if the mail was/is for everyone => public
+        recipients:  { type: array, nullable: true  } # array of recipients, can be null, if the mail was/is for everyone => public
         template:    { type: string, length: '127'  } # twig template-id of the wrapper-template, without the endings (=> e.g. "AzineEmailBundle::baseEmailLayout")
         variables:   { type: array                  } # array with all the variables used to render the email
         sent:        { type: datetime               } # date & time the email was sent
