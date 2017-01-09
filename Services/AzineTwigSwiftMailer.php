@@ -524,7 +524,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * @param $toEmail
      * @return bool
      */
-    public function sendConfirmation(RecipientInterface $user, $confirmationUrl, $templateName, $toEmail)
+    public function sendUpdateEmailConfirmation(RecipientInterface $user, $confirmationUrl, $templateName, $toEmail)
     {
         $emailTemplateParams = array(
             'user'            => $user,
