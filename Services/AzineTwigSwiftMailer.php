@@ -523,6 +523,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * @param $templateName
      * @param $toEmail
      * @return bool
+     * @deprecated As soon as the "confirm changed email"-feature is merged into the FosUserBundle, this function will be removed again. See https://github.com/azine/FOSUserBundle
      */
     public function sendUpdateEmailConfirmation(RecipientInterface $user, $confirmationUrl, $templateName, $toEmail)
     {
