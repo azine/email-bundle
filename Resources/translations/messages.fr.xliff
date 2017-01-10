@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="not.available">
+    <header>
+      <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
+      <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
+    </header>
+    <body>
+      <trans-unit id="b9f34de0a4ba0b2db6f4898e5fb5503a5bf64ed2" resname="_az.email.newsletter.subject">
+        <source>_az.email.newsletter.subject</source>
+        <target>azine.me Newsletter</target>
+      </trans-unit>
+      <trans-unit id="71b9dddc87dd6638af07aa02a251483b657f5f57" resname="_az.email.notifications.subject.%count%">
+        <source>_az.email.notifications.subject.%count%</source>
+        <target>Vous avez %count% Notification(s)</target>
+      </trans-unit>
+      <trans-unit id="1da611a70bc2d95ac0c2c65da00977a2dc7c51f9" resname="content.items.go.to.message.link.text">
+        <source>content.items.go.to.message.link.text</source>
+        <target>Voir le message</target>
+      </trans-unit>
+      <trans-unit id="9cc27e4ea30041d924908f649cb3974e9e02ca81" resname="html.email.go.to.top.link.label">
+        <source>html.email.go.to.top.link.label</source>
+        <target>Retourner en haut</target>
+      </trans-unit>
+      <trans-unit id="5830417c0a11c62b3d0a1c70c7bbee336b9bb195" resname="html.email.head.link.to.web.view.text.%url%">
+        <source>html.email.head.link.to.web.view.text.%url%</source>
+        <target><![CDATA[Si cet email ne s'affiche pas bien vous pouvez consulter la <a href="%url%">version en ligne</a>. ]]></target>
+      </trans-unit>
+      <trans-unit id="4a37a6d25203364276a96bb0ec6f15734864c7d5" resname="txt.email.head.link.to.web.view.text.%url%">
+        <source>txt.email.head.link.to.web.view.text.%url%</source>
+        <target>Si cet email ne s'affiche pas bien vous pouvez consulter la version en ligne: %url%</target>
+      </trans-unit>
+      <trans-unit id="0a0c6567d2a92d788b25a9d4a0040974fce9bd71" resname="web.pre.view.test.mail.access.denied">
+        <source>web.pre.view.test.mail.access.denied</source>
+        <target>Accès refusé</target>
+      </trans-unit>
+      <trans-unit id="d0f2ed00febe59732f72b19a74bb721c2eab91f5" resname="web.pre.view.test.mail.failed.for.%template%.to.%email%">
+        <source>web.pre.view.test.mail.failed.for.%template%.to.%email%</source>
+        <target>L'envoi d'un mail de test avec le template '%template%' à '%email%' a échoué.</target>
+      </trans-unit>
+      <trans-unit id="f40eee2ee3e2a4f467a41755948b2e1b308c4775" resname="web.pre.view.test.mail.sent.for.%template%.to.%email%">
+        <source>web.pre.view.test.mail.sent.for.%template%.to.%email%</source>
+        <target>Le test de mail avec le template '%template%' a été envoyé à '%email%'.</target>
+      </trans-unit>
+      <trans-unit id="356a8c37e794fb96706f9ff39d556ba416dc6323" resname="web.view.index.check.spam.score">
+        <source>web.view.index.check.spam.score</source>
+        <target>Vérifier la qualité</target>
+      </trans-unit>
+      <trans-unit id="6bf9ae0bf180f9d2a296c073955a6c638c4e2d15" resname="web.view.index.page.title">
+        <source>web.view.index.page.title</source>
+        <target>Liste des templates d'emails configurés</target>
+      </trans-unit>
+      <trans-unit id="d5417fafcc4935e52abe426c435be2f4d71cd239" resname="web.view.index.paste.email.source.here">
+        <source>web.view.index.paste.email.source.here</source>
+        <target>Insérez la source du mail ici (y compris les en-têtes, etc ...).</target>
+      </trans-unit>
+      <trans-unit id="4d119bddda41edaaf0bbe1b2f3525c6a1ba1beab" resname="web.view.index.send.html.email.to">
+        <source>web.view.index.send.html.email.to</source>
+        <target>Envoyé le test a:</target>
+      </trans-unit>
+      <trans-unit id="50d5e2d5cecee15ef61d34fa4165a2f823f98586" resname="web.view.index.spam.score.result">
+        <source>web.view.index.spam.score.result</source>
+        <target>Spam-Check Résultat</target>
+      </trans-unit>
+      <trans-unit id="b648f55c0b4fba8af07689419f0048e996bfb10f" resname="web.view.index.use.custom.email">
+        <source>web.view.index.use.custom.email</source>
+        <target>Utiliser une autre adresse</target>
+      </trans-unit>
+      <trans-unit id="f613930a50058addabb307788378e4c6365e0ffb" resname="web.view.mail.not.available.mails.are.only.kept.for.%days%.days.in.web.view">
+        <source>web.view.mail.not.available.mails.are.only.kept.for.%days%.days.in.web.view</source>
+        <target>Les e-mails ne sont disponibles que pendant %days% jours.</target>
+      </trans-unit>
+      <trans-unit id="34d8161fe6f01b8c8dc3c4f63b2873c01fdb9624" resname="web.view.mail.not.available.maybe.the.mail.was.not.sent.to.you.%username%.or.it.was.sent.a.long.time.ago">
+        <source>web.view.mail.not.available.maybe.the.mail.was.not.sent.to.you.%username%.or.it.was.sent.a.long.time.ago</source>
+        <target>L'email n'a pas été envoyé a (%username%) ou il a mis trop de temps.</target>
+      </trans-unit>
+      <trans-unit id="d973239d70ac7787c2fee18547ce72a6a3b64252" resname="web.view.mail.not.available.page.description">
+        <source>web.view.mail.not.available.page.description</source>
+        <target>Le mail que vous recherchez n'a pas pu être trouvé. Soit il n'a pas été envoyé ou il a mis trop de temps.</target>
+      </trans-unit>
+      <trans-unit id="50a204983469317703be3afd536fae578e9be988" resname="web.view.mail.not.available.page.title">
+        <source>web.view.mail.not.available.page.title</source>
+        <target>404 - L'email n'existe pas.</target>
+      </trans-unit>
+      <trans-unit id="d7d71fdee3d5b5e39071b8f249fe666e6426dd18" resname="web.view.mail.not.available.the.mail.you.are.looking.for.could.not.be.found">
+        <source>web.view.mail.not.available.the.mail.you.are.looking.for.could.not.be.found</source>
+        <target>L'email que vous recherchez n'a pas pu être trouvé.</target>
+      </trans-unit>
+      <trans-unit id="16436544bd8f52d687bfdf6d2a863b55b39b032c" resname="web.view.mail.not.available.title">
+        <source>web.view.mail.not.available.title</source>
+        <target>L'email n'existe pas!</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

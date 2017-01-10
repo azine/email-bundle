@@ -3,7 +3,7 @@ namespace Azine\EmailBundle\Tests\DependencyInjection;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Yaml;
 
 class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
 {
@@ -146,16 +146,15 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
      */
     protected function getMinimalConfig()
     {
-        $yaml = <<<EOF
-recipient_class: "Azine\PlatformBundle\Entity\User"
-template_provider: "azine_platform.emailtemplateprovider"
+        $yaml = <<<YAML
+recipient_class: 'Azine\\PlatformBundle\\Entity\\User'
+template_provider: 'azine_platform.emailtemplateprovider'
 no_reply:
-  email: "no-reply@azine.me"
-  name: "azine.me notification daemon"
-EOF;
-        $parser = new Parser();
+  email: 'no-reply@azine.me'
+  name: 'azine.me notification daemon'
+YAML;
 
-        return $parser->parse($yaml);
+        return Yaml::parse($yaml);
     }
 
     /**
@@ -163,25 +162,23 @@ EOF;
      */
     protected function getFullConfig()
     {
-        $yaml = <<<EOF
-recipient_class: "Acme\SomeBundle\Entity\User"
-recipient_newsletter_field: "newsletter"
-notifier_service: "azine_email.example.notifier_service"
-template_provider: "azine_email.example.template_provider"
-recipient_provider: "azine_email.default.recipient_provider"
-template_twig_swift_mailer: "azine_email.default.template_twig_swift_mailer"
+        $yaml = <<<YAML
+recipient_class: 'Acme\\SomeBundle\\Entity\\User'
+recipient_newsletter_field: 'newsletter'
+notifier_service: 'azine_email.example.notifier_service'
+template_provider: 'azine_email.example.template_provider'
+recipient_provider: 'azine_email.default.recipient_provider'
+template_twig_swift_mailer: 'azine_email.default.template_twig_swift_mailer'
 no_reply:
-  email: "no-reply@example.com"
-  name: "notification daemon"
-image_dir: "%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/"
+  email: 'no-reply@example.com'
+  name: 'notification daemon'
+image_dir: '%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/'
 allowed_images_folders:
-  - "%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/"
-  - "%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/"
+  - '%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/'
+  - '%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/'
+YAML;
 
-EOF;
-        $parser = new Parser();
-
-        return $parser->parse($yaml);
+        return Yaml::parse($yaml);
     }
 
     /**

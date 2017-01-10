@@ -65,7 +65,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     private $emailTwigExtension;
 
     private $encodedItemIdPattern;
-    private $currentHost;
     private $templateCache = array();
     private $imageCache = array();
 
@@ -103,7 +102,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $this->noReplyName = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_NAME];
         $this->emailOpenTrackingCodeBuilder = $emailOpenTrackingCodeBuilder;
         $this->routerContext = $router->getContext();
-        $this->currentHost = $this->routerContext->getHost();
         $this->encodedItemIdPattern = "/^cid:.*@/";
         $this->emailTwigExtension = $emailTwigExtension;
     }
@@ -133,16 +131,16 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     public function sendEmail(&$failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null, \Swift_Message &$message = null)
     {
         // create the message
-        if ($message == null) {
+        if ($message === null) {
             $message = \Swift_Message::newInstance();
         }
 
         $message->setSubject($subject);
 
         // set the from-Name & -Email to the default ones if not given
-        if ($from == null) {
+        if ($from === null) {
             $from = $this->noReplyEmail;
-            if ($fromName == null) {
+            if ($fromName === null) {
                 $fromName = $this->noReplyName;
             }
         }
@@ -221,7 +219,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $message = $this->removeUnreferecedEmbededItemsFromMessage($message, $params, $htmlBody);
 
         // change the locale back to the users locale
-        if (isset($currentUserLocale) && $currentUserLocale != null) {
+        if (isset($currentUserLocale) && $currentUserLocale !== null) {
             $this->routerContext->setParameter("_locale", $currentUserLocale);
             $this->translator->setLocale($currentUserLocale);
         }
@@ -393,7 +391,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                     // check if the file is from an allowed folder
                     if ($this->templateProvider->isFileAllowed($value) !== false) {
                         $encodedImage = $this->cachedEmbedImage($value);
-                        if ($encodedImage != null) {
+                        if ($encodedImage !== null) {
                             $id = $message->embed($encodedImage);
                             $params[$key] = $id;
                         }
@@ -507,7 +505,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      */
     private function getMailer($params){
         // if the second mailer for immediate mail-delivery has been configured
-        if($this->immediateMailer != null){
+        if($this->immediateMailer !== null){
             // check if this template has been configured to be sent immediately
             if(array_key_exists(AzineTemplateProvider::SEND_IMMEDIATELY_FLAG, $params) && $params[AzineTemplateProvider::SEND_IMMEDIATELY_FLAG]) {
                 return $this->immediateMailer;

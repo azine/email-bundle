@@ -11,10 +11,10 @@ class AzineEmailTwigExtension extends \Twig_Extension
     private $templateProvider;
 
     /**
-     * @var TranslatorInterface
-     */
+     * @var TranslatorInterface		
+     */		
     private $translator;
-
+    
     /**
      * @var array
      */
@@ -22,7 +22,6 @@ class AzineEmailTwigExtension extends \Twig_Extension
 
     /**
      * @param TemplateProviderInterface $templateProvider
-     * @param TranslatorInterface $translator
      * @param array of string $domainsToTrack
      */
     public function __construct(TemplateProviderInterface $templateProvider, TranslatorInterface $translator, array $domainsToTrack = array()){
