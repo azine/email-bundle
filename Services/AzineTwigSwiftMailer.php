@@ -136,12 +136,12 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
         $message->setSubject($subject);
 
-        // set the from-Name & -Emali to the default ones if not given
+        // set the from-Name & -Email to the default ones if not given
         if ($from === null) {
             $from = $this->noReplyEmail;
-        }
-        if ($fromName === null) {
-            $fromName = $this->noReplyName;
+            if ($fromName === null) {
+                $fromName = $this->noReplyName;
+            }
         }
 
         // add the from-email for the footer-text
@@ -494,7 +494,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $twigTemplate = $this->loadTemplate($templateName);
         $subject = $twigTemplate->renderBlock('subject', $context);
 
-        return $this->sendSingleEmail($toEmail, null, $subject, $context, $templateName, $this->translator->getLocale());
+        return $this->sendSingleEmail($toEmail, null, $subject, $context, $templateName, $this->translator->getLocale(), $fromEmail);
     }
 
     /**
