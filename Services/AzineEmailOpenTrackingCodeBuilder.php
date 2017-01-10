@@ -75,7 +75,7 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
      * @return null|string Email open tracking code for google analytics or piwik or null
      */
     public function getTrackingImgCode($templateBaseId, array $campaignParams, array $emailTemplateParams, $messageId, $to, $cc, $bcc){
-        if($this->trackingUrlTemplate == null){
+        if($this->trackingUrlTemplate === null){
             return null;
         }
 

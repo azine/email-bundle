@@ -48,7 +48,6 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
                                         'not_allowed_png' => $imagesDir."/inexistentFile.png",
                                     );
         $requestContext = $this->getMockBuilder("Symfony\Component\Routing\RequestContext")->disableOriginalConstructor()->getMock();
-        $requestContext->expects($this->once())->method("getHost")->will($this->returnValue("azine.test.host"));
         $mocks['router']->expects($this->once())->method('getContext')->will($this->returnValue($requestContext));
 
         $mocks['trackingCodeImgBuilder'] = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailOpenTrackingCodeBuilder")->setConstructorArgs(array("https://www.google-analytics.com/?tid=blabla", array(AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
@@ -187,7 +186,6 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
             'not_allowed_png' => $imagesDir."/inexistentFile.png",
         );
         $requestContext = $this->getMockBuilder("Symfony\Component\Routing\RequestContext")->disableOriginalConstructor()->getMock();
-        $requestContext->expects($this->once())->method("getHost")->will($this->returnValue("azine.test.host"));
         $mocks['router']->expects($this->once())->method('getContext')->will($this->returnValue($requestContext));
 
         $mocks['trackingCodeImgBuilder'] = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailOpenTrackingCodeBuilder")->setConstructorArgs(array("https://www.google-analytics.com/?tid=blabla", array(AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array($imagesDir),
@@ -300,7 +298,6 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
                                         'not_allowed_png' => $imagesDir."/inexistentFile.png",
                                     );
         $requestContext = $this->getMockBuilder("Symfony\Component\Routing\RequestContext")->disableOriginalConstructor()->getMock();
-        $requestContext->expects($this->once())->method("getHost")->will($this->returnValue("azine.test.host"));
         $mocks['router']->expects($this->once())->method('getContext')->will($this->returnValue($requestContext));
         $mocks['baseTemplateMock']->expects($this->exactly(2))->method('renderBlock')->will($this->returnCallback(array($this, 'renderBlockCallback')));
         $mocks['translator']->expects($this->once())->method('getLocale')->will($this->returnValue("en"));
