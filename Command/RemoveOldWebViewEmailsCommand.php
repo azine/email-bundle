@@ -45,7 +45,7 @@ EOF
             $output->writeln("using the parameter from the configuration => '$days' days.");
         }
 
-        if ($days == null) {
+        if ($days === null) {
             throw new \Exception('either the commandline parameter "keep" or the "azine_email_web_view_retention" in your config.yml or the default-config has to be defined.');
         }
 

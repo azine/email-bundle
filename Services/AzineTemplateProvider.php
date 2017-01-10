@@ -428,7 +428,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
      */
     protected function getTranslator($emailLocale)
     {
-        if ($emailLocale == null) {
+        if ($emailLocale === null) {
             throw new \Exception("Only use the translator here when you already know in which language the user should get the email.");
         }
 
