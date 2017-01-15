@@ -2,7 +2,39 @@ Azine Email Bundle Upgrade Instructions
 ==================
 
 ## From 3.0 to 0dev-master
-Nothing to do so far
+While cleaning up some code in the bundle to conform with the latest coding guidelines and best practices, the following BC-Breaks occured.
+ 
+- If you have implemented your own version of AzineEmailTemplateController (extending it), ou must add the parameter to your implementation as well in the following functions.
+  - \Azine\PlatformBundle\Controller\AzineEmailTemplateController::webPreViewAction
+  - \Azine\PlatformBundle\Controller\AzineEmailTemplateController::webViewAction
+  - \Azine\PlatformBundle\Controller\AzineEmailTemplateController::serveImageAction
+
+Before:
+```
+    public function webPreViewAction($template, $format = null){ ...
+```
+After: update the arguments in your implementation of AzineEmailTemplateController
+```
+    public function webPreViewAction(Request $request, $template, $format = null){ ...
+```
+
+Before:
+```
+    public function webViewAction ($token){ ...
+```
+After: update the arguments in your implementation of AzineEmailTemplateController
+```
+    public function webViewAction (Request $request, $token){ ...
+```
+
+Before:
+```
+    public function serveImageAction($folderKey, $filename){ ...
+```
+After: update the arguments in your implementation of AzineEmailTemplateController
+```
+    public function serveImageAction(Request $request, $folderKey, $filename){ ...
+```
 
 ## From 2.1 to 3.0
 While cleaning up some code in the bundle (removing potential errors and fixing a memory leak) a few BC breaks were introduced. They should be rather straight forward to fix though.
