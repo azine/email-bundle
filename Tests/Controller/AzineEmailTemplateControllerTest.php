@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -150,9 +152,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
         )));
         $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
+        $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $controller->webViewAction($token);
+        $controller->webViewAction($requestMock, $token);
     }
     public function testWebViewAction_Anonymous_access_allowed()
     {
@@ -184,9 +187,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
         )));
         $containerMock->expects($this->never())->method("has");
+        $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $controller->webViewAction($token);
+        $controller->webViewAction($requestMock, $token);
     }
     /**
      * @expectedException Symfony\Component\Security\Core\Exception\AccessDeniedException
@@ -221,9 +225,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('translator', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $translatorMock),
         )));
         $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
+        $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $controller->webViewAction($token);
+        $controller->webViewAction($requestMock, $token);
     }
     /**
      * @expectedException Symfony\Component\Security\Core\Exception\AccessDeniedException
@@ -255,9 +260,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('translator', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $translatorMock),
         )));
         $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
+        $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $controller->webViewAction($token);
+        $controller->webViewAction($requestMock, $token);
     }
     public function testWebViewAction_Admin_with_CampaignParams()
     {
@@ -298,9 +304,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('azine.email.bundle.twig.filters', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $emailTwigExtension),
         )));
         $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
+        $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $response = $controller->webViewAction($token);
+        $response = $controller->webViewAction($requestMock, $token);
         $this->assertContains("http://testurl.com/?campaign=newsletter&keyword=2013-11-19", $response->getContent());
         $this->assertContains('http://testurl.com/with/?param=1&campaign=newsletter&keyword=2013-11-19', $response->getContent());
     }
@@ -319,9 +326,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
         )));
+        $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $controller->webViewAction($token);
+        $controller->webViewAction($requestMock, $token);
     }
     public function testServeImageAction()
     {
@@ -333,9 +341,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $containerMock->expects($this->exactly(1))->method("get")->will($this->returnValueMap(array(
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock)
                     )));
+        $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $response = $controller->serveImageAction($folderKey, $filename);
+        $response = $controller->serveImageAction($requestMock, $folderKey, $filename);
         $this->assertEquals("image", $response->headers->get("Content-Type"));
         $this->assertEquals('inline; filename="'.$filename.'"', $response->headers->get('Content-Disposition'));
     }
@@ -352,9 +361,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $containerMock->expects($this->exactly(1))->method("get")->will($this->returnValueMap(array(
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock)
         )));
+        $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $controller->serveImageAction($folderKey, $filename);
+        $controller->serveImageAction($requestMock, $folderKey, $filename);
     }
     public function testSendTestEmailAction()
     {
@@ -386,6 +396,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $users = $recipientProvider->getNewsletterRecipientIDs();
         $token->setUser($recipientProvider->getRecipient($users[0]));
         $container->get('security.token_storage')->setToken($token);
+        $container->get('request')->setSession(new Session(new MockFileSessionStorage()));
         // instantiate the controller and try to send the email
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($container);

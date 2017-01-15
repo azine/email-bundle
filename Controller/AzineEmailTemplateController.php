@@ -2,6 +2,8 @@
 
 namespace Azine\EmailBundle\Controller;
 
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -126,9 +128,11 @@ class AzineEmailTemplateController extends Controller
 
     /**
      * Show a web-version of an email that has been sent to recipients and has been stored in the database.
+     * @param Request $request
      * @param string $token
+     * @return Response
      */
-    public function webViewAction ($token)
+    public function webViewAction (Request $request, $token)
     {
         // find email recipients, template & params
         $sentEmail = $this->getSentEmailForToken($token);
@@ -259,11 +263,12 @@ class AzineEmailTemplateController extends Controller
 
     /**
      * Serve the image from the templates-folder
-     * @param  string                                               $filename
-     * @param  string                                               $folderKey
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @param Request $request
+     * @param  string $folderKey
+     * @param  string $filename
+     * @return BinaryFileResponse
      */
-    public function serveImageAction($folderKey, $filename)
+    public function serveImageAction(Request $request, $folderKey, $filename)
     {
         $folder = $this->getTemplateProviderService()->getFolderFrom($folderKey);
         if ($folder !== false) {
@@ -311,9 +316,10 @@ class AzineEmailTemplateController extends Controller
 
     /**
      * Send a test-mail for the template to the given email-address
-     * @param  string                                             $template templateId without ending => AzineEmailBundle::baseEmailLayout (without .txt.twig)
-     * @param  string                                             $email
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @param Request $request
+     * @param  string $template templateId without ending => AzineEmailBundle::baseEmailLayout (without .txt.twig)
+     * @param  string $email
+     * @return RedirectResponse
      */
     public function sendTestEmailAction(Request $request, $template, $email)
     {
@@ -326,6 +332,8 @@ class AzineEmailTemplateController extends Controller
         $message = \Swift_Message::newInstance();
         $mailer = $this->get("azine_email_template_twig_swift_mailer");
         $sent = $mailer->sendSingleEmail($email, "Test Recipient", $emailVars['subject'], $emailVars, $template.".txt.twig", $locale, $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName']." (Test)", $message);
+
+        $flashBag = $request->getSession()->getFlashBag();
 
         $spamReport = $this->getSpamIndexReportForSwiftMessage($message);
         if (is_array($spamReport)) {
@@ -347,11 +355,11 @@ class AzineEmailTemplateController extends Controller
             }
 
             if ($spamScore <= 2) {
-                $request->getSession()->getFlashBag()->add('info', $spamInfo);
+                $flashBag->add('info', $spamInfo);
             } elseif ($spamScore > 2 && $spamScore < 5) {
-                $request->getSession()->getFlashBag()->add('warn', $spamInfo);
+                $flashBag->add('warn', $spamInfo);
             } else {
-                $request->getSession()->getFlashBag()->add('error', $spamInfo);
+                $flashBag->add('error', $spamInfo);
             }
 
         }
@@ -359,13 +367,13 @@ class AzineEmailTemplateController extends Controller
         // inform about sent/failed emails
         if ($sent) {
             $msg = $this->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
-            $request->getSession()->getFlashBag()->add('info', $msg);
+            $flashBag->add('info', $msg);
 
             //@codeCoverageIgnoreStart
         } else {
             // this only happens if the mail-server has a problem
             $msg = $this->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
-            $request->getSession()->getFlashBag()->add('warn', $msg);
+            $flashBag->add('warn', $msg);
             //@codeCoverageIgnoreStart
         }
 
