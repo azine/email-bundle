@@ -136,7 +136,7 @@ azine_email:
     notifier_service:     your.awesome.bundle.notifierservice 
 
     # the service-id of your implementation of the template provider service to be used
-    template_provider:    your.awesome.bundle.template_providerr 
+    template_provider:    your.awesome.bundle.template_provider 
 
     # the service-id of your implementation of the web view service to be used
     web_view_service:     your.awesome.bundle.web_view_service
