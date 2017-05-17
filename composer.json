@@ -1,14 +1,14 @@
 {
-    "name": "azine/email-bundle",
+    "name": "efestosw/email-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony2 Bundle to send html- & txt-emails (notification about events on your web-app or newsletters etc. scheduled/aggregated) to your users.",
+    "description": "Azine EmailBundle fork allowing custom implementation of users.",
     "keywords": ["email", "newsletter", "notification", "updates", "email web view", "mailgun", "email open tracking"],
-    "homepage": "https://github.com/azine/email-bundle",
+    "homepage": "https://github.com/efestosw/email-bundle",
     "license": "MIT",
     "authors": [
         {
-            "name": "Azine IT Services AG",
-            "email": "github@azine-it.ch"
+            "name": "Andrea Crocco",
+            "email": "a.crocco@efesto.software"
         }
     ],
     "config": {
@@ -25,7 +25,6 @@
         "swiftmailer/swiftmailer": ">=5.4.5,~5.0",
         "doctrine/orm": "~2.0,>=2.0",
         "monolog/monolog": "~1.6,>=1.6.0",
-        "friendsofsymfony/user-bundle": "~2.0",
         "twig/extensions": "~1.0",
         "ramsey/uuid": "~3.2"
     },
