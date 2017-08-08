@@ -7,7 +7,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * Implementation of the EmailOpenTrackingCodeBuilderInterface used to track email open events.
  *
- * This impelementation will create a html snippet with the image tracker code for
+ * This implementation will create a html snippet with the image tracker code for
  * either GoogleAnalytics or Piwik, depending on the configured tracking url
  * ( azine_email_email_open_tracking_url) in your config.yml
  *
@@ -67,10 +67,10 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
     /**
      * @param string $templateBaseId the template used for rendering the email (without the .html.twig or .txt.twig extension)
      * @param array $campaignParams the campaign-parameters used for this email
-     * @param string the $messageId the id of the message
-     * @param email $to to-recipient-email(s) or null
-     * @param email $cc cc-recipient-email(s) or null
-     * @param email $bcc bcc-recipient-email(s) or null
+     * @param string $messageId the id of the message
+     * @param string $to to-recipient-email(s) or null
+     * @param string $cc cc-recipient-email(s) or null
+     * @param string $bcc bcc-recipient-email(s) or null
      *
      * @return null|string Email open tracking code for google analytics or piwik or null
      */
@@ -125,6 +125,7 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
      * @param array $emailTemplateParams
      * @param string $messageId
      * @param string|array $recipients
+     * @return string
      */
     protected function getGoogleAnalyticsUrl($baseUrl, $templateBaseId, array $campaignParams, array $emailTemplateParams, $messageId, $recipients){
         $url = $baseUrl.
@@ -149,6 +150,7 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
      * @param array $emailTemplateParams
      * @param string $messageId
      * @param string $recipients
+     * @return string
      */
     protected function getPiwikUrl($baseUrl, $templateBaseId, array $campaignParams, array $emailTemplateParams, $messageId, $recipients){
         $url = $baseUrl.
@@ -162,7 +164,7 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
     }
 
     /**
-     * @param string $campaignParams
+     * @param array $campaignParams
      * @param string $templateId
      * @return string if no source-value is defined in the $campaignParams, $templateId will be used.
      */
