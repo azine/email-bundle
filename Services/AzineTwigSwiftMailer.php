@@ -9,7 +9,7 @@ use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
-use Azine\EmailBundle\Entity\RecipientInterface;
+use FOS\UserBundle\Model\UserInterface;
 
 /**
  * This Service is used to send html-emails with embedded images
@@ -518,23 +518,24 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
     /**
      * Send confirmation link to specified new user email.
-     * @param RecipientInterface $user
+     * @param UserInterface $user
      * @param $confirmationUrl
-     * @param $templateName
      * @param $toEmail
      * @return bool
+     * @deprecated As soon as the "confirm changed email"-feature is merged into the FosUserBundle, this function will be removed again. See https://github.com/azine/FOSUserBundle
      */
-    public function sendUpdateEmailConfirmation(RecipientInterface $user, $confirmationUrl, $templateName, $toEmail)
+    public function sendUpdateEmailConfirmation(UserInterface $user, $confirmationUrl, $toEmail)
     {
+        $template = $this->parameters['template']['email_updating'];
         $emailTemplateParams = array(
             'user'            => $user,
             'confirmationUrl' => $confirmationUrl
         );
 
         $sendResult = $this->sendMessage(
-            $templateName,
+            $template,
             $emailTemplateParams,
-            null,
+            $this->parameters['from_email']['confirmation'],
             $toEmail
         );
 
