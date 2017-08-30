@@ -516,34 +516,4 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         return $this->mailer;
     }
 
-    /**
-     * Send confirmation link to specified new user email.
-     * @param RecipientInterface $user
-     * @param $confirmationUrl
-     * @param $templateName
-     * @param $toEmail
-     * @return bool
-     */
-    public function sendUpdateEmailConfirmation(RecipientInterface $user, $confirmationUrl, $templateName, $toEmail)
-    {
-        $emailTemplateParams = array(
-            'user'            => $user,
-            'confirmationUrl' => $confirmationUrl
-        );
-
-        $sendResult = $this->sendMessage(
-            $templateName,
-            $emailTemplateParams,
-            null,
-            $toEmail
-        );
-
-        if (!$sendResult) {
-            throw new \LogicException(
-                'Unable to send an email to confirm your new email'
-            );
-        }
-
-        return true;
-    }
 }
