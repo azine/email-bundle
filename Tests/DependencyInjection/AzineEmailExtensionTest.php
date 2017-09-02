@@ -187,7 +187,7 @@ YAML;
      */
     private function assertAlias($value, $key)
     {
-        $this->assertEquals($value, (string) $this->configuration->getAlias($key), sprintf('%s alias is correct', $key));
+        $this->assertEquals(strtolower($value), strtolower((string) $this->configuration->getAlias($key)), sprintf('%s alias is correct', $key));
     }
 
     /**

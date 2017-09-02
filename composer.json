@@ -30,6 +30,7 @@
         "ramsey/uuid": "~3.2"
     },
     "require-dev": {
+        "symfony/translation": "~2.7,>=2.7|~3.0",
         "phpunit/phpunit":  "~4.0"
     },
     "autoload": {
