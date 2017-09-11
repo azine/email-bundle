@@ -49,7 +49,6 @@ class AzineRecipientProvider implements RecipientProviderInterface
             ->select("n.id")
             ->from($this->userClass, "n")
             ->where('n.'.$this->newsletterField.' = true')
-            ->andWhere("n.locked = 0") // exclude locked users
             ->andWhere("n.enabled = 1") // exclude inactive users
             ;
         $results = $qb->getQuery()->execute();
