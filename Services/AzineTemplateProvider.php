@@ -17,6 +17,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
     const CONTENT_ITEM_MESSAGE_TEMPLATE		= 'AzineEmailBundle:contentItem:message';
     const FOS_USER_PWD_RESETTING_TEMPLATE	= "FOSUserBundle:Resetting:email";
     const FOS_USER_REGISTRATION_TEMPLATE	= "FOSUserBundle:Registration:email";
+    const FOS_USER_CONFIRM_EMAIL_UPDATE     = "FOSUserBundle:Profile:email_update_confirmation";
     const SEND_IMMEDIATELY_FLAG             = "AzineEmailBundle_SendThisEmailImmediately";
 
     /**
