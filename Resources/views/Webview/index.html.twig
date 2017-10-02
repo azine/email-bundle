@@ -17,7 +17,7 @@
 		<span class="custom">
 			<a style="display: inline-block;" id="customEmail" class="button"
 				href="#"
-				origHref="{{ path('azine_email_send_test_email',{'template' : template.templateId}) }}">{{ 'web.view.index.use.custom.email' | trans({}) }} :</a>
+				origHref="{{ path('azine_email_send_test_email',{'template' : template.templateId | url_encode }) }}">{{ 'web.view.index.use.custom.email' | trans({}) }} :</a>
 			<input style="width: 200px; display: inline-block;" id="customEmailField" type="text" value="{{ customEmail }}">
 		</span>
 

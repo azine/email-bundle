@@ -109,7 +109,8 @@ class AzineWebViewService implements WebViewServiceInterface
      */
     protected function addTemplate($templates, $description, $templateId, $formats = array('txt','html'))
     {
-        $route = $this->router->generate("azine_email_web_preview", array('template' => $templateId));
+
+        $route = $this->router->generate("azine_email_web_preview", array('template' => urlencode($templateId)));
 
         $template = array(	'url' 			=> $route,
                             'description'	=> $description,

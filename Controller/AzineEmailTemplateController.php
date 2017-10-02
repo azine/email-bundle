@@ -62,6 +62,8 @@ class AzineEmailTemplateController extends Controller
             $format = "html";
         }
 
+        $template = urldecode($template);
+
         $locale = $request->getLocale();
 
         // merge request vars with dummyVars, but make sure request vars remain as they are.
@@ -324,6 +326,8 @@ class AzineEmailTemplateController extends Controller
     public function sendTestEmailAction(Request $request, $template, $email)
     {
         $locale = $request->getLocale();
+
+        $template = urldecode($template);
 
         // get the email-vars for email-sending => absolute fs-paths to images
         $emailVars = $this->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale);
