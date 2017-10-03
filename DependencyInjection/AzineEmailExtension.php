@@ -86,6 +86,12 @@ class AzineEmailExtension extends Extension
         $container->setAlias	($prefix.self::WEB_VIEW_SERVICE,			$config[self::WEB_VIEW_SERVICE]);
         $container->setParameter($prefix.self::WEB_VIEW_RETENTION,			$config[self::WEB_VIEW_RETENTION]);
 
+        // this parameter is only made available using versions of FriendsOfSymfonyUserBundle where
+        // https://github.com/FriendsOfSymfony/FOSUserBundle/pull/2612 has already been merged into.
+        if(!$container->hasParameter('fos_user.email_update_confirmation.template')){
+            $container->setParameter('fos_user.email_update_confirmation.template', array("no-template"));
+        }
+
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
