@@ -15,9 +15,9 @@ class AzineTemplateProvider implements TemplateProviderInterface
     const NEWSLETTER_TEMPLATE 				= 'AzineEmailBundle::newsletterEmailLayout';
     const NOTIFICATIONS_TEMPLATE			= 'AzineEmailBundle::notificationsEmailLayout';
     const CONTENT_ITEM_MESSAGE_TEMPLATE		= 'AzineEmailBundle:contentItem:message';
-    const FOS_USER_PWD_RESETTING_TEMPLATE	= "FOSUserBundle:Resetting:email";
-    const FOS_USER_REGISTRATION_TEMPLATE	= "FOSUserBundle:Registration:email";
-    const FOS_USER_CONFIRM_EMAIL_UPDATE     = "FOSUserBundle:Profile:email_update_confirmation";
+    const FOS_USER_PWD_RESETTING_TEMPLATE	= "@FOSUser/Resetting/email";
+    const FOS_USER_REGISTRATION_TEMPLATE	= "@FOSUser/Registration/email";
+    const FOS_USER_CONFIRM_EMAIL_UPDATE     = "@FOSUser/Profile/email_update_confirmation";
     const SEND_IMMEDIATELY_FLAG             = "AzineEmailBundle_SendThisEmailImmediately";
 
     /**
