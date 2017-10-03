@@ -11,7 +11,7 @@
 
 		{{ 'web.view.index.send.html.email.to' | trans({}) }} :
 		{% for next in emails %}
-			<a class="button" href="{{ path('azine_email_send_test_email',{'email': next.accountEmail, 'template' : template.templateId}) }}">{{ next.accountDescription }}</a>
+			<a class="button" href="{{ path('azine_email_send_test_email',{'email': next.accountEmail, 'template' : template.templateId | url_encode }) }}">{{ next.accountDescription }}</a>
 		{% endfor %}
 
 		<span class="custom">
