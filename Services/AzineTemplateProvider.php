@@ -49,7 +49,10 @@ class AzineTemplateProvider implements TemplateProviderInterface
         }
 
         // send some mails immediately instead of spooled
-        if($template == self::FOS_USER_PWD_RESETTING_TEMPLATE || $template == self::FOS_USER_REGISTRATION_TEMPLATE){
+        if($template == self::FOS_USER_PWD_RESETTING_TEMPLATE
+            || $template == self::FOS_USER_REGISTRATION_TEMPLATE
+            || $template == self::FOS_USER_CONFIRM_EMAIL_UPDATE
+        ){
             $newVars[self::SEND_IMMEDIATELY_FLAG] = true;
         }
 
@@ -73,6 +76,10 @@ class AzineTemplateProvider implements TemplateProviderInterface
         $azBlue								= "blue";
         $blackColor							= "black";
         $lightGray 							= "#EEEEEE";
+
+        // add html-styles for your html-emails
+        // css does not work in html-emails, so all styles need to be
+        // embeded directly into the html-elements
         $newVars["azGreen"] 				= $azGreen;
         $newVars["azBlue"] 					= $azBlue;
         $newVars["blackColor"]				= $blackColor;
@@ -89,21 +96,28 @@ class AzineTemplateProvider implements TemplateProviderInterface
         $newVars["mobileContentWidth"]		= 439;// width for the mail content for mobile devices
         $newVars["footerBackgroundColor"]   = "#434343";
 
-        // add html-styles for your html-emails
-        // css does not work in html-emails, so all styles need to be
-        // embedded directly into the html-elements
+        $newVars["h1Style"]					= "style='padding:0; margin:0; font:bold 30px $fontFamily; color:$azBlue; text-decoration:none;'";
         $newVars["h2Style"]					= "style='padding:0; margin:0; font:bold 24px $fontFamily; color:$azBlue; text-decoration:none;'";
         $newVars["h3Style"]					= "style='margin:12px 0 5px 0; font:bold 18px $fontFamily; padding:0; color:$azGreen; text-decoration:none;'";
         $newVars["h4Style"]					= "style='padding:0; margin:0 0 20px 0; color:$blackColor; font-size:14px; text-decoration:none;'";
+        $newVars["smallGreyStyle"]			= "style='color: grey; font: $fontFamily 11px;'";
+        $newVars["salutationStyle"]			= "style='color:$azBlue; font:bold 16px $fontFamily;'";
+        $newVars["smallerTextStyle"]		= "style='font: normal 13px/18px $fontFamily;'";
+        $newVars["dateStyle"]				= "style='padding:0; margin:5px 0; color:$blackColor; font-weight:bold; font-size:12px;'";
+        $newVars["readMoreLinkStyle"]		= "style='color:$azGreen; text-decoration:none; font-size:13px;'";
+        $newVars["titleLinkStyle"]			= "style='text-decoration:none;'";
+        $newVars["salutationStyle"]			= "style='color:$azBlue; font:bold 16px Arial;'";
+        $newVars["dateStyle"]				= "style='padding:0; margin:5px 0; color:$blackColor; font-weight:bold; font-size:12px;'";
+        $newVars["smallerTextStyle"]		= "style='font: normal 13px/18px Arial, Helvetica, sans-serif;'";
+        $newVars["actionButtonStyle"]		= "style='font-weight: bold; background: none repeat scroll 0 0 #DF940B; border: 1px solid orange; border-radius: 5px; box-shadow: 0 1px 0 #DF940B inset; color: white; padding: 10px;'";
+        $newVars["sloganStyle"]				= "style='font-size: 16px; color:$blackColor; margin: 0px; padding: 0px;'";
+
+        // some simple txt styling elements
         $newVars["txtH1Style"]				= "////////////////////////////////////////////////////////////////////////////////";
         $newVars["txtH2Style"]				= "================================================================================";
         $newVars["txtH3Style"]				= "--------------------------------------------------------------------------------";
         $newVars["txtH4Style"]				= "''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''";
         $newVars["txtHR"]					= "________________________________________________________________________________";
-        $newVars["smallGreyStyle"]			= "style='color: grey; font: $fontFamily 11px;'";
-        $newVars["salutationStyle"]			= "style='color:$azBlue; font:bold 16px $fontFamily;'";
-        $newVars["dateStyle"]				= "style='padding:0; margin:5px 0; color:$blackColor; font-weight:bold; font-size:12px;'";
-        $newVars["smallerTextStyle"]		= "style='font: normal 13px/18px $fontFamily;'";
 
         return $newVars;
     }
