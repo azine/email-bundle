@@ -90,6 +90,28 @@
         <source>web.view.mail.not.available.title</source>
         <target>Email nicht gefunden!</target>
       </trans-unit>
+
+      <trans-unit id="3dee7f471ad584c318ba119c949e465f2ac25a67" resname="_az.admin.email.recipients.label">
+        <source state="new">_az.admin.email.dashboard.recipients.label</source>
+        <target>Empfänger</target>
+      </trans-unit>
+      <trans-unit id="905e7f471ad584c318ba1aasdasdd65f2ac25a67" resname="_az.admin.email.template.label">
+        <source state="new">_az.admin.email.dashboard.template.label</source>
+        <target>Schablone</target>
+      </trans-unit>
+      <trans-unit id="qokntr471ad584c318ba119c949e465fsdffrtt5" resname="_az.admin.email.sent.label">
+        <source state="new">_az.admin.email.dashboard.sent.label</source>
+        <target>Senden Sie Datum</target>
+      </trans-unit>
+      <trans-unit id="wxvb5y471ad584c318ba119c949e465bge45dfgz" resname="_az.admin.email.variables.label">
+        <source state="new">_az.admin.email.dashboard.variables.label</source>
+        <target>Variable</target>
+      </trans-unit>
+      <trans-unit id="2587rti71ad584c318ba119c949e465f2ac25a67" resname="_az.admin.email.token.label">
+        <source state="new">_az.admin.email.dashboard.token.label</source>
+        <target>Token</target>
+      </trans-unit>
+
     </body>
   </file>
 </xliff>

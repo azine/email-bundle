@@ -3,6 +3,7 @@
 namespace Azine\EmailBundle\Entity\Repositories;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * SentEmailRepository
@@ -12,4 +13,42 @@ use Doctrine\ORM\EntityRepository;
  */
 class SentEmailRepository extends EntityRepository
 {
+    public function search($searchParams = [])
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+
+        if (empty($searchParams)) {
+            return $queryBuilder;
+        }
+
+        $searchAttributes = [
+            'recipients',
+            'template',
+            'sent',
+            'variables',
+            'token'
+        ];
+
+        foreach ($searchAttributes as $attribute) {
+            if (empty($searchParams[$attribute])) {
+                continue;
+            }
+
+            $attributeValue = $searchParams[$attribute];
+
+            $queryBuilder->andWhere('e.'.$attribute.' LIKE :'.$attribute)
+                ->setParameter(':'.$attribute, '%'.$attributeValue.'%');
+        }
+
+        return $queryBuilder;
+    }
+
+    public function getTotalCount(QueryBuilder $queryBuilder)
+    {
+        $queryBuilder = clone $queryBuilder;
+
+        return $queryBuilder->select(
+            'COUNT(e)'
+        )->getQuery()->getSingleScalarResult();
+    }
 }

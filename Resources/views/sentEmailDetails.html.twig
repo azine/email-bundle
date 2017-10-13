@@ -1,0 +1,32 @@
+{% extends 'AzineEmailBundle::base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css" >
+
+{% endblock %}
+
+{% block body %}
+    <table class="table table-striped">
+        <tr>
+            <td>{{ '_az.admin.email.recipients.label'|trans }}</td>
+            <td>{{ recipients }}</td>
+        </tr>
+        <tr>
+            <td>{{ '_az.admin.email.template.label'|trans }}</td>
+            <td>{{ email.template }}</td>
+        </tr>
+        <tr>
+            <td>{{ '_az.admin.email.sent.label'|trans }}</td>
+            <td>{{ email.sent|date("Y-m-d H:i") }}</td>
+        </tr>
+        <tr>
+            <td>{{ '_az.admin.email.variables.label'|trans }}</td>
+            <td>{{ variables }}</td>
+        </tr>
+        <tr>
+            <td>{{ '_az.admin.email.token.label'|trans }}</td>
+            <td>{{ email.token }}</td>
+        </tr>
+    </table>
+
+{% endblock %}

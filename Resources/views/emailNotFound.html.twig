@@ -1,0 +1,20 @@
+{% autoescape false %}
+    <!DOCTYPE html>
+    <html class="no-js" lang="en"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8" />
+        <title>{{ 'web.view.mail.not.available.page.title' | trans({}) }}</title>
+        <meta name="description" content="{{ 'web.view.mail.not.available.page.description' | trans({}) }}">
+
+    </head>
+    <body>
+    <table width="640" border="0" align="center" cellpadding="0" cellspacing="0" >
+        <tr>
+            <td>
+                <h1>{{ 'web.view.mail.not.available.title' | trans({}) }}</h1>
+                <p>{{ 'web.view.mail.not.available.the.mail.you.are.looking.for.could.not.be.found' | trans({}) }}</p>
+             </td>
+    </table>
+    </body>
+    </html>
+{% endautoescape %}
