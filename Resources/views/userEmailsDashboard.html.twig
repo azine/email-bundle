@@ -46,7 +46,6 @@
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>{{ '_az.admin.email.recipients.label'|trans }}</th>
                 <th>{{ '_az.admin.email.template.label'|trans }}</th>
                 <th>{{ '_az.admin.email.sent.label'|trans }}</th>
                 <th>{{ '_az.admin.email.variables.label'|trans }}</th>
@@ -58,7 +57,6 @@
             <tbody>
             {{ form_start(form) }}
             <tr>
-                <td>{{ form_row(form.recipients) }}</td>
                 <td>{{ form_row(form.template) }}</td>
                 <td>{{ form_row(form.sent) }}</td>
                 <td>{{ form_row(form.variables) }}</td>
@@ -70,7 +68,6 @@
             </tbody>
             {% for email in emails %}
                 <tr class="sentEmail">
-                    <td>{{ email.recipients }}</td>
                     <td>{{ email.template }}</td>
                     <td>{{ email.sent }}</td>
                     <td>{{ email.variables }}</td>
@@ -85,6 +82,7 @@
         </table>
         {{ gridPagination(paginator) }}
     </div>
+
 
     <hr/>
     <div id="modal" class="overflowScrollY">
