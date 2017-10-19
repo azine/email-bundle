@@ -14,6 +14,7 @@ class SentEmailType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $builder->setMethod('GET');
         $builder->add('recipients', 'text', ['label' => false, 'required' => false,
             'attr' => ['class' => 'form-control']]);
         $builder->add('template', 'text', ['label' => false, 'required' => false,
