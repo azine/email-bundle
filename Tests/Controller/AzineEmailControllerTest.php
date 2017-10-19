@@ -75,6 +75,25 @@ class AzineEmailControllerTest extends WebTestCase
 
         $this->assertEquals(1, $crawler->filter("tr:contains('dominik@businger.ch')")->count(),"Table cell with email expected");
 
+        $crawler = $this->loginUserIfRequired($client, $listUrl);
+
+        //Test filtering by email
+        $crawler = $crawler->selectButton('sentEmail[save]');
+        $form = $crawler->form();
+        $form['sentEmail[recipients]'] = 'dominik@businger.ch';
+        $crawler = $client->submit($form);
+
+        $this->assertEquals($crawler->filter(".sentEmail")->count(), $crawler->filter("tr:contains('dominik@businger.ch')")->count(),"Table rows only with dominik@businger.ch email are expected");
+
+        $form['sentEmail[recipients]'] = '';
+        $crawler = $client->submit($form);
+
+        //Test filtering by token
+        $form['sentEmail[token]'] = 'fdasdfasfafsadf';
+        $crawler = $client->submit($form);
+
+        $this->assertEquals($crawler->filter(".sentEmail")->count(), $crawler->filter("tr:contains('fdasdfasfafsadf')")->count(),"Table rows only with fdasdfasfafsadf token are expected");
+
     }
 
     /**
