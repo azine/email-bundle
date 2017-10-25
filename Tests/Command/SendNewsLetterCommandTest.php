@@ -59,7 +59,7 @@ class SendNewsLetterCommandTest extends \PHPUnit_Framework_TestCase
     public function testLockingFunctionality()
     {
         if(!class_exists('AppKernel')){
-            $this->markTestSkipped("This test does only work if a full application is installed (including AppKernel class");
+            $this->markTestSkipped("This test does only works if a full application is installed (including AppKernel class");
         }
         $commandName = $this->getCommand()->getName();
         $reflector = new \ReflectionClass(\AppKernel::class);
