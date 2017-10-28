@@ -1,7 +1,7 @@
 {% extends 'AzineEmailBundle::base.html.twig' %}
 {% block stylesheets %}
     {{ parent() }}
-    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css" >
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.min.css" >
 
     <style type="text/css">
 
@@ -15,6 +15,10 @@
             height: 50%;
             overflow-y: scroll;
         }
+        .pagination a{
+            display: inline;
+        }
+
 
     </style>
 {% endblock %}
@@ -76,8 +80,8 @@
                     <td>{{ email.variables }}</td>
                     <td>{{ email.token }}</td>
                     <td>
-                        <a class = "actionButton" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
-                        <a class = "actionButton" href="{{ path('azine_admin_email_details_by_token', {'token': email.token}) }}">{{ 'email.dashboard.details.button.label'|trans }}</a>
+                        <a class = "button" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
+                        <a class = "button" href="{{ path('azine_admin_email_details_by_token', {'token': email.token}) }}">{{ 'email.dashboard.details.button.label'|trans }}</a>
                     </td>
                 </tr>
             {% endfor %}
