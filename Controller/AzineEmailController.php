@@ -32,7 +32,7 @@ class AzineEmailController extends Controller
 
         foreach ($emails as $key => $email){
 
-            $emailsArray[$key]['recipients'] = implode(', ', $email->getRecipients());
+            $emailsArray[$key]['recipients'] = substr(implode(', ', $email->getRecipients()), 0, 60);
             $emailsArray[$key]['template'] = $email->getTemplate();
             $emailsArray[$key]['sent'] = $email->getSent()->format('Y-m-d H:i:s');
             $emailsArray[$key]['variables'] = substr(json_encode($email->getVariables()), 0, 60);

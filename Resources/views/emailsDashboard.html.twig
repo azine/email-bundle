@@ -1,8 +1,6 @@
 {% extends 'AzineEmailBundle::base.html.twig' %}
 {% block stylesheets %}
     {{ parent() }}
-    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.min.css" >
-
     <style type="text/css">
 
         html,body {
@@ -15,10 +13,6 @@
             height: 50%;
             overflow-y: scroll;
         }
-        .pagination a{
-            display: inline;
-        }
-
 
     </style>
 {% endblock %}
@@ -33,7 +27,7 @@
             modal.empty();
 
             modal.addClass('text-center')
-            modal.text({{'email.dashboard.loading'|trans }});
+            modal.text("{{'email.dashboard.loading'|trans}}");
             $.get($(this).attr('href'))
                 .done(function(resp){
                     modal.removeClass('text-center');
@@ -80,14 +74,14 @@
                     <td>{{ email.variables }}</td>
                     <td>{{ email.token }}</td>
                     <td>
-                        <a class = "button" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
-                        <a class = "button" href="{{ path('azine_admin_email_details_by_token', {'token': email.token}) }}">{{ 'email.dashboard.details.button.label'|trans }}</a>
+                        <a class = "actionButton button" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
+                        <a class = "actionButton button" href="{{ path('azine_admin_email_details_by_token', {'token': email.token}) }}">{{ 'email.dashboard.details.button.label'|trans }}</a>
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-        {{ knp_pagination_render(paginator) }}
+        {{ knp_pagination_render(pagination) }}
     </div>
 
     <hr/>
