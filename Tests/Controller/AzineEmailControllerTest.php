@@ -36,63 +36,52 @@ class AzineEmailControllerTest extends WebTestCase
         $manager = $this->getEntityManager();
         $sentEmailRep = $manager->getRepository("Azine\EmailBundle\Entity\SentEmail");
 
-        $sentEmails = $sentEmailRep->findAll();
+        $testSentEmails = $sentEmailRep->search(['recipients' => TestHelper::TEST_EMAIL]);
 
-        $count = count($sentEmails);
 
-        $pagination = $this->getContainer()->get('azine.email.bundle.pagination');
+        if (count($testSentEmails) == 0) {
 
-        $manager = $this->getEntityManager();
+            TestHelper::addSentEmails($manager);
+            $testSentEmails = $sentEmailRep->search(['recipients' => TestHelper::TEST_EMAIL]);
 
-        // make sure there is some data in the application
-        if ($count < $pagination->getDefaultPageSize()) {
-
-            $amountToAdd = $pagination->getDefaultPageSize() * 2;
-            TestHelper::addSentEmails($manager, $amountToAdd);
-
-            $count += $amountToAdd;
         }
 
-        $listUrl = substr($this->getRouter()->generate("admin_emails_dashboard", array('_locale' => "en")), 13);
+        $listUrl = substr($this->getRouter()->generate("azine_admin_emails_dashboard", array('_locale' => "en")), 13);
         $crawler = $this->loginUserIfRequired($client, $listUrl);
 
-        $this->assertEquals($pagination->getDefaultPageSize(), $crawler->filter(".sentEmail")->count(), "emailsDashboard expected with .".$pagination->getDefaultPageSize()." sent emails");
-
-        $numberOfPaginationLinks = floor($count / $pagination->getDefaultPageSize()) + 3;
-        $this->assertEquals($numberOfPaginationLinks, $crawler->filter(".pagination li")->count(),$numberOfPaginationLinks . " pagination links expected");
-
         //click on an email web view link to get to the web page
-        $link = $crawler->filter("tr:contains('".EmailTemplateProvider::NEWSLETTER_TEMPLATE."')")->first()->filter("td")->last()->filter("a")->first()->link();
+        $link = $crawler->filter(".sentEmail:contains('".EmailTemplateProvider::NEWSLETTER_TEMPLATE."')")->first()->filter("td")->last()->filter("a")->first()->link();
         $crawler = $client->click($link);
 
         $this->assertEquals(1, $crawler->filter("span:contains('_az.email.hello')")->count(), " div with hello message expected.");
 
         $crawler = $this->loginUserIfRequired($client, $listUrl);
 
-        //click on an email details view link to get to the details page
-        $link = $crawler->filter("tr:contains('dominik@businger.ch')")->first()->filter("td")->last()->filter("a")->last()->link();
-        $crawler = $client->click($link);
-
-        $this->assertEquals(1, $crawler->filter("tr:contains('dominik@businger.ch')")->count(),"Table cell with email expected");
-
-        $crawler = $this->loginUserIfRequired($client, $listUrl);
-
         //Test filtering by email
         $crawler = $crawler->selectButton('sentEmail[save]');
         $form = $crawler->form();
-        $form['sentEmail[recipients]'] = 'dominik@businger.ch';
+        $form['sentEmail[recipients]'] = TestHelper::TEST_EMAIL;
         $crawler = $client->submit($form);
 
-        $this->assertEquals($crawler->filter(".sentEmail")->count(), $crawler->filter("tr:contains('dominik@businger.ch')")->count(),"Table rows only with dominik@businger.ch email are expected");
+        $this->assertEquals($crawler->filter(".sentEmail")->count(), $crawler->filter("tr:contains('".TestHelper::TEST_EMAIL."')")->count(),"Table rows only with ".TestHelper::TEST_EMAIL." email are expected");
+
+
+        //click on an email details view link to get to the details page
+        $link = $crawler->filter(".sentEmail:contains('".TestHelper::TEST_EMAIL."')")->first()->filter("td")->last()->filter("a")->last()->link();
+        $crawler = $client->click($link);
+
+        $this->assertEquals(1, $crawler->filter("tr:contains('".TestHelper::TEST_EMAIL."')")->count(),"Table cell with email expected");
+
+        $crawler = $this->loginUserIfRequired($client, $listUrl);
 
         $form['sentEmail[recipients]'] = '';
         $crawler = $client->submit($form);
 
         //Test filtering by token
-        $form['sentEmail[token]'] = 'fdasdfasfafsadf';
+        $form['sentEmail[token]'] = TestHelper::TEST_TOKEN;
         $crawler = $client->submit($form);
 
-        $this->assertEquals($crawler->filter(".sentEmail")->count(), $crawler->filter("tr:contains('fdasdfasfafsadf')")->count(),"Table rows only with fdasdfasfafsadf token are expected");
+        $this->assertEquals($crawler->filter(".sentEmail")->count(), $crawler->filter(".sentEmail:contains('".TestHelper::TEST_TOKEN."')")->count(),"Table row only with ".TestHelper::TEST_TOKEN." token is expected");
 
     }
 

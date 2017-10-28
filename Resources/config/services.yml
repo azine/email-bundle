@@ -100,24 +100,24 @@ services:
         tags:
             - { name: twig.extension }
 
-###################################################################
-## Pagination
-###################################################################
-    azine.email.bundle.pagination:
-        class: Azine\EmailBundle\Services\Pagination
-        arguments:
-          requestStack:   "@request_stack"
-
-    azine.email.bundle.pagination.view:
-        class: Azine\EmailBundle\Services\PaginationView
-        arguments:
-          request:   "@request_stack"
-          router:    "@router"
-
-    azine.email.bundle.pagination.extension:
-        class: Azine\EmailBundle\Services\Twig\PaginationExtension
-        arguments:
-          paginationView:   "@azine.email.bundle.pagination.view"
-        tags:
-            - { name: twig.extension }
+####################################################################
+### Pagination
+####################################################################
+#    azine.email.bundle.pagination:
+#        class: Azine\EmailBundle\Services\Pagination
+#        arguments:
+#          requestStack:   "@request_stack"
+#
+#    azine.email.bundle.pagination.view:
+#        class: Azine\EmailBundle\Services\PaginationView
+#        arguments:
+#          request:   "@request_stack"
+#          router:    "@router"
+#
+#    azine.email.bundle.pagination.extension:
+#        class: Azine\EmailBundle\Services\Twig\PaginationExtension
+#        arguments:
+#          paginationView:   "@azine.email.bundle.pagination.view"
+#        tags:
+#            - { name: twig.extension }
 

@@ -2,35 +2,55 @@
 
 namespace Azine\EmailBundle\Controller;
 
-
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Form\SentEmailType;
 use FOS\UserBundle\Model\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
+/**
+ * This controller provides the following actions:
+ *
+ * emailsDashboard: a list of all SentEmail entities with ability to filter by each property.
+ * emailDetailsByToken: extended view of SentEmail entity searched by a token property.
+ */
 class AzineEmailController extends Controller
 {
-
     /**
-     *  Emails-Dashboard
+     *  Displays an Emails-Dashboard with filters for each property of SentEmails entity and links to
+     *  emailDetailsByToken & webView actions for each email
      */
     public function emailsDashboardAction(Request $request)
     {
         $form = $this->createForm(new SentEmailType());
-
         $form->handleRequest($request);
-
         $searchParams = $form->getData();
+        $repository = $this->getDoctrine()->getManager()->getRepository(SentEmail::class);
 
-        $data = $this->searchEmails($searchParams);
+        $emails = $repository->search($searchParams);
+        $emailsArray = [];
 
-        $data['form'] = $form->createView();
+        foreach ($emails as $key => $email){
 
-        return $this->render('AzineEmailBundle::emailsDashboard.html.twig',$data);
+            $emailsArray[$key]['recipients'] = implode(', ', $email->getRecipients());
+            $emailsArray[$key]['template'] = $email->getTemplate();
+            $emailsArray[$key]['sent'] = $email->getSent()->format('Y-m-d H:i:s');
+            $emailsArray[$key]['variables'] = substr(json_encode($email->getVariables()), 0, 60);
+            $emailsArray[$key]['token'] = $email->getToken();
+        }
+
+        $pagination = $this->get('knp_paginator')->paginate($emailsArray, $request->query->get('page', 1));
+
+        return $this->render('AzineEmailBundle::emailsDashboard.html.twig',
+            ['form' => $form->createView(), 'pagination' => $pagination ]);
     }
 
-    public function getEmailDetailsByTokenAction(Request $request, $token)
+    /**
+     *  Displays an extended view of SentEmail entity searched by a token property
+     * @param string $token
+     * @return Response
+     */
+    public function emailDetailsByTokenAction(Request $request, $token)
     {
         $email = $this->getDoctrine()->getManager()->getRepository(SentEmail::class)
             ->findOneByToken($token);
@@ -44,59 +64,11 @@ class AzineEmailController extends Controller
                 ['email' => $email, 'recipients' => $recipients, 'variables' => $variables]);
         }
 
-        $response = $this->render("AzineEmailBundle::emailNotFound.html.twig");
+        // the parameters-array is null => the email is not available in webView
+        $days = $this->getParameter("azine_email_web_view_retention");
+        $response = $this->render("AzineEmailBundle:Webview:mail.not.available.html.twig", array('days' => $days));
         $response->setStatusCode(404);
 
         return $response;
-    }
-
-    public function getUserEmailsAction(Request $request)
-    {
-        $form = $this->createForm(new SentEmailType());
-
-        $form->handleRequest($request);
-
-        $searchParams = $form->getData();
-
-        $user = $this->getUser();
-
-        if($user instanceof User){
-
-            $searchParams['recipients'] = $user->getEmail();
-        }
-
-        $data = $this->searchEmails($searchParams);
-
-        $data['form'] = $form->createView();
-
-        return $this->render('AzineEmailBundle::userEmailsDashboard.html.twig',$data);
-
-    }
-
-    private function searchEmails($searchParams = [])
-    {
-        $repository = $this->getDoctrine()->getManager()->getRepository(SentEmail::class);
-        $queryBuilder = $repository->search($searchParams);
-
-        $paginator = $this->get('azine.email.bundle.pagination');
-
-        $paginator->setTotalCount($repository->getTotalCount($queryBuilder));
-
-        $queryBuilder->setMaxResults($paginator->getPageSize())
-            ->setFirstResult($paginator->getOffset());
-
-        $emails = $queryBuilder->getQuery()->getResult();
-        $emailsArray = [];
-
-        foreach ($emails as $key => $email){
-
-            $emailsArray[$key]['recipients'] = implode(', ', $email->getRecipients());
-            $emailsArray[$key]['template'] = $email->getTemplate();
-            $emailsArray[$key]['sent'] = $email->getSent()->format('Y-m-d H:i:s');
-            $emailsArray[$key]['variables'] = substr(json_encode($email->getVariables()), 0, 60);
-            $emailsArray[$key]['token'] = $email->getToken();
-        }
-
-        return ['paginator' => $paginator, 'emails' => $emailsArray];
     }
 }

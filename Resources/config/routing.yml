@@ -30,18 +30,10 @@ azine_email_test_sent_email_spam_score:
     path:  /admin/email/test-sent-email-spam-score
     defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:checkSpamScoreOfSentEmail" }
 
-azine_email_test_sent_email_spam_score:
-    path:  /admin/email/test-sent-email-spam-score
-    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:checkSpamScoreOfSentEmail" }
-
-azine_get_user_emails:
-    path: /user_emails
-    defaults: { _controller: "AzineEmailBundle:AzineEmail:getUserEmails",}
-
-admin_emails_dashboard:
+azine_admin_emails_dashboard:
     path: /admin/emails/dashboard
     defaults: { _controller: "AzineEmailBundle:AzineEmail:emailsDashboard",}
 
-admin_email_details_by_token:
+azine_admin_email_details_by_token:
     path: /admin/email_details/{token}
-    defaults: { _controller: "AzineEmailBundle:AzineEmail:getEmailDetailsByToken",}
+    defaults: { _controller: "AzineEmailBundle:AzineEmail:emailDetailsByToken",}

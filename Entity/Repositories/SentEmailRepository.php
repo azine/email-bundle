@@ -13,42 +13,38 @@ use Doctrine\ORM\QueryBuilder;
  */
 class SentEmailRepository extends EntityRepository
 {
+    /**
+     * Search SentEmails by search params.
+     * @param $searchParams
+     * @return array of SentEmail
+     */
     public function search($searchParams = [])
     {
         $queryBuilder = $this->createQueryBuilder('e');
 
-        if (empty($searchParams)) {
-            return $queryBuilder;
-        }
+        if (!empty($searchParams)) {
 
-        $searchAttributes = [
-            'recipients',
-            'template',
-            'sent',
-            'variables',
-            'token'
-        ];
+            $searchAttributes = [
+                'recipients',
+                'template',
+                'sent',
+                'variables',
+                'token'
+            ];
 
-        foreach ($searchAttributes as $attribute) {
-            if (empty($searchParams[$attribute])) {
-                continue;
+            foreach ($searchAttributes as $attribute) {
+                if (empty($searchParams[$attribute])) {
+                    continue;
+                }
+
+                $attributeValue = $searchParams[$attribute];
+
+                $queryBuilder->andWhere('e.'.$attribute.' LIKE :'.$attribute)
+                    ->setParameter($attribute, '%'.$attributeValue.'%');
             }
-
-            $attributeValue = $searchParams[$attribute];
-
-            $queryBuilder->andWhere('e.'.$attribute.' LIKE :'.$attribute)
-                ->setParameter(':'.$attribute, '%'.$attributeValue.'%');
         }
 
-        return $queryBuilder;
-    }
-
-    public function getTotalCount(QueryBuilder $queryBuilder)
-    {
-        $queryBuilder = clone $queryBuilder;
-
-        return $queryBuilder->select(
-            'COUNT(e)'
-        )->getQuery()->getSingleScalarResult();
+        $sentEmails = $queryBuilder->getQuery()->getResult();
+        return $sentEmails;
     }
 }

@@ -29,7 +29,7 @@
             modal.empty();
 
             modal.addClass('text-center')
-            modal.text('Loading...');
+            modal.text({{'email.dashboard.loading'|trans }});
             $.get($(this).attr('href'))
                 .done(function(resp){
                     modal.removeClass('text-center');
@@ -42,15 +42,15 @@
 {% endblock javascripts %}
 {% block body %}
     <div class='overflowScrollY'>
-        <h1>Emails Dashboard</h1>
+        <h1>{{'email.dashboard.label'|trans }}</h1>
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>{{ '_az.admin.email.recipients.label'|trans }}</th>
-                <th>{{ '_az.admin.email.template.label'|trans }}</th>
-                <th>{{ '_az.admin.email.sent.label'|trans }}</th>
-                <th>{{ '_az.admin.email.variables.label'|trans }}</th>
-                <th>{{ '_az.admin.email.token.label'|trans }}</th>
+                <th>{{ 'email.dashboard.recipients.label'|trans }}</th>
+                <th>{{ 'email.dashboard.template.label'|trans }}</th>
+                <th>{{ 'email.dashboard.sent.label'|trans }}</th>
+                <th>{{ 'email.dashboard.variables.label'|trans }}</th>
+                <th>{{ 'email.dashboard.token.label'|trans }}</th>
                 <th></th>
             </tr>
             </thead>
@@ -68,7 +68,7 @@
 
             {{ form_end(form) }}
             </tbody>
-            {% for email in emails %}
+            {% for email in pagination %}
                 <tr class="sentEmail">
                     <td>{{ email.recipients }}</td>
                     <td>{{ email.template }}</td>
@@ -76,14 +76,14 @@
                     <td>{{ email.variables }}</td>
                     <td>{{ email.token }}</td>
                     <td>
-                        <a class = "actionButton" href="{{ path('azine_email_webview', {'token': email.token}) }}">Show</a>
-                        <a class = "actionButton" href="{{ path('admin_email_details_by_token', {'token': email.token}) }}">Details</a>
+                        <a class = "actionButton" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
+                        <a class = "actionButton" href="{{ path('azine_admin_email_details_by_token', {'token': email.token}) }}">{{ 'email.dashboard.details.button.label'|trans }}</a>
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-        {{ gridPagination(paginator) }}
+        {{ knp_pagination_render(paginator) }}
     </div>
 
     <hr/>

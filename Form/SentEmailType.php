@@ -26,7 +26,7 @@ class SentEmailType extends AbstractType
         $builder->add('token', 'text', ['label' => false, 'required' => false,
             'attr' => ['class' => 'form-control']]);
 
-        $builder->add('save', 'submit', ['label' => 'Filter']);
+        $builder->add('save', 'submit', ['label' => 'email.dashboard.filter.button.label']);
 
     }
 
