@@ -42,8 +42,6 @@ class AzineEmailControllerTest extends WebTestCase
         if (count($testSentEmails) == 0) {
 
             TestHelper::addSentEmails($manager);
-            $testSentEmails = $sentEmailRep->search(['recipients' => TestHelper::TEST_EMAIL]);
-
         }
 
         $listUrl = substr($this->getRouter()->generate("azine_admin_emails_dashboard", array('_locale' => "en")), 13);
@@ -70,7 +68,7 @@ class AzineEmailControllerTest extends WebTestCase
         $link = $crawler->filter(".sentEmail:contains('".TestHelper::TEST_EMAIL."')")->first()->filter("td")->last()->filter("a")->last()->link();
         $crawler = $client->click($link);
 
-        $this->assertEquals(1, $crawler->filter("tr:contains('".TestHelper::TEST_EMAIL."')")->count(),"Table cell with email expected");
+        $this->assertEquals(1, $crawler->filter("tr:contains('".TestHelper::TEST_EMAIL."')")->count(),"Table cell with ".TestHelper::TEST_EMAIL." expected");
 
         $crawler = $this->loginUserIfRequired($client, $listUrl);
 
