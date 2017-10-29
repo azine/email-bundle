@@ -96,23 +96,23 @@
         <target>E-Mail-Armaturenbrett</target>
       </trans-unit>
       <trans-unit id="235897fsdffgdsfdgf8ba119c949e465f2ac25ao" resname="email.dashboard.recipients.label">
-        <source state="new">_az.admin.email.dashboard.recipients.label</source>
+        <source state="new">email.dashboard.recipients.label</source>
         <target>Empfänger</target>
       </trans-unit>
       <trans-unit id="45y77f471ad584c318ba119c949e465f2acmkui6" resname="email.dashboard.template.label">
-        <source state="new">_az.admin.email.dashboard.template.label</source>
+        <source state="new">email.dashboard.template.label</source>
         <target>Schablone</target>
       </trans-unit>
       <trans-unit id="9975ge7f471ad584c318ba1c949e4782694kj6ds" resname="email.dashboard.sent.label">
-        <source state="new">_az.admin.email.dashboard.sent.label</source>
+        <source state="new">email.dashboard.sent.label</source>
         <target>Senden Sie Datum</target>
       </trans-unit>
       <trans-unit id="88yh8f471ad584c318ba119c949e465f2poomvt5" resname="email.dashboard.variables.label">
-        <source state="new">_az.admin.email.dashboard.variables.label</source>
+        <source state="new">email.dashboard.variables.label</source>
         <target>Variable</target>
       </trans-unit>
       <trans-unit id="erterthg1ad584c318ba119c9lt78jk345dvg2fz" resname="email.dashboard.token.label">
-        <source state="new">_az.admin.email.dashboard.token.label</source>
+        <source state="new">email.dashboard.token.label</source>
         <target>Token</target>
       </trans-unit>
 

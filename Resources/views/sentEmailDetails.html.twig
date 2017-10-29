@@ -3,23 +3,23 @@
 {% block body %}
     <table class="table table-striped">
         <tr>
-            <td>{{ '_az.admin.email.recipients.label'|trans }}</td>
+            <td>{{ 'email.dashboard.recipients.label'|trans }}</td>
             <td>{{ recipients }}</td>
         </tr>
         <tr>
-            <td>{{ '_az.admin.email.template.label'|trans }}</td>
+            <td>{{ 'email.dashboard.template.label'|trans }}</td>
             <td>{{ email.template }}</td>
         </tr>
         <tr>
-            <td>{{ '_az.admin.email.sent.label'|trans }}</td>
+            <td>{{ 'email.dashboard.sent.label'|trans }}</td>
             <td>{{ email.sent|date("Y-m-d H:i") }}</td>
         </tr>
         <tr>
-            <td>{{ '_az.admin.email.variables.label'|trans }}</td>
+            <td>{{ 'email.dashboard.variables.label'|trans }}</td>
             <td>{{ variables }}</td>
         </tr>
         <tr>
-            <td>{{ '_az.admin.email.token.label'|trans }}</td>
+            <td>{{ 'email.dashboard.token.label'|trans }}</td>
             <td>{{ email.token }}</td>
         </tr>
     </table>
