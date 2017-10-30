@@ -64,7 +64,7 @@ class AzineEmailControllerTest extends WebTestCase
         $this->assertEquals($crawler->filter(".sentEmail")->count(), $crawler->filter("tr:contains('".TestHelper::TEST_EMAIL."')")->count(),"Table rows only with ".TestHelper::TEST_EMAIL." email are expected");
 
 
-        //click on an email details view link to get to the details page
+        //click on email details view link to get to the details page
         $link = $crawler->filter(".sentEmail:contains('".TestHelper::TEST_EMAIL."')")->first()->filter("td")->last()->filter("a")->last()->link();
         $crawler = $client->click($link);
 
