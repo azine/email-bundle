@@ -36,6 +36,14 @@
                 });
         });
 
+        $( document ).ready(function() {
+
+            if($(".sentEmail").length == 1)
+            {
+                $( ".sentEmail .showWebViewButton" ).click();
+            }
+        });
+
     </script>
 {% endblock javascripts %}
 {% block body %}
@@ -74,8 +82,8 @@
                     <td>{{ email.variables }}</td>
                     <td>{{ email.token }}</td>
                     <td>
-                        <a class = "actionButton button" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
-                        <a class = "actionButton button" href="{{ path('azine_admin_email_details_by_token', {'token': email.token}) }}">{{ 'email.dashboard.details.button.label'|trans }}</a>
+                        <a class = "actionButton button showWebViewButton" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
+                        <a class = "actionButton button showDetailsButton" href="{{ path('azine_admin_email_details_by_token', {'token': email.token}) }}">{{ 'email.dashboard.details.button.label'|trans }}</a>
                     </td>
                 </tr>
             {% endfor %}

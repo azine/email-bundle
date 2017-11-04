@@ -99,4 +99,3 @@ services:
           $domainsToTrack:     "%azine_email_domains_for_tracking%"
         tags:
             - { name: twig.extension }
-

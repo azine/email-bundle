@@ -93,7 +93,7 @@
 
       <trans-unit id="3dtcx8jdffgdsfd2sthvj119c9pmhttuvzdy57j9" resname="email.dashboard.label">
         <source state="new">email.dashboard.label</source>
-        <target>E-Mail-Armaturenbrett</target>
+        <target>E-Mail Dashboard</target>
       </trans-unit>
       <trans-unit id="235897fsdffgdsfdgf8ba119c949e465f2ac25ao" resname="email.dashboard.recipients.label">
         <source state="new">email.dashboard.recipients.label</source>

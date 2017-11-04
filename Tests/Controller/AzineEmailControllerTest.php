@@ -44,7 +44,7 @@ class AzineEmailControllerTest extends WebTestCase
             TestHelper::addSentEmails($manager);
         }
 
-        $listUrl = substr($this->getRouter()->generate("azine_admin_emails_dashboard", array('_locale' => "en")), 13);
+        $listUrl = substr($this->getRouter()->generate("azine_admin_email_dashboard", array('_locale' => "en")), 13);
         $crawler = $this->loginUserIfRequired($client, $listUrl);
 
         //click on an email web view link to get to the web page
