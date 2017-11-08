@@ -1,0 +1,27 @@
+{% extends 'AzineEmailBundle::base.html.twig' %}
+
+{% block body %}
+    <table class="table table-striped">
+        <tr>
+            <td>{{ 'email.dashboard.recipients.label'|trans }}</td>
+            <td>{{ recipients }}</td>
+        </tr>
+        <tr>
+            <td>{{ 'email.dashboard.template.label'|trans }}</td>
+            <td>{{ email.template }}</td>
+        </tr>
+        <tr>
+            <td>{{ 'email.dashboard.sent.label'|trans }}</td>
+            <td>{{ email.sent|date("Y-m-d H:i") }}</td>
+        </tr>
+        <tr>
+            <td>{{ 'email.dashboard.variables.label'|trans }}</td>
+            <td>{{ variables }}</td>
+        </tr>
+        <tr>
+            <td>{{ 'email.dashboard.token.label'|trans }}</td>
+            <td>{{ email.token }}</td>
+        </tr>
+    </table>
+
+{% endblock %}

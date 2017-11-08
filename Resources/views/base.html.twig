@@ -5,6 +5,7 @@
 
 	{% block stylesheets -%}
 	<link type="text/css" rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" >
+	<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.min.css" >
 	<style type="text/css">
 	.button{
 		background: none repeat scroll 0 0 #003E6D;
@@ -46,9 +47,13 @@
 		background: none repeat scroll 0 0 #2BA6CB;
 	}
 
-	.warn{
-		background: none repeat scroll 0 0 #DF940B;
-	}
+    .warn{
+        background: none repeat scroll 0 0 #DF940B;
+    }
+
+    .pagination a{
+        display: inline;
+    }
 
 	</style>
 {% endblock stylesheets %}

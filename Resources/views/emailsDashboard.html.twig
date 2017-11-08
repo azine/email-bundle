@@ -1,0 +1,101 @@
+{% extends 'AzineEmailBundle::base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style type="text/css">
+
+        html,body {
+            padding:0;
+            margin:0;
+            height:100%;
+        }
+        .overflowScrollY{
+            width: 100%;
+            height: 50%;
+            overflow-y: scroll;
+        }
+
+    </style>
+{% endblock %}
+
+{% block javascripts -%}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(".actionButton").click(function(e) {
+
+            e.preventDefault();
+            var modal = $('#modal');
+            modal.empty();
+
+            modal.addClass('text-center')
+            modal.text("{{'email.dashboard.loading'|trans}}");
+            $.get($(this).attr('href'))
+                .done(function(resp){
+                    modal.removeClass('text-center');
+                    modal.empty();
+                    modal.html(resp);
+                });
+        });
+
+        $( document ).ready(function() {
+
+            if($(".sentEmail").length == 1)
+            {
+                $( ".sentEmail .showWebViewButton" ).click();
+            }
+        });
+
+    </script>
+{% endblock javascripts %}
+{% block body %}
+    <div class='overflowScrollY'>
+        <h1>{{'email.dashboard.label'|trans }}</h1>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>{{ 'email.dashboard.recipients.label'|trans }}</th>
+                <th>{{ 'email.dashboard.template.label'|trans }}</th>
+                <th>{{ 'email.dashboard.sent.label'|trans }}</th>
+                <th>{{ 'email.dashboard.variables.label'|trans }}</th>
+                <th>{{ 'email.dashboard.token.label'|trans }}</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tbody>
+            {{ form_start(form) }}
+            <tr>
+                <td>{{ form_row(form.recipients) }}</td>
+                <td>{{ form_row(form.template) }}</td>
+                <td>{{ form_row(form.sent) }}</td>
+                <td>{{ form_row(form.variables) }}</td>
+                <td>{{ form_row(form.token) }}</td>
+                <td>{{ form_row(form.save) }}</td>
+            </tr>
+
+            {{ form_end(form) }}
+            </tbody>
+            {% for email in pagination %}
+                <tr class="sentEmail">
+                    <td>{{ email.recipients }}</td>
+                    <td>{{ email.template }}</td>
+                    <td>{{ email.sent }}</td>
+                    <td>{{ email.variables }}</td>
+                    <td>{{ email.token }}</td>
+                    <td>
+                        <a class = "actionButton button showWebViewButton" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
+                        <a class = "actionButton button showDetailsButton" href="{{ path('azine_admin_email_details_by_token', {'token': email.token}) }}">{{ 'email.dashboard.details.button.label'|trans }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {{ knp_pagination_render(pagination) }}
+    </div>
+
+    <hr/>
+    <div id="modal" class="overflowScrollY">
+        <div class ="loading"></div>
+    </div>
+{% endblock %}
+
+
