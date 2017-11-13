@@ -104,6 +104,19 @@ $bundles = array(
 );
 ```
 
+AzineEmailBundle has a dependency on KnpPaginatorBundle, so it`s also nessesary to add it to AppKernel.php file after installing
+
+```php
+<?php
+
+// in AppKernel::registerBundles()
+$bundles = array(
+    // ...
+    new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
+    // ...
+);
+```
+
 Register the routes of the AzineEmailBundle:
 
 ```yml

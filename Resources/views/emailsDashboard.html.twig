@@ -14,6 +14,14 @@
             overflow-y: scroll;
         }
 
+        #modal tbody td, tbody th {
+            padding: 0;
+        }
+
+        #modal tbody tr:nth-child(even) {
+            background: none;
+        }
+
     </style>
 {% endblock %}
 
@@ -49,7 +57,7 @@
 {% block body %}
     <div class='overflowScrollY'>
         <h1>{{'email.dashboard.label'|trans }}</h1>
-        <table class="table table-striped">
+        <table class="table table-striped" style="margin: 0 auto">
             <thead>
             <tr>
                 <th>{{ 'email.dashboard.recipients.label'|trans }}</th>
