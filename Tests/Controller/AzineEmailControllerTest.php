@@ -56,7 +56,7 @@ class AzineEmailControllerTest extends WebTestCase
         $crawler = $this->loginUserIfRequired($client, $listUrl);
 
         //Test filtering by email
-        $crawler = $crawler->selectButton('sentEmail[save]');
+        $crawler = $crawler->selectButton('sentEmail[filter]');
         $form = $crawler->form();
         $form['sentEmail[recipients]'] = TestHelper::TEST_EMAIL;
         $crawler = $client->submit($form);
