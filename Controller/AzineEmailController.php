@@ -2,51 +2,41 @@
 
 namespace Azine\EmailBundle\Controller;
 
+use Azine\EmailBundle\Entity\Repositories\SentEmailRepository;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Form\SentEmailType;
-use FOS\UserBundle\Model\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * This controller provides the following actions:
- *
- * emailsDashboard: a list of all SentEmail entities with ability to filter by each property.
- * emailDetailsByToken: extended view of SentEmail entity searched by a token property.
+ * This controller provides actions related to SentEmails stored in the database.
  */
 class AzineEmailController extends Controller
 {
     /**
      *  Displays an Emails-Dashboard with filters for each property of SentEmails entity and links to
      *  emailDetailsByToken & webView actions for each email
+     *
+     * @param Request $request
+     * @return Response
      */
     public function emailsDashboardAction(Request $request)
     {
         $form = $this->createForm(new SentEmailType());
         $form->handleRequest($request);
         $searchParams = $form->getData();
+        /** @var SentEmailRepository $repository */
         $repository = $this->getDoctrine()->getManager()->getRepository(SentEmail::class);
-
-        $emails = $repository->search($searchParams);
-        $emailsArray = [];
-
-        foreach ($emails as $key => $email){
-
-            $emailsArray[$key]['recipients'] = substr(implode(', ', $email->getRecipients()), 0, 60);
-            $emailsArray[$key]['template'] = $email->getTemplate();
-            $emailsArray[$key]['sent'] = $email->getSent()->format('Y-m-d H:i:s');
-            $emailsArray[$key]['variables'] = substr(json_encode($email->getVariables()), 0, 60);
-            $emailsArray[$key]['token'] = $email->getToken();
-        }
-
-        $pagination = $this->get('knp_paginator')->paginate($emailsArray, $request->query->get('page', 1));
+        $query = $repository->search($searchParams);
+        $pagination = $this->get('knp_paginator')->paginate($query, $request->query->getInt('page', 1));
 
         return $this->render('AzineEmailBundle::emailsDashboard.html.twig',
             ['form' => $form->createView(), 'pagination' => $pagination ]);
     }
 
     /**
-     *  Displays an extended view of SentEmail entity searched by a token property
+     * Displays an extended view of SentEmail entity searched by a token property
      * @param string $token
      * @return Response
      */
