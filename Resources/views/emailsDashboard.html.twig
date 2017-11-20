@@ -76,10 +76,12 @@
             </tbody>
             {% for email in pagination %}
                 <tr class="sentEmail">
-                    <td>{{ email.recipients }}</td>
+                    <td>{{ email.recipients | join(', ') }}</td>
                     <td>{{ email.template }}</td>
-                    <td>{{ email.sent }}</td>
-                    <td>{{ email.variables }}</td>
+                    <td>{{ email.sent | date("j. F Y H:i") }}</td>
+                    <td>
+                        <pre>{{ email.variables | printVars }}</pre>
+                    </td>
                     <td>{{ email.token }}</td>
                     <td>
                         <a class = "actionButton button showWebViewButton" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
