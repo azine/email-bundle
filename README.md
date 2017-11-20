@@ -208,7 +208,19 @@ azine_email:
     web_view_service:     azine_email.example.web_view_service
 
 ```
+Some actions in AzineEmailBundle use iframe (e.g. email dashboard), make sure that X-Frame-Options is not set to DENY
+```
+    Header set X-Frame-Options DENY
+```                     
+It should be set to SAMEORIGIN to allow iframes from your domain   
+```
+    Header set X-Frame-Options SAMEORIGIN
+```                                                                                                                                   
+For more information about X-Frame-Options please follow:
 
+  https://developer.mozilla.org/docs/Web/HTTP/Headers/X-Frame-Options
+    
+ 
 ## Customise the content and subjects of your emails
 You must implement your version of the notifier service in which you pull the content
 of you notification- or newsletter-emails together. In you subclass of AzineNotifierService you can/should implement

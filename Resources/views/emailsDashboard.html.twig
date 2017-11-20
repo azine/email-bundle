@@ -14,34 +14,23 @@
             overflow-y: scroll;
         }
 
-        #modal tbody td, tbody th {
-            padding: 0;
-        }
-
-        #modal tbody tr:nth-child(even) {
-            background: none;
-        }
-
     </style>
 {% endblock %}
 
 {% block javascripts -%}
     {{ parent() }}
     <script type="text/javascript">
+
+        function callIframe(url) {
+            $('#modal').html('<iframe id="myid" style="width:100%;height:100%;" />');
+            $('iframe#myid').attr('src', url);
+            $('iframe#myid').load();
+        }
+
         $(".actionButton").click(function(e) {
 
             e.preventDefault();
-            var modal = $('#modal');
-            modal.empty();
-
-            modal.addClass('text-center')
-            modal.text("{{'email.dashboard.loading'|trans}}");
-            $.get($(this).attr('href'))
-                .done(function(resp){
-                    modal.removeClass('text-center');
-                    modal.empty();
-                    modal.html(resp);
-                });
+            callIframe($(this).attr('href'));
         });
 
         $( document ).ready(function() {
