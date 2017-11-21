@@ -4,25 +4,25 @@ Received: by 10.216.167.8 with SMTP id h8csp252148wel;
         Wed, 11 Dec 2013 09:22:47 -0800 (PST)
 X-Received: by 10.15.74.200 with SMTP id j48mr3081993eey.102.1386782567558;
         Wed, 11 Dec 2013 09:22:47 -0800 (PST)
-Return-Path: <bounce+1c53b1.06293-mail-from-dev-environment=businger.ch@azine.domain.com>
+Return-Path: <bounce+1c53b1.06293-mail-from-dev-environment=example.com@azine.domain.com>
 Received: from srv91.tophost.ch (srv91.tophost.ch. [194.150.248.63])
         by mx.google.com with ESMTPS id s8si20059527eeh.164.2013.12.11.09.22.47
         for <recipient-mail@domain.com>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
         Wed, 11 Dec 2013 09:22:47 -0800 (PST)
-Received-SPF: fail (google.com: domain of bounce+1c53b1.06293-mail-from-dev-environment=businger.ch@azine.domain.com does not designate 194.150.248.63 as permitted sender) client-ip=194.150.248.63;
+Received-SPF: fail (google.com: domain of bounce+1c53b1.06293-mail-from-dev-environment=example.com@azine.domain.com does not designate 194.150.248.63 as permitted sender) client-ip=194.150.248.63;
 Authentication-Results: mx.google.com;
-       spf=hardfail (google.com: domain of bounce+1c53b1.06293-mail-from-dev-environment=businger.ch@azine.domain.com does not designate 194.150.248.63 as permitted sender) smtp.mail=bounce+1c53b1.06293-mail-from-dev-environment=businger.ch@azine.domain.com;
+       spf=hardfail (google.com: domain of bounce+1c53b1.06293-mail-from-dev-environment=example.com@azine.domain.com does not designate 194.150.248.63 as permitted sender) smtp.mail=bounce+1c53b1.06293-mail-from-dev-environment=example.com@azine.domain.com;
        dkim=pass header.i=@azine.domain.com
 Received: from [194.150.248.33] (port=39125 helo=filter1.tophost.ch)
 	by srv91.tophost.ch with esmtps (TLSv1:DHE-RSA-AES256-SHA:256)
 	(Exim 4.82)
-	(envelope-from <bounce+1c53b1.06293-mail-from-dev-environment=businger.ch@azine.domain.com>)
+	(envelope-from <bounce+1c53b1.06293-mail-from-dev-environment=example.com@azine.domain.com>)
 	id 1VqnUi-003hLc-5M
 	for sender-mail@domain.com; Wed, 11 Dec 2013 18:22:44 +0100
 Received: from mail-s73.mailgun.info ([184.173.153.201])
 	by filter1.tophost.ch with esmtp (Exim 4.82)
-	(envelope-from <bounce+1c53b1.06293-mail-from-dev-environment=businger.ch@azine.domain.com>)
+	(envelope-from <bounce+1c53b1.06293-mail-from-dev-environment=example.com@azine.domain.com>)
 	id 1VqnUV-0002Wx-W7
 	for sender-mail@domain.com; Wed, 11 Dec 2013 18:22:36 +0100
 DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=azine; q=dns/txt; s=krs;
@@ -66,7 +66,7 @@ X-SpamExperts-Evidence: Combined (0.07)
 X-Recommended-Action: accept
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - srv91.tophost.ch
-X-AntiAbuse: Original Domain - businger.ch
+X-AntiAbuse: Original Domain - example.com
 X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
 X-AntiAbuse: Sender Address Domain - azine
 X-Get-Message-Sender-Via: srv91.tophost.ch: redirect/forwarder owner sender-mail@domain.com -> recipient-mail@domain.com

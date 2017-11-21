@@ -32,7 +32,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
         $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->exactly($count)));
 
         $display = $this->executeCommandAndGetDisplay($command, array(''));
-        $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@test.com'", $display);
+        $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@example.com'", $display);
         $this->assertContains("Sent!", $display);
     }
 
@@ -46,7 +46,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
         $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->exactly($count)));
 
         $display = $this->executeCommandAndGetDisplay($command, array('date' => ' > now -1 minute'));
-        $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@test.com'", $display);
+        $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@example.com'", $display);
         $this->assertContains("Sent!", $display);
     }
 
@@ -157,10 +157,10 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
             $random = md5(date('now')).$count.rand(0, 10000000);
             $filename = $targetDir."$random.sending";
             $msg = new \Swift_Message();
-            $msg->setTo("test-recipient@test.com");
+            $msg->setTo("test-recipient@example.com");
             $msg->setBody("random file $random bla bla.");
             $msg->setSubject("subject blabbla");
-            $msg->setSender("test@test.com");
+            $msg->setSender("test@example.com");
             $ser = serialize($msg);
             $filehandle = fopen($filename, "w");
             fwrite($filehandle, $ser);
