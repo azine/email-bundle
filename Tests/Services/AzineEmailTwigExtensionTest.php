@@ -13,7 +13,7 @@ class AzineEmailTwigExtensionTest extends \PHPUnit_Framework_TestCase
         $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
         $filters = $twigExtension->getFilters();
         $filterNames = array();
-        $this->assertEquals(4, sizeof($filters), "There should only be three filters.");
+        $this->assertEquals(5, sizeof($filters), "Unexpected number of Twig filters");
 
         foreach ($filters as $filter) {
             /** @var $filter \Twig_SimpleFilter */

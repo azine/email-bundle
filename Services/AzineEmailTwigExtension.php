@@ -178,16 +178,12 @@ class AzineEmailTwigExtension extends \Twig_Extension
         $defaultIndent = "    ";
         ksort($vars);
         foreach ($vars as $key => $value){
-            if (is_array($value)){
-                if($allDetails) {
-                    $value = "\n" . $this->printVars($value, $allDetails, $indent.$defaultIndent);
-                } else {
+            if($allDetails) {
+                $value = "\n" . $this->printVars((array) $value, $allDetails, $indent.$defaultIndent);
+            } else {
+                if (is_array($value)){
                     $value = "array(".sizeof($value).")";
-                }
-            } else if (is_object($value)) {
-                if($allDetails) {
-                    $value = "\n" . $this->printVars((array) $value, $allDetails, $indent.$defaultIndent);
-                } else {
+                } else if (is_object($value)) {
                     $value = "object(".get_class($value).")";
                 }
             }
