@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManager;
 
 class TestHelper
 {
-    const TEST_EMAIL = 'test@mail.com';
+    const TEST_EMAIL = 'test@example.com';
     const TEST_TOKEN = 'test_token';
     /**
      * @param integer $count

@@ -39,7 +39,7 @@ class AzineEmailController extends Controller
             $emailsArray[$key]['token'] = $email->getToken();
         }
 
-        $pagination = $this->get('knp_paginator')->paginate($emailsArray, $request->query->get('page', 1));
+        $pagination = $this->get('knp_paginator')->paginate($emailsArray, $request->query->get('page', 1), $request->query->get('limit', 10));
 
         return $this->render('AzineEmailBundle::emailsDashboard.html.twig',
             ['form' => $form->createView(), 'pagination' => $pagination ]);

@@ -91,7 +91,10 @@ the directory where your `composer.json` file is located:
 php composer.phar update
 ```
 Now, Composer will automatically download all required files, and install them for you. 
-All that is left to do is to update your AppKernel.php file, and register the new bundle:
+All that is left to do is to update your AppKernel.php file, and register the new bundle.
+AzineEmailBundle has a dependency on KnpPaginatorBundle, so it`s also nessesary to add it to AppKernel.php 
+file after installing.
+
 
 ```php
 <?php
@@ -100,18 +103,6 @@ All that is left to do is to update your AppKernel.php file, and register the ne
 $bundles = array(
     // ...
     new Azine\EmailBundle\AzineEmailBundle(),
-    // ...
-);
-```
-
-AzineEmailBundle has a dependency on KnpPaginatorBundle, so it`s also nessesary to add it to AppKernel.php file after installing
-
-```php
-<?php
-
-// in AppKernel::registerBundles()
-$bundles = array(
-    // ...
     new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
     // ...
 );

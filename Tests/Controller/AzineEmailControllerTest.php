@@ -38,14 +38,24 @@ class AzineEmailControllerTest extends WebTestCase
 
         $testSentEmails = $sentEmailRep->search(['recipients' => TestHelper::TEST_EMAIL]);
 
+        $pageLimit = 10;
 
-        if (count($testSentEmails) == 0) {
+        if (count($testSentEmails) == 0 || count($testSentEmails) < $pageLimit) {
 
-            TestHelper::addSentEmails($manager);
+            $amountToAdd = $pageLimit * 2;
+            TestHelper::addSentEmails($manager, $amountToAdd);
         }
 
-        $listUrl = substr($this->getRouter()->generate("azine_admin_email_dashboard", array('_locale' => "en")), 13);
+        $testSentEmails = $sentEmailRep->search();
+
+        $listUrl = substr($this->getRouter()->generate("azine_admin_email_dashboard", array('_locale' => "en", 'limit' => $pageLimit)), 13);
         $crawler = $this->loginUserIfRequired($client, $listUrl);
+
+        $this->assertEquals($pageLimit, $crawler->filter(".sentEmail")->count(), "emailsDashboard expected with .".$pageLimit." sent emails");
+
+        $numberOfPaginationLinks = floor(count($testSentEmails) / $pageLimit);
+
+        $this->assertEquals($numberOfPaginationLinks, $crawler->filter(".pagination .page")->count() + $crawler->filter(".pagination .current")->count(),$numberOfPaginationLinks . " pagination links expected");
 
         //click on an email web view link to get to the web page
         $link = $crawler->filter(".sentEmail:contains('".EmailTemplateProvider::NEWSLETTER_TEMPLATE."')")->first()->filter("td")->last()->filter("a")->first()->link();
@@ -53,7 +63,7 @@ class AzineEmailControllerTest extends WebTestCase
 
         $this->assertEquals(1, $crawler->filter("span:contains('_az.email.hello')")->count(), " div with hello message expected.");
 
-        $crawler = $this->loginUserIfRequired($client, $listUrl);
+        $crawler = $client->request("GET", $listUrl);
 
         //Test filtering by email
         $crawler = $crawler->selectButton('sentEmail[save]');
@@ -70,7 +80,7 @@ class AzineEmailControllerTest extends WebTestCase
 
         $this->assertEquals(1, $crawler->filter("tr:contains('".TestHelper::TEST_EMAIL."')")->count(),"Table cell with ".TestHelper::TEST_EMAIL." expected");
 
-        $crawler = $this->loginUserIfRequired($client, $listUrl);
+        $crawler = $client->request("GET", $listUrl);
 
         $form['sentEmail[recipients]'] = '';
         $crawler = $client->submit($form);
