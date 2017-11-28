@@ -26,6 +26,10 @@
         <source>email.dashboard.filter.button.label</source>
         <target>Filter</target>
       </trans-unit>
+      <trans-unit id="5ba1d041f4fa38653872b3006ed590e4f2a66e82" resname="email.dashboard.form.clear.button.label">
+        <source>email.dashboard.form.clear.button.label</source>
+        <target>Clear filters</target>
+      </trans-unit>
       <trans-unit id="b9e935140c1e003e92226926606053159cb8d6f8" resname="email.dashboard.label">
         <source>email.dashboard.label</source>
         <target>Emails Dashboard</target>
@@ -53,6 +57,14 @@
       <trans-unit id="5eae5761d5e943fe19c1a6664872c94f4bc8ac3a" resname="email.dashboard.token.label">
         <source>email.dashboard.token.label</source>
         <target>Token</target>
+      </trans-unit>
+      <trans-unit id="c001a5f222392b068614726e5f24f50a5fd8dbcf" resname="email.dashboard.variables.click.to.close">
+        <source>email.dashboard.variables.click.to.close</source>
+        <target>Click here to close</target>
+      </trans-unit>
+      <trans-unit id="96bf95745d42eab6c7133267b794f9be5211b0f2" resname="email.dashboard.variables.click.to.show">
+        <source>email.dashboard.variables.click.to.show</source>
+        <target>Click here to show details.</target>
       </trans-unit>
       <trans-unit id="a7fd0798c64247348ae81ab22cd384e21ac182d0" resname="email.dashboard.variables.label">
         <source>email.dashboard.variables.label</source>

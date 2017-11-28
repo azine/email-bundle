@@ -39,6 +39,7 @@ class AzineEmailTwigExtension extends \Twig_Extension
         $filters[] = new \Twig_SimpleFilter('urlEncodeText', array($this, 'urlEncodeText'), array('is_safe' => array('html')));
         $filters[] = new \Twig_SimpleFilter('addCampaignParamsForTemplate', array($this, 'addCampaignParamsForTemplate'), array('is_safe' => array('html')));
         $filters[] = new \Twig_SimpleFilter('stripAndConvertTags', array($this, 'stripAndConvertTags'), array('is_safe' => array('html')));
+        $filters[] = new \Twig_SimpleFilter('printVars', array($this, 'printVars'));
         return $filters;
     }
 
@@ -170,5 +171,28 @@ class AzineEmailTwigExtension extends \Twig_Extension
         $txt = preg_replace("/[[:blank:]]\n/", "\n", $txt);
         $txt = html_entity_decode($txt);
         return $txt;
+    }
+
+    public function printVars(array $vars, $allDetails = false, $indent = ""){
+        $output = "";
+        $defaultIndent = "    ";
+        ksort($vars);
+        foreach ($vars as $key => $value){
+            if (is_array($value)){
+                if($allDetails) {
+                    $value = "\n" . $this->printVars($value, $allDetails, $indent.$defaultIndent);
+                } else {
+                    $value = "array(".sizeof($value).")";
+                }
+            } else if (is_object($value)) {
+                if($allDetails) {
+                    $value = "\n" . $this->printVars((array) $value, $allDetails, $indent.$defaultIndent);
+                } else {
+                    $value = "object(".get_class($value).")";
+                }
+            }
+            $output .= "$indent $key: $value\n";
+        }
+        return $output;
     }
 }
