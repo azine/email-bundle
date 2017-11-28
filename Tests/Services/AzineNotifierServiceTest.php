@@ -135,7 +135,8 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase
         $notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
         $sentMails = $notifier->sendNotifications($failedAddresses);
         $this->assertEquals(1, sizeof($failedAddresses), "One failed address was expected.");
-        $this->assertEquals(sizeof($recipientIds)-sizeof($failedAddresses), $sentMails, "Not the right number of emails has been sent successfully. Expected ".sizeof($recipientIds)-sizeof($failedAddresses));
+        $sentMailCount = count($recipientIds) - count($failedAddresses);
+        $this->assertEquals($sentMailCount, $sentMails, "Not the right number of emails has been sent successfully. Expected $sentMailCount");
 
     }
 
