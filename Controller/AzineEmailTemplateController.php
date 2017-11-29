@@ -160,7 +160,7 @@ class AzineEmailTemplateController extends Controller
 
                 $campaignParams = $templateProvider->getCampaignParamsFor($template, $emailVars);
 
-                if (sizeof($campaignParams) > 0) {
+                if ($campaignParams != null && sizeof($campaignParams) > 0) {
                     $response->setContent($this->get("azine.email.bundle.twig.filters")->addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
                 }
 
