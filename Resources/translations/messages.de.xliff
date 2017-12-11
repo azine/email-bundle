@@ -142,6 +142,49 @@
         <source>web.view.mail.not.available.title</source>
         <target>Email nicht gefunden!</target>
       </trans-unit>
+
+      <trans-unit id="3dtcx8jdffgdsfd2sthvj119c9pmhttuvzdy57j9" resname="email.dashboard.label">
+        <source state="new">email.dashboard.label</source>
+        <target>E-Mail Dashboard</target>
+      </trans-unit>
+      <trans-unit id="235897fsdffgdsfdgf8ba119c949e465f2ac25ao" resname="email.dashboard.recipients.label">
+        <source state="new">email.dashboard.recipients.label</source>
+        <target>Empfänger</target>
+      </trans-unit>
+      <trans-unit id="45y77f471ad584c318ba119c949e465f2acmkui6" resname="email.dashboard.template.label">
+        <source state="new">email.dashboard.template.label</source>
+        <target>Schablone</target>
+      </trans-unit>
+      <trans-unit id="9975ge7f471ad584c318ba1c949e4782694kj6ds" resname="email.dashboard.sent.label">
+        <source state="new">email.dashboard.sent.label</source>
+        <target>Senden Sie Datum</target>
+      </trans-unit>
+      <trans-unit id="88yh8f471ad584c318ba119c949e465f2poomvt5" resname="email.dashboard.variables.label">
+        <source state="new">email.dashboard.variables.label</source>
+        <target>Variable</target>
+      </trans-unit>
+      <trans-unit id="erterthg1ad584c318ba119c9lt78jk345dvg2fz" resname="email.dashboard.token.label">
+        <source state="new">email.dashboard.token.label</source>
+        <target>Token</target>
+      </trans-unit>
+
+      <trans-unit id="09kn53gerthg1ad584i119c9lt78jk345dv3xqp6" resname="email.dashboard.show.button.label">
+        <source state="new">email.dashboard.token.label</source>
+        <target>Anzeigen</target>
+      </trans-unit>
+      <trans-unit id="12dcr554nfvker73nkdnpw74h2ms9c949enhewz3" resname="email.dashboard.details.button.label">
+        <source state="new">email.dashboard.token.label</source>
+        <target>Detail</target>
+      </trans-unit>
+      <trans-unit id="71b8f24fenfvker73nkdnpfvv45ms9c936544bd3" resname="email.dashboard.loading">
+        <source state="new">email.dashboard.token.label</source>
+        <target>Laden</target>
+      </trans-unit>
+      <trans-unit id="951cgitjmnfvker73nkderf445gt49c93852rf12" resname="email.dashboard.filter.button.label">
+        <source state="new">email.dashboard.filter.button.label</source>
+        <target>Filtern</target>
+      </trans-unit>
+      Filter
     </body>
   </file>
 </xliff>
