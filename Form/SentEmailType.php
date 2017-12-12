@@ -14,11 +14,13 @@ class SentEmailType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->setMethod('GET');
-        $builder->add('recipients', 'text', array('label' => false, 'required' => false));
-        $builder->add('template', 'text', array('label' => false, 'required' => false));
-        $builder->add('sent', 'text', array('label' => false, 'required' => false));
-        $builder->add('variables', 'text', array('label' => false, 'required' => false));
-        $builder->add('token', 'text', array('label' => false, 'required' => false));
+        $builder->add('recipients', 'text', ['label' => false, 'required' => false]);
+        $builder->add('template', 'text', ['label' => false, 'required' => false]);
+        $builder->add('sent', 'text', ['label' => false, 'required' => false]);
+        $builder->add('variables', 'text', ['label' => false, 'required' => false]);
+        $builder->add('token', 'text', ['label' => false, 'required' => false]);
+
+        $builder->add('filter', 'submit', ['label' => 'email.dashboard.filter.button.label', 'attr' => ['class' => 'button']]);
 
         $builder->add('save', 'submit', array('label' => 'email.dashboard.filter.button.label', 'attr' => array('class' => 'button')));
     }

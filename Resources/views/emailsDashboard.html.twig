@@ -13,6 +13,35 @@
             height: 50%;
             overflow-y: scroll;
         }
+        #reveal{
+            width: 80%;
+            height: 80%;
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10000;
+            border: 1px solid black;
+            background-color: white;
+            display: none;
+            margin: auto;
+        }
+        .clickToClose{
+            height: 35px;
+            padding:5px;
+            vertical-align: middle;
+            border-bottom: 1px solid black;
+            background-color: lightgrey;
+        }
+        .clickToClose span{
+            float: right;
+            text-align: right;
+        }
+        .variables{
+            overflow-y: scroll;
+            height:100%;
+        }
 
     </style>
 {% endblock %}
@@ -20,33 +49,44 @@
 {% block javascripts -%}
     {{ parent() }}
     <script type="text/javascript">
-
-        function callIframe(url) {
-            $('#modal').html('<iframe id="myid" style="width:100%;height:100%;" />');
-            $('iframe#myid').attr('src', url);
-            $('iframe#myid').load();
-        }
-
-        $(".actionButton").click(function(e) {
+        $(".showDetailsButton, .showWebViewButton, .showWebViewLink").click(function(e) {
 
             e.preventDefault();
-            callIframe($(this).attr('href'));
+            $('#modal').html('<iframe id="myid" style="width:100%;height:100%;" />');
+            $('iframe#myid').attr('src', $(this).attr('href'));
+            $('iframe#myid').load();
         });
 
         $( document ).ready(function() {
-
             if($(".sentEmail").length == 1)
             {
                 $( ".sentEmail .showWebViewButton" ).click();
             }
+
+            $("td.variables").click(function(){
+                $("#reveal .variables").html($(this).attr('title'));
+                $("#reveal").css('display', "block");
+            });
+            $("#reveal .clickToClose").click(function(){
+                $("#reveal").hide();
+            });
+            $(".clearButton").click(function () {
+                $("input").val("");
+            });
         });
 
     </script>
 {% endblock javascripts %}
 {% block body %}
+    <div id="reveal">
+        <div class="clickToClose">{{ 'email.dashboard.variables.label'|trans }}
+            <span>{{ 'email.dashboard.variables.click.to.close' | trans }} x&nbsp;</span>
+        </div>
+        <div class="variables"></div>
+    </div>
     <div class='overflowScrollY'>
         <h1>{{'email.dashboard.label'|trans }}</h1>
-        <table class="table table-striped" style="margin: 0 auto">
+        <table class="table table-striped">
             <thead>
             <tr>
                 <th>{{ 'email.dashboard.recipients.label'|trans }}</th>
@@ -66,18 +106,23 @@
                 <td>{{ form_row(form.sent) }}</td>
                 <td>{{ form_row(form.variables) }}</td>
                 <td>{{ form_row(form.token) }}</td>
-                <td>{{ form_row(form.save) }}</td>
+                <td>{{ form_row(form.filter) }} <a class="button clearButton">{{ 'email.dashboard.form.clear.button.label' | trans }}</a></td>
             </tr>
-
             {{ form_end(form) }}
             </tbody>
             {% for email in pagination %}
                 <tr class="sentEmail">
-                    <td>{{ email.recipients }}</td>
+                    <td>{{ email.recipients | join(', ') }}</td>
                     <td>{{ email.template }}</td>
-                    <td>{{ email.sent }}</td>
-                    <td>{{ email.variables }}</td>
-                    <td>{{ email.token }}</td>
+                    <td>{{ email.sent | date("j. F Y H:i") }}</td>
+                    <td class="variables" {#title="{{ email.variables | printVars(true) }}"#}>
+                        {{ 'email.dashboard.variables.click.to.show' | trans }}
+                    </td>
+                    <td>
+                        <a class="showWebViewLink" href="{{ path('azine_email_webview', {'token': email.token}) }}">
+                            {{ email.token }}
+                        </a>
+                    </td>
                     <td>
                         <a class = "actionButton button showWebViewButton" href="{{ path('azine_email_webview', {'token': email.token}) }}">{{ 'email.dashboard.show.button.label'|trans }}</a>
                         <a class = "actionButton button showDetailsButton" href="{{ path('azine_admin_email_details_by_token', {'token': email.token}) }}">{{ 'email.dashboard.details.button.label'|trans }}</a>
