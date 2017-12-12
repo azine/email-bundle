@@ -1,22 +1,9 @@
 <?php
 namespace Azine\EmailBundle\Tests\Controller;
-use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-use Azine\EmailBundle\Services\AzineEmailTwigExtension;
-use Azine\EmailBundle\Services\Pagination;
-use Azine\EmailBundle\Tests\FindInFileUtil;
+use Azine\EmailBundle\Entity\Repositories\SentEmailRepository;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
-use Azine\EmailBundle\Entity\SentEmail;
-use Azine\EmailBundle\Controller\AzineEmailTemplateController;
-use Azine\PlatformBundle\Services\EmailTemplateProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
-use Symfony\Component\HttpFoundation\ParameterBag;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -34,39 +21,39 @@ class AzineEmailControllerTest extends WebTestCase
         $client->followRedirects();
 
         $manager = $this->getEntityManager();
+        /** @var SentEmailRepository $sentEmailRep */
         $sentEmailRep = $manager->getRepository("Azine\EmailBundle\Entity\SentEmail");
 
-        $testSentEmails = $sentEmailRep->search(['recipients' => TestHelper::TEST_EMAIL]);
-
+        $testSentEmails = $sentEmailRep->search(['recipients' => TestHelper::TEST_EMAIL, 'template' => AzineTemplateProvider::NEWSLETTER_TEMPLATE])->getArrayResult();
         $pageLimit = 10;
 
-        if (count($testSentEmails) == 0 || count($testSentEmails) < $pageLimit) {
+        if (count($testSentEmails) < $pageLimit) {
 
-            $amountToAdd = $pageLimit * 2;
+            $amountToAdd = ($pageLimit * 2) + 2 ;
             TestHelper::addSentEmails($manager, $amountToAdd);
         }
 
-        $testSentEmails = $sentEmailRep->search();
+        $testSentEmails = $sentEmailRep->search(['template' => AzineTemplateProvider::NEWSLETTER_TEMPLATE])->getArrayResult();
 
-        $listUrl = substr($this->getRouter()->generate("azine_admin_email_dashboard", array('_locale' => "en", 'limit' => $pageLimit)), 13);
+        $listUrl = substr($this->getRouter()->generate("azine_admin_email_dashboard", array('_locale' => "en", 'limit' => $pageLimit, 'sentEmail[template]' => AzineTemplateProvider::NEWSLETTER_TEMPLATE)), 13);
         $crawler = $this->loginUserIfRequired($client, $listUrl);
 
-        $this->assertEquals($pageLimit, $crawler->filter(".sentEmail")->count(), "emailsDashboard expected with .".$pageLimit." sent emails");
+        $this->assertEquals($pageLimit, $crawler->filter(".sentEmail")->count(), "emailsDashboard expected with ".$pageLimit." sent emails");
 
-        $numberOfPaginationLinks = floor(count($testSentEmails) / $pageLimit);
+        $numberOfPaginationLinks = ceil(count($testSentEmails) / $pageLimit);
 
         $this->assertEquals($numberOfPaginationLinks, $crawler->filter(".pagination .page")->count() + $crawler->filter(".pagination .current")->count(),$numberOfPaginationLinks . " pagination links expected");
 
         //click on an email web view link to get to the web page
-        $link = $crawler->filter(".sentEmail:contains('".EmailTemplateProvider::NEWSLETTER_TEMPLATE."')")->first()->filter("td")->last()->filter("a")->first()->link();
+        $link = $crawler->filter(".sentEmail:contains('".AzineTemplateProvider::NEWSLETTER_TEMPLATE."')")->filter("a.showWebViewButton")->link();
         $crawler = $client->click($link);
 
-        $this->assertEquals(1, $crawler->filter("span:contains('_az.email.hello')")->count(), " div with hello message expected.");
+        $this->assertEquals(1, $crawler->filter("span:contains('Hello')")->count(), " div with hello message expected.");
 
         $crawler = $client->request("GET", $listUrl);
 
-        //Test filtering by email
-        $crawler = $crawler->selectButton('sentEmail[save]');
+        // Test filtering by email
+        $crawler = $crawler->selectButton('sentEmail[filter]');
         $form = $crawler->form();
         $form['sentEmail[recipients]'] = TestHelper::TEST_EMAIL;
         $crawler = $client->submit($form);
@@ -75,15 +62,15 @@ class AzineEmailControllerTest extends WebTestCase
 
 
         //click on email details view link to get to the details page
-        $link = $crawler->filter(".sentEmail:contains('".TestHelper::TEST_EMAIL."')")->first()->filter("td")->last()->filter("a")->last()->link();
+        $link = $crawler->filter(".sentEmail:contains('".TestHelper::TEST_EMAIL."')")->filter("a.showDetailsButton")->link();
         $crawler = $client->click($link);
 
         $this->assertEquals(1, $crawler->filter("tr:contains('".TestHelper::TEST_EMAIL."')")->count(),"Table cell with ".TestHelper::TEST_EMAIL." expected");
 
-        $crawler = $client->request("GET", $listUrl);
+        $client->request("GET", $listUrl);
 
         $form['sentEmail[recipients]'] = '';
-        $crawler = $client->submit($form);
+        $client->submit($form);
 
         //Test filtering by token
         $form['sentEmail[token]'] = TestHelper::TEST_TOKEN;

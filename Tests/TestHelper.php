@@ -9,8 +9,11 @@ class TestHelper
 {
     const TEST_EMAIL = 'test@example.com';
     const TEST_TOKEN = 'test_token';
+
     /**
-     * @param integer $count
+     * @param EntityManager $manager
+     * @param int $count
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public static function addSentEmails(EntityManager $manager, $count = 1)
     {
