@@ -77,7 +77,6 @@ class AzineEmailControllerTest extends WebTestCase
         $crawler = $client->submit($form);
 
         $this->assertEquals($crawler->filter(".sentEmail")->count(), $crawler->filter(".sentEmail:contains('".TestHelper::TEST_TOKEN."')")->count(),"Table row only with ".TestHelper::TEST_TOKEN." token is expected");
-
     }
 
     /**
