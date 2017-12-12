@@ -15,12 +15,17 @@
             <td>{{ email.sent|date("Y-m-d H:i") }}</td>
         </tr>
         <tr>
-            <td>{{ 'email.dashboard.variables.label'|trans }}</td>
-            <td>{{ variables }}</td>
-        </tr>
-        <tr>
             <td>{{ 'email.dashboard.token.label'|trans }}</td>
             <td>{{ email.token }}</td>
+        </tr>
+        <tr>
+            <td>{{ 'email.dashboard.variables.label'|trans }}</td>
+            <td><pre>
+                    <small>
+                    {{ email.variables | printVars(true) }}
+                    </small>
+                </pre>
+            </td>
         </tr>
     </table>
 
