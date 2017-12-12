@@ -53,7 +53,7 @@ class AzineEmailControllerTest extends WebTestCase
 
         $this->assertEquals($pageLimit, $crawler->filter(".sentEmail")->count(), "emailsDashboard expected with .".$pageLimit." sent emails");
 
-        $numberOfPaginationLinks = floor(count($testSentEmails) / $pageLimit);
+        $numberOfPaginationLinks = ceil(count($testSentEmails) / $pageLimit);
 
         $this->assertEquals($numberOfPaginationLinks, $crawler->filter(".pagination .page")->count() + $crawler->filter(".pagination .current")->count(),$numberOfPaginationLinks . " pagination links expected");
 
@@ -90,7 +90,6 @@ class AzineEmailControllerTest extends WebTestCase
         $crawler = $client->submit($form);
 
         $this->assertEquals($crawler->filter(".sentEmail")->count(), $crawler->filter(".sentEmail:contains('".TestHelper::TEST_TOKEN."')")->count(),"Table row only with ".TestHelper::TEST_TOKEN." token is expected");
-
     }
 
     /**
