@@ -12,6 +12,7 @@ class TestHelper
     const TEST_TOKEN = 'test_token';
 
     /**
+     * @param EntityManager $manager
      * @param int $count
      */
     public static function addSentEmails(EntityManager $manager, $count = 1)
