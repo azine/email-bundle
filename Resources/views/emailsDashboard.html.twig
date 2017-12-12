@@ -7,11 +7,22 @@
             padding:0;
             margin:0;
             height:100%;
+            overflow-y: hidden;
         }
-        .overflowScrollY{
-            width: 100%;
+        .emailDetails{
             height: 50%;
+        }
+        .emailList{
+            position: relative;
+            height: 50%;
+        }
+        .emailTable{
+            height: calc(100% - 115px);
             overflow-y: scroll;
+        }
+        .emailPagination{
+            position: absolute;
+            bottom: 0px;
         }
         #reveal{
             width: 80%;
@@ -40,7 +51,7 @@
         }
         .variables{
             overflow-y: scroll;
-            height:100%;
+            height:calc(100% - 35px);
         }
 
     </style>
@@ -64,7 +75,7 @@
             }
 
             $("td.variables").click(function(){
-                $("#reveal .variables").html($(this).attr('title'));
+                $("#reveal .variables pre small").html($(this).attr('title'));
                 $("#reveal").css('display', "block");
             });
             $("#reveal .clickToClose").click(function(){
@@ -82,11 +93,17 @@
         <div class="clickToClose">{{ 'email.dashboard.variables.label'|trans }}
             <span>{{ 'email.dashboard.variables.click.to.close' | trans }} x&nbsp;</span>
         </div>
-        <div class="variables"></div>
+        <div class="variables">
+            <pre>
+                <small>
+                </small>
+            </pre>
+        </div>
     </div>
-    <div class='overflowScrollY'>
+    <div class="emailList">
         <h1>{{'email.dashboard.label'|trans }}</h1>
-        <table class="table table-striped">
+        <div class="emailTable">
+            <table class="table table-striped">
             <thead>
             <tr>
                 <th>{{ 'email.dashboard.recipients.label'|trans }}</th>
@@ -115,7 +132,7 @@
                     <td>{{ email.recipients | join(', ') }}</td>
                     <td>{{ email.template }}</td>
                     <td>{{ email.sent | date("j. F Y H:i") }}</td>
-                    <td class="variables" {#title="{{ email.variables | printVars(true) }}"#}>
+                    <td class="variables" title="{{ email.variables | printVars(true) }}">
                         {{ 'email.dashboard.variables.click.to.show' | trans }}
                     </td>
                     <td>
@@ -131,11 +148,12 @@
             {% endfor %}
             </tbody>
         </table>
+        </div>
+        <div class="emailPagination">
         {{ knp_pagination_render(pagination) }}
+        </div>
     </div>
-
-    <hr/>
-    <div id="modal" class="overflowScrollY">
+    <div id="modal" class="emailDetails">
         <div class ="loading"></div>
     </div>
 {% endblock %}
