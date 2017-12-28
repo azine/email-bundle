@@ -15,10 +15,9 @@ env:
   - SYMFONY_VERSION=3.4.*
   - SYMFONY_VERSION=4.0.*
   - SYMFONY_VERSION=dev-master
+  -COMPOSER_FLAGS="--prefer-lowest"
 
 matrix:
-  include:
-    - env: COMPOSER_FLAGS="--prefer-lowest"
   exclude:
     - php: 5.6
       env: SYMFONY_VERSION=4.0.*
