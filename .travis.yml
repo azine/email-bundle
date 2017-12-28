@@ -19,7 +19,7 @@ env:
 matrix:
   include:
     - php: 5.6
-      env: COMPOSER_FLAGS="--prefer-lowest"
+      env: SYMFONY_VERSION=2.7.* COMPOSER_FLAGS="--prefer-lowest"
   exclude:
     - php: 5.6
       env: SYMFONY_VERSION=4.0.*
