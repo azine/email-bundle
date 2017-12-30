@@ -18,9 +18,41 @@ env:
 
 matrix:
   include:
-      env:
+    - env:
         - SYMFONY_VERSION=2.7.*
         - dependencies=lowest
+
+    - env:
+        - SYMFONY_VERSION=2.8.*
+        - dependencies=lowest
+
+    - env:
+        - SYMFONY_VERSION=3.0.*
+        - dependencies=lowest
+
+    - env:
+        - SYMFONY_VERSION=3.1.*
+        - dependencies=lowest
+
+    - env:
+        - SYMFONY_VERSION=3.2.*
+        - dependencies=lowest
+
+    - env:
+        - SYMFONY_VERSION=3.3.*
+        - dependencies=lowest
+    - env:
+        - SYMFONY_VERSION=3.4.*
+        - dependencies=lowest
+
+    - env:
+        - SYMFONY_VERSION=4.0.*
+        - dependencies=lowest
+
+    - env:
+        - SYMFONY_VERSION=dev-master
+        - dependencies=lowest
+
   exclude:
     - php: 5.6
       env: SYMFONY_VERSION=4.0.*
