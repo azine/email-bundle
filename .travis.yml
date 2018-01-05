@@ -22,37 +22,6 @@ matrix:
         - SYMFONY_VERSION=2.7.*
         - dependencies=lowest
 
-    - env:
-        - SYMFONY_VERSION=2.8.*
-        - dependencies=lowest
-
-    - env:
-        - SYMFONY_VERSION=3.0.*
-        - dependencies=lowest
-
-    - env:
-        - SYMFONY_VERSION=3.1.*
-        - dependencies=lowest
-
-    - env:
-        - SYMFONY_VERSION=3.2.*
-        - dependencies=lowest
-
-    - env:
-        - SYMFONY_VERSION=3.3.*
-        - dependencies=lowest
-    - env:
-        - SYMFONY_VERSION=3.4.*
-        - dependencies=lowest
-
-    - env:
-        - SYMFONY_VERSION=4.0.*
-        - dependencies=lowest
-
-    - env:
-        - SYMFONY_VERSION=dev-master
-        - dependencies=lowest
-
   exclude:
     - php: 5.6
       env: SYMFONY_VERSION=4.0.*
@@ -83,7 +52,7 @@ before_script:
   - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
 
 script:
-  - travis_wait vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover /home/travis/build/eugene-o-z/email-bundle/Tests/
+  - travis_wait vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover /home/travis/build/azine/email-bundle/Tests/
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
   - php vendor/friendsofphp/php-cs-fixer/php-cs-fixer --diff --dry-run -v fix --config=.php_cs.dist ./
