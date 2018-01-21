@@ -178,7 +178,7 @@ class AzineEmailTwigExtension extends \Twig_Extension
         $defaultIndent = "    ";
         ksort($vars);
         foreach ($vars as $key => $value){
-            if($allDetails) {
+            if($allDetails && !((array) $value == $vars)) { // avoid infinite recursion
                 $value = "\n" . $this->printVars((array) $value, $allDetails, $indent.$defaultIndent);
             } else {
                 if (is_array($value)){
