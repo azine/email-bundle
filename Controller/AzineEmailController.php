@@ -23,7 +23,7 @@ class AzineEmailController extends Controller
      */
     public function emailsDashboardAction(Request $request)
     {
-        $form = $this->createForm(new SentEmailType());
+        $form = $this->createForm(SentEmailType::class);
         $form->handleRequest($request);
         $searchParams = $form->getData();
         /** @var SentEmailRepository $repository */
