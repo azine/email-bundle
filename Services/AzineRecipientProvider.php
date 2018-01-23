@@ -30,6 +30,7 @@ class AzineRecipientProvider implements RecipientProviderInterface
         $this->newsletterField = $newsletterField;
     }
 
+
     /**
      * (non-PHPdoc)
      * @see Azine\EmailBundle\Services.RecipientProviderInterface::getRecipient()

@@ -2,7 +2,13 @@
 imports:
     - javascript
     - php   
-    
+
+checks:
+    php: true
+
 tools:
     external_code_coverage:
         timeout: 1200 # Timeout 20min in seconds.
+
+    php_cs_fixer:
+        config: { level: psr2 } # or psr1 if you would just like to get fixes for PSR1
