@@ -66,8 +66,8 @@ class SendNotificationsCommandTest extends \PHPUnit_Framework_TestCase
         $appDirectory = dirname($reflector->getFileName());
 
         // start commands in a separate processes
-        $process1 = new Process("php $appDirectory/console $commandName --env=test");
-        $process2 = new Process("php $appDirectory/console $commandName --env=test");
+        $process1 = new Process("php $appDirectory/../bin/console $commandName --env=test");
+        $process2 = new Process("php $appDirectory/../bin/console $commandName --env=test");
         $process1->start();
         $process2->start();
 
