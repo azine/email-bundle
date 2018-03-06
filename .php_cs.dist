@@ -8,7 +8,6 @@ return PhpCsFixer\Config::create()
         'linebreak_after_opening_tag' => true,
         'no_php4_constructor' => true,
         'no_useless_else' => true,
-        'ordered_class_elements' => true,
         'ordered_imports' => true,
         'php_unit_construct' => true,
         'php_unit_strict' => true,
