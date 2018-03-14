@@ -1,4 +1,5 @@
 <?php
+
 namespace Azine\EmailBundle\Tests\DependencyInjection;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
@@ -11,7 +12,7 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
     protected $configuration;
 
     /**
-     * This should not throw an exception
+     * This should not throw an exception.
      */
     public function testMinimalConfig()
     {
@@ -21,7 +22,7 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This should not throw an exception
+     * This should not throw an exception.
      */
     public function testFullConfig()
     {
@@ -31,7 +32,8 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This should throw an exception
+     * This should throw an exception.
+     *
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
     public function testConfigWithMissingRecipientClass()
@@ -43,7 +45,8 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This should throw an exception
+     * This should throw an exception.
+     *
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
     public function testConfigWithMissingTemplateProvider()
@@ -55,7 +58,8 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This should throw an exception
+     * This should throw an exception.
+     *
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
     public function testConfigWithMissingEmailAddress()
@@ -67,7 +71,8 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This should throw an exception
+     * This should throw an exception.
+     *
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
     public function testConfigWithMissingEmailName()
@@ -79,7 +84,8 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This should throw an exception
+     * This should throw an exception.
+     *
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
     public function testConfigWithMissingEmail()
@@ -95,31 +101,31 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
         $this->configuration = new ContainerBuilder();
         $loader = new AzineEmailExtension();
         $config = $this->getFullConfig();
-        $config['recipient_class'] 				= 'TestRecipientClass';
-        $config['recipient_newsletter_field'] 	= 'some_field';
-        $config['template_provider'] 			= 'TestTemplateProvider';
-        $config['notifier_service'] 			= 'TestNotifierService';
-        $config['recipient_provider']			= 'TestRecipientService';
-        $config['template_twig_swift_mailer'] 	= 'TestTwigSwiftMailer';
-        $config['no_reply']['email'] 			= 'test@email.com';
-        $config['no_reply']['name'] 			= 'test name';
-        $config['image_dir'] 					= '/tmp';
+        $config['recipient_class'] = 'TestRecipientClass';
+        $config['recipient_newsletter_field'] = 'some_field';
+        $config['template_provider'] = 'TestTemplateProvider';
+        $config['notifier_service'] = 'TestNotifierService';
+        $config['recipient_provider'] = 'TestRecipientService';
+        $config['template_twig_swift_mailer'] = 'TestTwigSwiftMailer';
+        $config['no_reply']['email'] = 'test@email.com';
+        $config['no_reply']['name'] = 'test name';
+        $config['image_dir'] = '/tmp';
 
         $loader->load(array($config), $this->configuration);
 
-        $this->assertParameter('TestRecipientClass',	'azine_email_recipient_class');
-        $this->assertParameter('some_field',			'azine_email_recipient_newsletter_field');
+        $this->assertParameter('TestRecipientClass', 'azine_email_recipient_class');
+        $this->assertParameter('some_field', 'azine_email_recipient_newsletter_field');
 
         $mailArray = $this->configuration->getParameter('azine_email_no_reply');
-        $this->assertEquals('test name',		$mailArray['name'], "The no-reply-name is not correct.");
-        $this->assertEquals('test@email.com',	$mailArray['email'], "The no-reply-email is not correct.");
+        $this->assertSame('test name', $mailArray['name'], 'The no-reply-name is not correct.');
+        $this->assertSame('test@email.com', $mailArray['email'], 'The no-reply-email is not correct.');
 
-        $this->assertParameter('/tmp',					'azine_email_image_dir');
+        $this->assertParameter('/tmp', 'azine_email_image_dir');
 
-        $this->assertAlias('testtemplateprovider',		'azine_email_template_provider');
-        $this->assertAlias('testnotifierservice',		'azine_email_notifier_service');
-        $this->assertAlias('testrecipientservice',		'azine_email_recipient_provider');
-        $this->assertAlias('testtwigswiftmailer',		'azine_email_template_twig_swift_mailer');
+        $this->assertAlias('testtemplateprovider', 'azine_email_template_provider');
+        $this->assertAlias('testnotifierservice', 'azine_email_notifier_service');
+        $this->assertAlias('testrecipientservice', 'azine_email_recipient_provider');
+        $this->assertAlias('testtwigswiftmailer', 'azine_email_template_twig_swift_mailer');
     }
 
     protected function createEmptyConfiguration()
@@ -141,7 +147,8 @@ class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Get the minimal config
+     * Get the minimal config.
+     *
      * @return array
      */
     protected function getMinimalConfig()
@@ -158,7 +165,7 @@ YAML;
     }
 
     /**
-     * Get a full config for this bundle
+     * Get a full config for this bundle.
      */
     protected function getFullConfig()
     {
@@ -187,7 +194,7 @@ YAML;
      */
     private function assertAlias($value, $key)
     {
-        $this->assertEquals(strtolower($value), strtolower((string) $this->configuration->getAlias($key)), sprintf('%s alias is correct', $key));
+        $this->assertSame(strtolower($value), strtolower((string) $this->configuration->getAlias($key)), sprintf('%s alias is correct', $key));
     }
 
     /**
@@ -196,7 +203,7 @@ YAML;
      */
     private function assertParameter($value, $key)
     {
-        $this->assertEquals($value, $this->configuration->getParameter($key), sprintf('%s parameter is correct', $key));
+        $this->assertSame($value, $this->configuration->getParameter($key), sprintf('%s parameter is correct', $key));
     }
 
     /**

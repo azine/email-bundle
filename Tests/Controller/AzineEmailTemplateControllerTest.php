@@ -1,13 +1,15 @@
 <?php
+
 namespace Azine\EmailBundle\Tests\Controller;
-use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-use Azine\EmailBundle\Services\AzineEmailTwigExtension;
-use Azine\EmailBundle\Tests\FindInFileUtil;
-use Azine\EmailBundle\Services\AzineTemplateProvider;
-use Azine\EmailBundle\Entity\SentEmail;
+
 use Azine\EmailBundle\Controller\AzineEmailTemplateController;
+use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
+use Azine\EmailBundle\Entity\SentEmail;
+use Azine\EmailBundle\Services\AzineEmailTwigExtension;
+use Azine\EmailBundle\Services\AzineTemplateProvider;
+use Azine\EmailBundle\Tests\FindInFileUtil;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,93 +17,95 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
 /**
- *
  * @author d.businger
- *
  */
 class AzineEmailTemplateControllerTest extends WebTestCase
 {
     /**
-     * delete all files from spool-folder
+     * delete all files from spool-folder.
      */
     protected function setUp()
     {
     }
+
     public function renderResponseCallback($template, $params)
     {
-        if ($template == "AzineEmailBundle:Webview:index.html.twig") {
-            return new Response("indexPage-html :".print_r($params, true));
-        } elseif ($template == "AzineEmailBundle:Webview:mail.not.available.html.twig") {
-            return new Response("mail.not.available.html.twig :".print_r($params, true));
-        } elseif ($template == AzineTemplateProvider::NEWSLETTER_TEMPLATE.".html.twig") {
+        if ('AzineEmailBundle:Webview:index.html.twig' == $template) {
+            return new Response('indexPage-html :'.print_r($params, true));
+        } elseif ('AzineEmailBundle:Webview:mail.not.available.html.twig' == $template) {
+            return new Response('mail.not.available.html.twig :'.print_r($params, true));
+        } elseif ($template == AzineTemplateProvider::NEWSLETTER_TEMPLATE.'.html.twig') {
             return new Response("newsletter-html <a href='http://testurl.com/'>bla</a>&nbsp;<a href='http://testurl.com/with/?param=1'>with param</a>:".print_r($params, true));
-        } elseif ($template == AzineTemplateProvider::NEWSLETTER_TEMPLATE.".txt.twig") {
+        } elseif ($template == AzineTemplateProvider::NEWSLETTER_TEMPLATE.'.txt.twig') {
             return new Response("newsletter-text bla\n\n some url with param http://testurl.com/with/?param=1 in plain-text:".print_r($params, true));
-        } else if($template == "A")
-        throw new \Exception("unexpected template $template");
+        } elseif ('A' == $template) {
+            throw new \Exception("unexpected template $template");
+        }
     }
+
     public function testIndexAction()
     {
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->setMethods(array('get'))->getMock();
-        $requestMock->expects($this->once())->method('get')->will($this->returnValue("a-custom@email.com"));
+        $requestMock->expects($this->once())->method('get')->will($this->returnValue('a-custom@email.com'));
         $webViewServiceMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineWebViewService")->disableOriginalConstructor()->getMock();
-        $webViewServiceMock->expects($this->once())->method("getTemplatesForWebPreView")->will($this->returnValue(array(
-                array(	'url' 			=> "azine_email_web_preview/newsletter",
-                        'description'	=> "Newsletter Template",
-                        'formats' 		=> array('html','txt'),
-                        'templateId'	=> AzineTemplateProvider::NEWSLETTER_TEMPLATE,
+        $webViewServiceMock->expects($this->once())->method('getTemplatesForWebPreView')->will($this->returnValue(array(
+                array('url' => 'azine_email_web_preview/newsletter',
+                        'description' => 'Newsletter Template',
+                        'formats' => array('html', 'txt'),
+                        'templateId' => AzineTemplateProvider::NEWSLETTER_TEMPLATE,
                 ),
-                array(	'url' 			=> "azine_email_web_preview/notifications",
-                        'description'	=> "Notifications Template",
-                        'formats' 		=> array('html','txt'),
-                        'templateId'	=> AzineTemplateProvider::NOTIFICATIONS_TEMPLATE,
+                array('url' => 'azine_email_web_preview/notifications',
+                        'description' => 'Notifications Template',
+                        'formats' => array('html', 'txt'),
+                        'templateId' => AzineTemplateProvider::NOTIFICATIONS_TEMPLATE,
                 ),
         )));
-        $webViewServiceMock->expects($this->once())->method("getTestMailAccounts")->will($this->returnValue(array(
-                array('accountDescription' => "Gmail", 'accountEmail' => "some-account@gmail.com" ),
-                array('accountDescription' => "GMX", 'accountEmail' => "some-account@gmx.com" ),
+        $webViewServiceMock->expects($this->once())->method('getTestMailAccounts')->will($this->returnValue(array(
+                array('accountDescription' => 'Gmail', 'accountEmail' => 'some-account@gmail.com'),
+                array('accountDescription' => 'GMX', 'accountEmail' => 'some-account@gmx.com'),
         )));
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
-        $twigMock->expects($this->once())->method("renderResponse")->will($this->returnCallback(array($this, 'renderResponseCallback')));
+        $twigMock->expects($this->once())->method('renderResponse')->will($this->returnCallback(array($this, 'renderResponseCallback')));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(3))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(3))->method('get')->will($this->returnValueMap(array(
                 array('request', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestMock),
                 array('azine_email_web_view_service', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $webViewServiceMock),
-                array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock)
+                array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
         )));
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $controller->indexAction( $requestMock );
+        $controller->indexAction($requestMock);
     }
+
     public function testWebPreViewAction()
     {
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->setMethods(array('getLocale'))->getMock();
-        $requestMock->expects($this->exactly(3))->method("getLocale")->will($this->returnValue("en"));
+        $requestMock->expects($this->exactly(3))->method('getLocale')->will($this->returnValue('en'));
         $requestMock->query = new ParameterBag();
         $webViewServiceMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineWebViewService")->disableOriginalConstructor()->getMock();
-        $webViewServiceMock->expects($this->exactly(3))->method("getDummyVarsFor")->will($this->returnValue(array()));
+        $webViewServiceMock->expects($this->exactly(3))->method('getDummyVarsFor')->will($this->returnValue(array()));
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
-        $twigMock->expects($this->exactly(3))->method("renderResponse")->will($this->returnCallback(array($this, 'renderResponseCallback')));
+        $twigMock->expects($this->exactly(3))->method('renderResponse')->will($this->returnCallback(array($this, 'renderResponseCallback')));
         $emailVars = array();
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
         $templateProviderMock->expects($this->exactly(3))->method('addTemplateVariablesFor')->will($this->returnValue($emailVars));
         $templateProviderMock->expects($this->exactly(3))->method('makeImagePathsWebRelative')->will($this->returnValue($emailVars));
         $templateProviderMock->expects($this->exactly(3))->method('addTemplateSnippetsWithImagesFor')->will($this->returnValue($emailVars));
-        $templateProviderMock->expects($this->exactly(3))->method('getCampaignParamsFor')->will($this->returnValue(array("utm_campaign" => "name", "utm_medium" => "medium")));
-        $trackingCodeBuilderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailOpenTrackingCodeBuilder")->setConstructorArgs(array("http://www.google-analytics.com/?", array(
-            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME=> "utm_campaign",
-            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_TERM => "utm_term",
-            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => "utm_source",
-            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM => "utm_medium",
-            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => "utm_content",
+        $templateProviderMock->expects($this->exactly(3))->method('getCampaignParamsFor')->will($this->returnValue(array('utm_campaign' => 'name', 'utm_medium' => 'medium')));
+        $trackingCodeBuilderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailOpenTrackingCodeBuilder")->setConstructorArgs(array('http://www.google-analytics.com/?', array(
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME => 'utm_campaign',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_TERM => 'utm_term',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => 'utm_source',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM => 'utm_medium',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => 'utm_content',
         )))->getMock();
-        $trackingCodeBuilderMock->expects($this->exactly(3))->method('getTrackingImgCode')->will($this->returnValue("http://www.google-analytics.com/?"));
+        $trackingCodeBuilderMock->expects($this->exactly(3))->method('getTrackingImgCode')->will($this->returnValue('http://www.google-analytics.com/?'));
         $azineEmailTwigExtension = $this->getMockBuilder("Azine\EmailBundle\Services\AzineEmailTwigExtension")->disableOriginalConstructor()->getMock();
-        $azineEmailTwigExtension->expects($this->exactly(3))->method("addCampaignParamsToAllUrls")->will($this->returnArgument(0));
+        $azineEmailTwigExtension->expects($this->exactly(3))->method('addCampaignParamsToAllUrls')->will($this->returnArgument(0));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(24))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(24))->method('get')->will($this->returnValueMap(array(
                 array('request', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestMock),
                 array('azine_email_web_view_service', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $webViewServiceMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
@@ -109,31 +113,32 @@ class AzineEmailTemplateControllerTest extends WebTestCase
                 array('azine_email_email_open_tracking_code_builder', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $trackingCodeBuilderMock),
                 array('azine.email.bundle.twig.filters', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $azineEmailTwigExtension),
         )));
-        $containerMock->expects($this->exactly(3))->method("getParameter")->with("azine_email_no_reply")->will($this->returnValue(array('email' => "no-reply-email-mock@email.com", 'name' => 'no-reply-name')));
+        $containerMock->expects($this->exactly(3))->method('getParameter')->with('azine_email_no_reply')->will($this->returnValue(array('email' => 'no-reply-email-mock@email.com', 'name' => 'no-reply-name')));
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $controller->webPreViewAction($requestMock, AzineTemplateProvider::NEWSLETTER_TEMPLATE);
-        $controller->webPreViewAction($requestMock, AzineTemplateProvider::NEWSLETTER_TEMPLATE, "html");
-        $response = $controller->webPreViewAction($requestMock, AzineTemplateProvider::NEWSLETTER_TEMPLATE, "txt");
-        $this->assertEquals("text/plain", $response->headers->get("Content-Type"));
-        $this->assertNotContains("<!doctype", $response->getContent());
+        $controller->webPreViewAction($requestMock, AzineTemplateProvider::NEWSLETTER_TEMPLATE, 'html');
+        $response = $controller->webPreViewAction($requestMock, AzineTemplateProvider::NEWSLETTER_TEMPLATE, 'txt');
+        $this->assertSame('text/plain', $response->headers->get('Content-Type'));
+        $this->assertNotContains('<!doctype', $response->getContent());
     }
+
     public function testWebViewAction_User_access_allowed()
     {
-        $token = "fdasdfasfafsadf";
+        $token = 'fdasdfasfafsadf';
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
-        $twigMock->expects($this->once())->method("renderResponse")->will($this->returnCallback(array($this, 'renderResponseCallback')));
-        $userMail = "a-user@email.com";
+        $twigMock->expects($this->once())->method('renderResponse')->will($this->returnCallback(array($this, 'renderResponseCallback')));
+        $userMail = 'a-user@email.com';
         $userMock = $this->getMockBuilder('FOS\UserBundle\Model\User')->getMock();
-        $userMock->expects($this->once())->method("getEmail")->will($this->returnValue($userMail));
+        $userMock->expects($this->once())->method('getEmail')->will($this->returnValue($userMail));
         $sentEmail = new SentEmail();
         $sentEmail->setRecipients(array($userMail));
-        $sentEmail->setSent(new \DateTime("2 weeks ago"));
+        $sentEmail->setSent(new \DateTime('2 weeks ago'));
         $sentEmail->setTemplate(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
         $sentEmail->setVariables(array());
         $sentEmail->setToken($token);
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
-        $repositoryMock->expects($this->once())->method("findOneByToken")->will($this->returnValue($sentEmail));
+        $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
@@ -143,32 +148,33 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage")->disableOriginalConstructor()->getMock();
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
-        $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue("tokenId"));
+        $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue('tokenId'));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(5))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(5))->method('get')->will($this->returnValueMap(array(
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
                 array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
         )));
-        $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
+        $containerMock->expects($this->once())->method('has')->with('security.token_storage')->will($this->returnValue(true));
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $controller->webViewAction($requestMock, $token);
     }
+
     public function testWebViewAction_Anonymous_access_allowed()
     {
-        $token = "fdasdfasfafsadf";
+        $token = 'fdasdfasfafsadf';
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
-        $twigMock->expects($this->once())->method("renderResponse")->will($this->returnCallback(array($this, 'renderResponseCallback')));
+        $twigMock->expects($this->once())->method('renderResponse')->will($this->returnCallback(array($this, 'renderResponseCallback')));
         $sentEmail = new SentEmail();
-        $sentEmail->setSent(new \DateTime("2 weeks ago"));
+        $sentEmail->setSent(new \DateTime('2 weeks ago'));
         $sentEmail->setTemplate(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
         $sentEmail->setVariables(array());
         $sentEmail->setToken($token);
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
-        $repositoryMock->expects($this->once())->method("findOneByToken")->will($this->returnValue($sentEmail));
+        $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
@@ -178,37 +184,38 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage")->disableOriginalConstructor()->getMock();
         $tokenStorageMock->expects($this->never())->method('getToken');
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
-        $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue("tokenId"));
+        $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue('tokenId'));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(4))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(4))->method('get')->will($this->returnValueMap(array(
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
                 array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
         )));
-        $containerMock->expects($this->never())->method("has");
+        $containerMock->expects($this->never())->method('has');
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $controller->webViewAction($requestMock, $token);
     }
+
     /**
-     * @expectedException Symfony\Component\Security\Core\Exception\AccessDeniedException
+     * @expectedException \Symfony\Component\Security\Core\Exception\AccessDeniedException
      */
     public function testWebViewAction_User_access_denied()
     {
-        $token = "fdasdfasfafsadf";
-        $userMail = "an-other-user@email.com";
+        $token = 'fdasdfasfafsadf';
+        $userMail = 'an-other-user@email.com';
         $userMock = $this->getMockBuilder('FOS\UserBundle\Model\User')->getMock();
-        $userMock->expects($this->once())->method("getEmail")->will($this->returnValue($userMail));
+        $userMock->expects($this->once())->method('getEmail')->will($this->returnValue($userMail));
         $sentEmail = new SentEmail();
-        $sentEmail->setRecipients(array("someuser@email.com"));
-        $sentEmail->setSent(new \DateTime("2 weeks ago"));
+        $sentEmail->setRecipients(array('someuser@email.com'));
+        $sentEmail->setSent(new \DateTime('2 weeks ago'));
         $sentEmail->setTemplate(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
         $sentEmail->setVariables(array());
         $sentEmail->setToken($token);
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
-        $repositoryMock->expects($this->once())->method("findOneByToken")->will($this->returnValue($sentEmail));
+        $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
@@ -217,33 +224,34 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage")->disableOriginalConstructor()->getMock();
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->setMethods(array('trans'))->getMock();
-        $translatorMock->expects($this->once())->method("trans")->will($this->returnValue("translation"));
+        $translatorMock->expects($this->once())->method('trans')->will($this->returnValue('translation'));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(3))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(3))->method('get')->will($this->returnValueMap(array(
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
                 array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
                 array('translator', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $translatorMock),
         )));
-        $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
+        $containerMock->expects($this->once())->method('has')->with('security.token_storage')->will($this->returnValue(true));
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $controller->webViewAction($requestMock, $token);
     }
+
     /**
-     * @expectedException Symfony\Component\Security\Core\Exception\AccessDeniedException
+     * @expectedException \Symfony\Component\Security\Core\Exception\AccessDeniedException
      */
     public function testWebViewAction_Anonymous_Access_denied()
     {
-        $token = "fdasdfasfafsadf";
+        $token = 'fdasdfasfafsadf';
         $sentEmail = new SentEmail();
-        $sentEmail->setRecipients(array("someuser@email.com"));
-        $sentEmail->setSent(new \DateTime("2 weeks ago"));
+        $sentEmail->setRecipients(array('someuser@email.com'));
+        $sentEmail->setSent(new \DateTime('2 weeks ago'));
         $sentEmail->setTemplate(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
         $sentEmail->setVariables(array());
         $sentEmail->setToken($token);
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
-        $repositoryMock->expects($this->once())->method("findOneByToken")->will($this->returnValue($sentEmail));
+        $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
@@ -252,35 +260,36 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage")->disableOriginalConstructor()->getMock();
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->setMethods(array('trans'))->getMock();
-        $translatorMock->expects($this->once())->method("trans")->will($this->returnValue("translation"));
+        $translatorMock->expects($this->once())->method('trans')->will($this->returnValue('translation'));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(3))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(3))->method('get')->will($this->returnValueMap(array(
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
                 array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
                 array('translator', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $translatorMock),
         )));
-        $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
+        $containerMock->expects($this->once())->method('has')->with('security.token_storage')->will($this->returnValue(true));
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $controller->webViewAction($requestMock, $token);
     }
+
     public function testWebViewAction_Admin_with_CampaignParams()
     {
-        $token = "fdasdfasfafsadf";
+        $token = 'fdasdfasfafsadf';
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
-        $twigMock->expects($this->once())->method("renderResponse")->will($this->returnCallback(array($this, 'renderResponseCallback')));
+        $twigMock->expects($this->once())->method('renderResponse')->will($this->returnCallback(array($this, 'renderResponseCallback')));
         $userMock = $this->getMockBuilder('FOS\UserBundle\Model\User')->getMock();
-        $userMock->expects($this->once())->method("getEmail")->will($this->returnValue("admin@email.com"));
-        $userMock->expects($this->once())->method("hasRole")->with("ROLE_ADMIN")->will($this->returnValue(true));
+        $userMock->expects($this->once())->method('getEmail')->will($this->returnValue('admin@email.com'));
+        $userMock->expects($this->once())->method('hasRole')->with('ROLE_ADMIN')->will($this->returnValue(true));
         $sentEmail = new SentEmail();
-        $sentEmail->setRecipients(array("a-user@email.com"));
-        $sentEmail->setSent(new \DateTime("2 weeks ago"));
+        $sentEmail->setRecipients(array('a-user@email.com'));
+        $sentEmail->setSent(new \DateTime('2 weeks ago'));
         $sentEmail->setTemplate(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
         $sentEmail->setVariables(array());
         $sentEmail->setToken($token);
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
-        $repositoryMock->expects($this->once())->method("findOneByToken")->will($this->returnValue($sentEmail));
+        $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
@@ -292,37 +301,38 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $translatorMock->expects($this->any())->method('trans')->will($this->returnArgument(0));
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
-        $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue("tokenId"));
-        $templateProviderMock->expects($this->once())->method('getCampaignParamsFor')->will($this->returnValue(array("campaign" => "newsletter","keyword" => "2013-11-19")));
+        $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue('tokenId'));
+        $templateProviderMock->expects($this->once())->method('getCampaignParamsFor')->will($this->returnValue(array('campaign' => 'newsletter', 'keyword' => '2013-11-19')));
         $emailTwigExtension = new AzineEmailTwigExtension($templateProviderMock, $translatorMock, array('testurl.com'));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(6))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->exactly(6))->method('get')->will($this->returnValueMap(array(
                 array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
                 array('security.token_storage', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $tokenStorageMock),
                 array('azine.email.bundle.twig.filters', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $emailTwigExtension),
         )));
-        $containerMock->expects($this->once())->method("has")->with('security.token_storage')->will($this->returnValue(true));
+        $containerMock->expects($this->once())->method('has')->with('security.token_storage')->will($this->returnValue(true));
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $response = $controller->webViewAction($requestMock, $token);
-        $this->assertContains("http://testurl.com/?campaign=newsletter&keyword=2013-11-19", $response->getContent());
+        $this->assertContains('http://testurl.com/?campaign=newsletter&keyword=2013-11-19', $response->getContent());
         $this->assertContains('http://testurl.com/with/?param=1&campaign=newsletter&keyword=2013-11-19', $response->getContent());
     }
+
     public function testWebViewAction_MailNotFound()
     {
-        $token = "fdasdfasfafsadf-not-found";
+        $token = 'fdasdfasfafsadf-not-found';
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
-        $twigMock->expects($this->once())->method("renderResponse")->will($this->returnCallback(array($this, 'renderResponseCallback')));
+        $twigMock->expects($this->once())->method('renderResponse')->will($this->returnCallback(array($this, 'renderResponseCallback')));
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
-        $repositoryMock->expects($this->once())->method("findOneByToken")->will($this->returnValue(null));
+        $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue(null));
         $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->once())->method("getParameter")->with("azine_email_web_view_retention")->will($this->returnValue(123));
-        $containerMock->expects($this->exactly(2))->method("get")->will($this->returnValueMap(array(
+        $containerMock->expects($this->once())->method('getParameter')->with('azine_email_web_view_retention')->will($this->returnValue(123));
+        $containerMock->expects($this->exactly(2))->method('get')->will($this->returnValueMap(array(
                 array('templating', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $twigMock),
                 array('doctrine', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $doctrineManagerRegistryMock),
         )));
@@ -331,41 +341,44 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $controller->setContainer($containerMock);
         $controller->webViewAction($requestMock, $token);
     }
+
     public function testServeImageAction()
     {
-        $folderKey = "asdfadfasfasfd";
-        $filename = "testImage.png";
+        $folderKey = 'asdfadfasfasfd';
+        $filename = 'testImage.png';
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
-        $templateProviderMock->expects($this->exactly(1))->method('getFolderFrom')->with($folderKey)->will($this->returnValue(__DIR__."/"));
+        $templateProviderMock->expects($this->exactly(1))->method('getFolderFrom')->with($folderKey)->will($this->returnValue(__DIR__.'/'));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(1))->method("get")->will($this->returnValueMap(array(
-                array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock)
+        $containerMock->expects($this->exactly(1))->method('get')->will($this->returnValueMap(array(
+                array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
                     )));
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $response = $controller->serveImageAction($requestMock, $folderKey, $filename);
-        $this->assertEquals("image", $response->headers->get("Content-Type"));
-        $this->assertEquals('inline; filename="'.$filename.'"', $response->headers->get('Content-Disposition'));
+        $this->assertSame('image', $response->headers->get('Content-Type'));
+        $this->assertSame('inline; filename="'.$filename.'"', $response->headers->get('Content-Disposition'));
     }
+
     /**
-     * @expectedException Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
+     * @expectedException \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
      */
     public function testServeImageAction_404()
     {
-        $folderKey = "asdfadfasfasfd";
-        $filename = "testImage.not.found.png";
+        $folderKey = 'asdfadfasfasfd';
+        $filename = 'testImage.not.found.png';
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
         $templateProviderMock->expects($this->exactly(1))->method('getFolderFrom')->with($folderKey)->will($this->returnValue(false));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->exactly(1))->method("get")->will($this->returnValueMap(array(
-                array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock)
+        $containerMock->expects($this->exactly(1))->method('get')->will($this->returnValueMap(array(
+                array('azine_email_template_provider', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $templateProviderMock),
         )));
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->getMock();
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $controller->serveImageAction($requestMock, $folderKey, $filename);
     }
+
     public function testSendTestEmailAction()
     {
         if (null !== static::$kernel) {
@@ -374,24 +387,25 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         try {
             static::$kernel = static::createKernel(array());
         } catch (\RuntimeException $ex) {
-            $this->markTestSkipped("There does not seem to be a full application available (e.g. running tests on travis.org). So this test is skipped.");
+            $this->markTestSkipped('There does not seem to be a full application available (e.g. running tests on travis.org). So this test is skipped.');
+
             return;
         }
         static::$kernel->boot();
         $container = static::$kernel->getContainer();
         $spoolDir = $container->getParameter('swiftmailer.spool.defaultMailer.file.path');
         // delete all spooled mails from other tests
-        array_map('unlink', glob($spoolDir."/*.messag*"));
-        array_map('unlink', glob($spoolDir."/.*.messag*"));
+        array_map('unlink', glob($spoolDir.'/*.messag*'));
+        array_map('unlink', glob($spoolDir.'/.*.messag*'));
         $context = new RequestContext('/app.php');
         $context->setParameter('_locale', 'en');
         $router = $container->get('router');
         $router->setContext($context);
-        $to = md5(time()."to").'@email.non-existent.to.mail.domain.com';
-        $uri = $router->generate("azine_email_send_test_email", array('template' => AzineTemplateProvider::NEWSLETTER_TEMPLATE, 'email' => $to));
-        $container->set('request', Request::create($uri, "GET"));
+        $to = md5(time().'to').'@email.non-existent.to.mail.domain.com';
+        $uri = $router->generate('azine_email_send_test_email', array('template' => AzineTemplateProvider::NEWSLETTER_TEMPLATE, 'email' => $to));
+        $container->set('request', Request::create($uri, 'GET'));
         // "login" a user
-        $token = new UsernamePasswordToken("username", "password", "main");
+        $token = new UsernamePasswordToken('username', 'password', 'main');
         $recipientProvider = $container->get('azine_email_recipient_provider');
         $users = $recipientProvider->getNewsletterRecipientIDs();
         $token->setUser($recipientProvider->getRecipient($users[0]));
@@ -401,22 +415,23 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($container);
         $response = $controller->sendTestEmailAction($container->get('request'), AzineTemplateProvider::NEWSLETTER_TEMPLATE, $to);
-        $this->assertEquals(302, $response->getStatusCode(), "Status-Code 302 expected.");
-        $uri = $router->generate("azine_email_template_index");
-        $this->assertContains("Redirecting to $uri", $response->getContent(), "Redirect expected.");
+        $this->assertSame(302, $response->getStatusCode(), 'Status-Code 302 expected.');
+        $uri = $router->generate('azine_email_template_index');
+        $this->assertContains("Redirecting to $uri", $response->getContent(), 'Redirect expected.');
         $findInFile = new FindInFileUtil();
         $findInFile->excludeMode = false;
-        $findInFile->formats = array(".message");
-        $this->assertEquals(1, sizeof($findInFile->find($spoolDir, "This is just the default content-block.")));
-        $this->assertEquals(1, sizeof($findInFile->find($spoolDir, "Add some html content here")));
-}
+        $findInFile->formats = array('.message');
+        $this->assertSame(1, sizeof($findInFile->find($spoolDir, 'This is just the default content-block.')));
+        $this->assertSame(1, sizeof($findInFile->find($spoolDir, 'Add some html content here')));
+    }
+
     public function testGetSpamIndexReportForSwiftMessage()
     {
         $swiftMessage = new \Swift_Message();
-        $swiftMessage->setFrom("from@email.com");
-        $swiftMessage->setTo("to@email.com");
-        $swiftMessage->setSubject("a subject.");
-        $swiftMessage->addPart("Hello dude,
+        $swiftMessage->setFrom('from@email.com');
+        $swiftMessage->setTo('to@email.com');
+        $swiftMessage->setSubject('a subject.');
+        $swiftMessage->addPart('Hello dude,
 ================================================================================
 Add some content here
 This is just the default content-block.
@@ -425,12 +440,12 @@ the azine team
 ________________________________________________________________________________
 azine ist ein Service von Azine IT Services AG
 © 2013 by Azine IT Services AG
-Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von azine Mails sicherzustellen.
+Füge "no-reply@some.host.com" zu deinem Adressbuch hinzu, um den Empfang von azine Mails sicherzustellen.
 - Help / FAQs  :  https://some.host.com/app_dev.php/de/help
 - AGB          :  https://some.host.com/app_dev.php/de/terms
 - Über azine:  https://some.host.com/app_dev.php/de/about
 - Kontakt      :  https://some.host.com/app_dev.php/de/contact
-                ", 'text/plain');
+                ', 'text/plain');
         $swiftMessage->setBody("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>azine – </title><meta name=\"description\" content=\"azine – \" /><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /></head><body style=\" color: #484B4C; margin:0; font: normal 12px/18px Arial, Helvetica, sans-serif; background-color: #fdfbfa;\"><table summary=\"header and logo\" width=\"640\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" style=\"font: normal 12px/18px Arial, Helvetica, sans-serif;\"><tr><td>&nbsp;</td><td bgcolor=\"#f2f1f0\">&nbsp;</td><td>&nbsp;</td></tr><tr><td width=\"10\">&nbsp;</td><td width=\"620\" bgcolor=\"#f2f1f0\" style=\"padding: 0px 20px;\"><a href=\"http://azine\" target=\"_blank\" style=\"color: #9fb400; font-size: 55px; font-weight: bold; text-decoration: none;\"><img src=\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/logo.png\"  height=\"35\" width=\"169\" alt=\"azine\" /></a>
                     &nbsp;<br /><span style='font-size: 16px; color:#484B4C; margin: 0px; padding: 0px;'>IT-Rekrutierung von morgen... weil du die beste Besetzung verdienst.</span></td><td width=\"10\">&nbsp;</td></tr></table><table summary='box with shadows' width='640' border='0' align='center' cellpadding='0' cellspacing='0'  style='font: normal 14px/18px Arial, Helvetica, sans-serif;'><tr><td colspan='3' width='640'><img width='640' height='10' src='/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/topshadow.png' alt='' style='vertical-align: bottom;'/></td></tr><tr><td width='10' style='border-right: 1px solid #EEEEEE; background-image: url(\"/app_dev.php/de/email/image/08f69bba117e6f02d40f07a5d84071e3/left-shadow.png\");'>&nbsp;</td><td width=\"620\" bgcolor=\"white\"  style=\"padding:10px 20px 20px 20px; border-top: 1px solid #EEEEEE;\"><a name=\"top\" ></a><span style='color:#024d84; font:bold 16px Arial;'>Hallo dude,</span><p>
                         Add some content here
@@ -454,24 +469,25 @@ Füge \"no-reply@some.host.com\" zu deinem Adressbuch hinzu, um den Empfang von 
         if (array_key_exists('curlError', $report)) {
             $this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n".print_r($report, true));
         }
-        $this->assertArrayHasKey("success", $report, "success was expected in report.\n\n".print_r($report, true));
-        $this->assertArrayNotHasKey("curlError", $report, "curlError was not expected in report.\n\n".print_r($report, true));
-        $this->assertArrayHasKey("message", $report, "message was expected in report.\n\n".print_r($report, true));
+        $this->assertArrayHasKey('success', $report, "success was expected in report.\n\n".print_r($report, true));
+        $this->assertArrayNotHasKey('curlError', $report, "curlError was not expected in report.\n\n".print_r($report, true));
+        $this->assertArrayHasKey('message', $report, "message was expected in report.\n\n".print_r($report, true));
     }
+
     public function testCheckSpamScoreOfSentEmailAction()
     {
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->setMethods(array('get'))->getMock();
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $containerMock->expects($this->once())->method("get")->will($this->returnValueMap(array(
-                array('request', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestMock))));
+        $containerMock->expects($this->once())->method('get')->will($this->returnValueMap(array(
+                array('request', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $requestMock), )));
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
-        $jsonResponse = $controller->checkSpamScoreOfSentEmailAction( $requestMock );
+        $jsonResponse = $controller->checkSpamScoreOfSentEmailAction($requestMock);
         $json = $jsonResponse->getContent();
-        if (strpos($json, "Getting the spam-info failed") !== false) {
+        if (false !== strpos($json, 'Getting the spam-info failed')) {
             $this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n$json");
         }
-        $this->assertNotContains("Getting the spam-info failed.", $jsonResponse->getContent(), "Spamcheck returned:\n".$jsonResponse->getContent());
-        $this->assertContains("SpamScore", $jsonResponse->getContent());
+        $this->assertNotContains('Getting the spam-info failed.', $jsonResponse->getContent(), "Spamcheck returned:\n".$jsonResponse->getContent());
+        $this->assertContains('SpamScore', $jsonResponse->getContent());
     }
 }

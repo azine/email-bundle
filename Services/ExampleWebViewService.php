@@ -1,22 +1,24 @@
 <?php
+
 namespace Azine\EmailBundle\Services;
 
 /**
  * This is an example how to override the AzineWebViewSerive.
+ *
  * @codeCoverageIgnoreStart
+ *
  * @author dominik
  */
 class ExampleWebViewService extends AzineWebViewService
 {
-
     public function getTemplatesForWebPreView()
     {
         $templates = array();
 
         // add your own templates here like this:
 
-        $templates =$this->addTemplate($templates, "Some other mail",	ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE);
-        $templates =$this->addTemplate($templates, "VIP Infos",	ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE);
+        $templates = $this->addTemplate($templates, 'Some other mail', ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE);
+        $templates = $this->addTemplate($templates, 'VIP Infos', ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE);
 
         return $templates;
     }
@@ -26,8 +28,8 @@ class ExampleWebViewService extends AzineWebViewService
         $emails = array();
 
         // add your own test-email-accounts here like this:
-        $emails = $this->addTestMailAccount($emails, 'Testmail-account for MS Outlook',	'your.email.address@for.an.outlook.client.com');
-        $emails = $this->addTestMailAccount($emails, 'Testmail-account for Gmail', 	'your.email.address@gmail');
+        $emails = $this->addTestMailAccount($emails, 'Testmail-account for MS Outlook', 'your.email.address@for.an.outlook.client.com');
+        $emails = $this->addTestMailAccount($emails, 'Testmail-account for Gmail', 'your.email.address@gmail');
 
         return $emails;
     }
@@ -40,24 +42,22 @@ class ExampleWebViewService extends AzineWebViewService
         //
         // do something like this:
         //
-        if ($template == ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE) {
+        if (ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE == $template) {
             $vipVars = array();
             $aUser = null;
             $vipVars['vipInfos'] = $someService->getVipInfosFor($aUser);
-            $vipVars['userTitle'] = "You majesty";
+            $vipVars['userTitle'] = 'You majesty';
             $variables['contentItems'][] = array(ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE, $vipVars);
-
-        } elseif ($template == ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE) {
+        } elseif (ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE == $template) {
             $otherMailVars = array();
-            $otherMailVars['date'] = new \DateTime("long ago");
+            $otherMailVars['date'] = new \DateTime('long ago');
             $variables['contentItems'][] = array(ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE, $otherMailVars);
         }
 
-        $variables['sendMailAccountName'] = "some name";
-        $variables['sendMailAccountAddress'] = "no-reply@email.com";
-        $variables['subject'] = "some dummy subject";
+        $variables['sendMailAccountName'] = 'some name';
+        $variables['sendMailAccountAddress'] = 'no-reply@email.com';
+        $variables['subject'] = 'some dummy subject';
 
         return $variables;
     }
-
 }

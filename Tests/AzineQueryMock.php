@@ -1,4 +1,5 @@
 <?php
+
 namespace Azine\EmailBundle\Tests;
 
 use Doctrine\ORM\AbstractQuery;
@@ -27,7 +28,6 @@ class AzineQueryMock extends AbstractQuery
 
     public function getSQL()
     {
-        return "dummy sql";
+        return 'dummy sql';
     }
-
 }

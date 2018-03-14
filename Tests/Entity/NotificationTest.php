@@ -1,4 +1,5 @@
 <?php
+
 namespace Azine\EmailBundle\Tests\Entity;
 
 use Azine\EmailBundle\Entity\Notification;
@@ -19,6 +20,5 @@ class NotificationTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($c1);
         $this->assertNotNull($c2);
         $this->assertGreaterThanOrEqual($c2, new \DateTime());
-
     }
 }

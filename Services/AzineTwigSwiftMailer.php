@@ -1,18 +1,19 @@
 <?php
+
 namespace Azine\EmailBundle\Services;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Azine\EmailBundle\Entity\SentEmail;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
-use Azine\EmailBundle\Entity\RecipientInterface;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RequestContext;
 
 /**
- * This Service is used to send html-emails with embedded images
+ * This Service is used to send html-emails with embedded images.
+ *
  * @author Dominik Businger
  */
 class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftMailerInterface
@@ -33,7 +34,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     protected $managerRegistry;
 
     /**
-     *
      * @var RequestContext
      */
     protected $routerContext;
@@ -49,7 +49,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     protected $noReplyName;
 
     /**
-     * The Swift_Mailer to be used for sending emails immediately
+     * The Swift_Mailer to be used for sending emails immediately.
+     *
      * @var \Swift_Mailer
      */
     private $immediateMailer;
@@ -68,21 +69,19 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     private $templateCache = array();
     private $imageCache = array();
 
-
     /**
-     *
-     * @param \Swift_Mailer $mailer
-     * @param UrlGeneratorInterface $router
-     * @param \Twig_Environment $twig
-     * @param Translator $translator
-     * @param TemplateProviderInterface $templateProvider
-     * @param ManagerRegistry $managerRegistry
+     * @param \Swift_Mailer                         $mailer
+     * @param UrlGeneratorInterface                 $router
+     * @param \Twig_Environment                     $twig
+     * @param Translator                            $translator
+     * @param TemplateProviderInterface             $templateProvider
+     * @param ManagerRegistry                       $managerRegistry
      * @param EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder
-     * @param AzineEmailTwigExtension $emailTwigExtension
-     * @param array $parameters
-     * @param \Swift_Mailer $immediateMailer
+     * @param AzineEmailTwigExtension               $emailTwigExtension
+     * @param array                                 $parameters
+     * @param \Swift_Mailer                         $immediateMailer
      */
-    public function __construct(    \Swift_Mailer $mailer,
+    public function __construct(\Swift_Mailer $mailer,
                                     UrlGeneratorInterface $router,
                                     \Twig_Environment $twig,
                                     Translator $translator,
@@ -102,45 +101,48 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $this->noReplyName = $parameters[AzineEmailExtension::NO_REPLY][AzineEmailExtension::NO_REPLY_EMAIL_NAME];
         $this->emailOpenTrackingCodeBuilder = $emailOpenTrackingCodeBuilder;
         $this->routerContext = $router->getContext();
-        $this->encodedItemIdPattern = "/^cid:.*@/";
+        $this->encodedItemIdPattern = '/^cid:.*@/';
         $this->emailTwigExtension = $emailTwigExtension;
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.TemplateTwigSwiftMailerInterface::sendEmail()
-     * @param array $failedRecipients
-     * @param string $subject
-     * @param String $from
-     * @param String $fromName
-     * @param array|String $to
-     * @param String $toName
-     * @param array|String $cc
-     * @param String $ccName
-     * @param array|String $bcc
-     * @param String $bccName
+     *
+     * @param array        $failedRecipients
+     * @param string       $subject
+     * @param string       $from
+     * @param string       $fromName
+     * @param array|string $to
+     * @param string       $toName
+     * @param array|string $cc
+     * @param string       $ccName
+     * @param array|string $bcc
+     * @param string       $bccName
      * @param $replyTo
      * @param $replyToName
      * @param array $params
      * @param $template
-     * @param array $attachments
-     * @param null $emailLocale
+     * @param array          $attachments
+     * @param null           $emailLocale
      * @param \Swift_Message $message
+     *
      * @return int
      */
     public function sendEmail(&$failedRecipients, $subject, $from, $fromName, $to, $toName, $cc, $ccName, $bcc, $bccName, $replyTo, $replyToName, array $params, $template, $attachments = array(), $emailLocale = null, \Swift_Message &$message = null)
     {
         // create the message
-        if ($message === null) {
+        if (null === $message) {
             $message = \Swift_Message::newInstance();
         }
 
         $message->setSubject($subject);
 
         // set the from-Name & -Email to the default ones if not given
-        if ($from === null) {
+        if (null === $from) {
             $from = $this->noReplyEmail;
-            if ($fromName === null) {
+            if (null === $fromName) {
                 $fromName = $this->noReplyName;
             }
         }
@@ -152,7 +154,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         }
 
         // get the baseTemplate. => templateId without the ending.
-        $templateBaseId = substr($template, 0, strrpos($template, ".", -6));
+        $templateBaseId = substr($template, 0, strrpos($template, '.', -6));
 
         // check if this email should be stored for web-view
         if ($this->templateProvider->saveWebViewFor($templateBaseId)) {
@@ -172,11 +174,11 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $this->embedImages($message, $params);
 
         // change the locale for the email-recipients
-        if ($emailLocale !== null && strlen($emailLocale) > 0) {
+        if (null !== $emailLocale && strlen($emailLocale) > 0) {
             $currentUserLocale = $this->translator->getLocale();
 
             // change the router-context locale
-            $this->routerContext->setParameter("_locale", $emailLocale);
+            $this->routerContext->setParameter('_locale', $emailLocale);
 
             // change the translator locale
             $this->translator->setLocale($emailLocale);
@@ -204,11 +206,11 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         }
 
         // if email-tracking is enabled
-        if($this->emailOpenTrackingCodeBuilder){
+        if ($this->emailOpenTrackingCodeBuilder) {
             // add an image at the end of the html tag with the tracking-params to track email-opens
             $imgTrackingCode = $this->emailOpenTrackingCodeBuilder->getTrackingImgCode($templateBaseId, $campaignParams, $params, $message->getId(), $to, $cc, $bcc);
-            if($imgTrackingCode && strlen($imgTrackingCode) > 0) {
-                $htmlCloseTagPosition = strpos($htmlBody, "</body>");
+            if ($imgTrackingCode && strlen($imgTrackingCode) > 0) {
+                $htmlCloseTagPosition = strpos($htmlBody, '</body>');
                 $htmlBody = substr_replace($htmlBody, $imgTrackingCode, $htmlCloseTagPosition, 0);
             }
         }
@@ -219,25 +221,23 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $message = $this->removeUnreferecedEmbededItemsFromMessage($message, $params, $htmlBody);
 
         // change the locale back to the users locale
-        if (isset($currentUserLocale) && $currentUserLocale !== null) {
-            $this->routerContext->setParameter("_locale", $currentUserLocale);
+        if (isset($currentUserLocale) && null !== $currentUserLocale) {
+            $this->routerContext->setParameter('_locale', $currentUserLocale);
             $this->translator->setLocale($currentUserLocale);
         }
 
         // add attachments
         foreach ($attachments as $fileName => $file) {
-
             // add attachment from existing file
             if (is_string($file)) {
-
                 // check that the file really exists!
                 if (file_exists($file)) {
                     $attachment = \Swift_Attachment::fromPath($file);
-                    if (strlen($fileName) >= 5 ) {
+                    if (strlen($fileName) >= 5) {
                         $attachment->setFilename($fileName);
                     }
                 } else {
-                    throw new FileException("File not found: ".$file);
+                    throw new FileException('File not found: '.$file);
                 }
 
                 // add attachment from generated data
@@ -277,7 +277,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         // if the message was successfully sent,
         // and it should be made available in web-view
         if ($messagesSent && array_key_exists($this->templateProvider->getWebViewTokenId(), $params)) {
-
             // store the email
             $sentEmail = new SentEmail();
             $sentEmail->setToken($params[$this->templateProvider->getWebViewTokenId()]);
@@ -318,29 +317,29 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * to avoid using unneccary bandwidth.
      *
      * @param \Swift_Message $message
-     * @param array $params the parameters used to render the html
-     * @param string $htmlBody
+     * @param array          $params   the parameters used to render the html
+     * @param string         $htmlBody
+     *
      * @return \Swift_Message
      */
     private function removeUnreferecedEmbededItemsFromMessage(\Swift_Message $message, $params, $htmlBody)
     {
         foreach ($params as $key => $value) {
             // remove unreferenced attachments from contentItems too.
-            if ($key === 'contentItems') {
+            if ('contentItems' === $key) {
                 foreach ($value as $contentItemParams) {
                     $message = $this->removeUnreferecedEmbededItemsFromMessage($message, $contentItemParams, $htmlBody);
                 }
             } else {
-
                 // check if the embeded items are referenced in the templates
-                $isEmbededItem = is_string($value) && preg_match($this->encodedItemIdPattern, $value) == 1;
+                $isEmbededItem = is_string($value) && 1 == preg_match($this->encodedItemIdPattern, $value);
 
-                if ($isEmbededItem && stripos($htmlBody, $value) === false) {
+                if ($isEmbededItem && false === stripos($htmlBody, $value)) {
                     // remove unreferenced items
                     $children = array();
 
                     foreach ($message->getChildren() as $attachment) {
-                        if ("cid:".$attachment->getId() != $value) {
+                        if ('cid:'.$attachment->getId() != $value) {
                             $children[] = $attachment;
                         }
                     }
@@ -354,8 +353,10 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     }
 
     /**
-     * Get the template from the cache if it was loaded already
-     * @param  string         $template
+     * Get the template from the cache if it was loaded already.
+     *
+     * @param string $template
+     *
      * @return \Twig_Template
      */
     private function loadTemplate($template)
@@ -368,16 +369,17 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     }
 
     /**
-     * Recursively embed all images in the array into the message
-     * @param  \Swift_Message $message
-     * @param  array $params
+     * Recursively embed all images in the array into the message.
+     *
+     * @param \Swift_Message $message
+     * @param array          $params
+     *
      * @return array $params
      */
     private function embedImages(&$message, &$params)
     {
         // loop through the array
         foreach ($params as $key => $value) {
-
             // if the current value is an array
             if (is_array($value)) {
                 // search for more images deeper in the arrays
@@ -387,36 +389,34 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
             // if the current value is an existing file from the image-folder, embed it
             } elseif (is_string($value)) {
                 if (is_file($value)) {
-
                     // check if the file is from an allowed folder
-                    if ($this->templateProvider->isFileAllowed($value) !== false) {
+                    if (false !== $this->templateProvider->isFileAllowed($value)) {
                         $encodedImage = $this->cachedEmbedImage($value);
-                        if ($encodedImage !== null) {
+                        if (null !== $encodedImage) {
                             $id = $message->embed($encodedImage);
                             $params[$key] = $id;
                         }
                     }
 
-                // the $filePath isn't a regular file
+                    // the $filePath isn't a regular file
                 } else {
                     // add a null-value to the cache for this path, so we don't try again.
                     $this->imageCache[$value] = null;
                 }
 
                 //if the current value is a generated image
-            } elseif (is_resource($value) && stripos(get_resource_type($value), "gd") == 0) {
+            } elseif (is_resource($value) && 0 == stripos(get_resource_type($value), 'gd')) {
                 // get the image-data as string
                 ob_start();
                 imagepng($value);
                 $imageData = ob_get_clean();
 
                 // encode the image
-                $encodedImage = \Swift_Image::newInstance($imageData, "generatedImage".md5($imageData));
+                $encodedImage = \Swift_Image::newInstance($imageData, 'generatedImage'.md5($imageData));
                 $id = $message->embed($encodedImage);
                 $params[$key] = $id;
-            } else {
-                // don't do anything
             }
+            // don't do anything
         }
 
         // remove duplicate-attachments
@@ -427,7 +427,9 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
     /**
      * Get the Swift_Image for the file.
-     * @param  string            $filePath
+     *
+     * @param string $filePath
+     *
      * @return \Swift_Image|null
      */
     private function cachedEmbedImage($filePath)
@@ -435,7 +437,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $filePath = realpath($filePath);
         if (!array_key_exists($filePath, $this->imageCache)) {
             if (is_file($filePath)) {
-
                 $image = \Swift_Image::fromPath($filePath);
                 $id = $image->getId();
 
@@ -444,32 +445,32 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                     // @codeCoverageIgnoreStart
                     // add a null-value to the cache for this path, so we don't try again.
                     $this->imageCache[$filePath] = null;
-
                 } else {
                     // @codeCoverageIgnoreEnd
                     // add the image to the cache
                     $this->imageCache[$filePath] = $image;
                 }
-
             }
-
         }
 
         return $this->imageCache[$filePath];
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.TemplateTwigSwiftMailerInterface::sendSingleEmail()
-     * @param string $to
-     * @param string $toName
-     * @param string $subject
-     * @param array $params
-     * @param string $template
-     * @param string $emailLocale
-     * @param null $from
-     * @param null $fromName
+     *
+     * @param string         $to
+     * @param string         $toName
+     * @param string         $subject
+     * @param array          $params
+     * @param string         $template
+     * @param string         $emailLocale
+     * @param null           $from
+     * @param null           $fromName
      * @param \Swift_Message $message
+     *
      * @return bool
      */
     public function sendSingleEmail($to, $toName, $subject, array $params, $template, $emailLocale, $from = null, $fromName = null, \Swift_Message &$message = null)
@@ -477,16 +478,18 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $failedRecipients = array();
         $this->sendEmail($failedRecipients, $subject, $from, $fromName, $to, $toName, null, null, null, null, null, null, $params, $template, array(), $emailLocale, $message);
 
-        return sizeof($failedRecipients) == 0;
+        return 0 == sizeof($failedRecipients);
     }
 
     /**
      * Override the fosuserbundles original sendMessage, to embed template variables etc. into html-emails.
-     * @param  string  $templateName
-     * @param  array   $context
-     * @param  string  $fromEmail
-     * @param  string  $toEmail
-     * @return boolean true if the mail was sent successfully, else false
+     *
+     * @param string $templateName
+     * @param array  $context
+     * @param string $fromEmail
+     * @param string $toEmail
+     *
+     * @return bool true if the mail was sent successfully, else false
      */
     protected function sendMessage($templateName, $context, $fromEmail, $toEmail)
     {
@@ -499,18 +502,22 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     }
 
     /**
-     * Return the Swift_Mailer to be used for sending mails immediately (e.g. instead of spooling them) if it is configured
+     * Return the Swift_Mailer to be used for sending mails immediately (e.g. instead of spooling them) if it is configured.
+     *
      * @param $params
+     *
      * @return \Swift_Mailer
      */
-    private function getMailer($params){
+    private function getMailer($params)
+    {
         // if the second mailer for immediate mail-delivery has been configured
-        if($this->immediateMailer !== null){
+        if (null !== $this->immediateMailer) {
             // check if this template has been configured to be sent immediately
-            if(array_key_exists(AzineTemplateProvider::SEND_IMMEDIATELY_FLAG, $params) && $params[AzineTemplateProvider::SEND_IMMEDIATELY_FLAG]) {
+            if (array_key_exists(AzineTemplateProvider::SEND_IMMEDIATELY_FLAG, $params) && $params[AzineTemplateProvider::SEND_IMMEDIATELY_FLAG]) {
                 return $this->immediateMailer;
             }
         }
+
         return $this->mailer;
     }
 }

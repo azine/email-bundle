@@ -1,4 +1,5 @@
 <?php
+
 namespace Azine\EmailBundle\Tests\Entity;
 
 use Azine\EmailBundle\Entity\SentEmail;

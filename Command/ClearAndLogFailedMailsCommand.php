@@ -1,15 +1,14 @@
 <?php
+
 namespace Azine\EmailBundle\Command;
 
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputInterface;
-
-use \Swift_Transport;
 
 /**
  * Try to send emails that failed and are still pending in the spool-folder.
@@ -17,7 +16,6 @@ use \Swift_Transport;
  * After trying to send them one more time, delete the files and log any email-address that still failed.
  *
  * @author dominik
- *
  */
 class ClearAndLogFailedMailsCommand extends ContainerAwareCommand
 {
@@ -25,7 +23,7 @@ class ClearAndLogFailedMailsCommand extends ContainerAwareCommand
     {
         $this->setName('emails:clear-and-log-failures')
             ->setDescription('Clears and logs failed emails from the spool')
-            ->setDefinition(array(new InputArgument(	'date',
+            ->setDefinition(array(new InputArgument('date',
                                                         InputArgument::OPTIONAL,
                                                         'Try to send and then delete all failed emails that are older than "date". The date must be something that strtotime() is able to parse:  => e.g. "since yesterday", "until 2 days ago", "> now - 2 hours", ">= 2005-10-15" '
                                                     ),
@@ -46,7 +44,6 @@ EOF
         try {
             /** @var $transport \Swift_Transport */
             $transport = $this->getContainer()->get('swiftmailer.transport.real');
-
         } catch (ServiceNotFoundException $ex) {
             $output->writeln("\n\n\nCould not load transport. Is file-spooling configured in your config.yml for this environment?\n\n\n");
 
@@ -54,7 +51,7 @@ EOF
         }
 
         try {
-            $mailers = $this->getContainer()->getParameter("swiftmailer.mailers");
+            $mailers = $this->getContainer()->getParameter('swiftmailer.mailers');
             $mailerName = key($mailers);
             $spoolPath = $this->getContainer()->getParameter("swiftmailer.spool.$mailerName.file.path");
         } catch (InvalidArgumentException $ex) {
@@ -77,7 +74,7 @@ EOF
             $finder->date($date);
         }
 
-        if ($finder->count() == 0) {
+        if (0 == $finder->count()) {
             $output->writeln("No failed-message-files found in '$spoolPath' for retry.");
 
             return;
@@ -110,8 +107,8 @@ EOF
         // write the failure to the log
         if (sizeof($failedRecipients) > 0) {
             /** @var $logger LoggerInterface */
-            $logger = $this->getContainer()->get("logger");
-            $logger->warning("<error>Failed to send an email to : ".implode(", ", $failedRecipients)."</error>");
+            $logger = $this->getContainer()->get('logger');
+            $logger->warning('<error>Failed to send an email to : '.implode(', ', $failedRecipients).'</error>');
         }
     }
 }
