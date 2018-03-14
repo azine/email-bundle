@@ -14,19 +14,15 @@ matrix:
   fast_finish: true
   include:
     - env:
+        - SYMFONY_VERSION=symfony:2.7.*
+
+    - env:
         - SYMFONY_VERSION=lts:^2
         - dependencies=lowest
 
     - env:
         - SYMFONY_VERSION=lts:^3
         - cs_fixer=cs_dry_run
-
-  exclude:
-    - php: 5.6
-      env: SYMFONY_VERSION=lts:^4
-
-  allow_failures:
-    - env: SYMFONY_VERSION=lts:^4
 
 sudo: false
 
