@@ -223,13 +223,13 @@ class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('DateTime', $returnValue);
         $lastDate = new \DateTime('7 days ago');
         $lastDate->setTime(9, 0);
-        $this->assertSame($lastDate, $returnValue);
+        $this->assertSame($lastDate->getTimestamp(), $returnValue->getTimestamp());
 
         $returnValue = self::getMethod('getDateTimeOfNextNewsletter')->invokeArgs($notifier, array());
         $this->assertInstanceOf('DateTime', $returnValue);
         $nextDate = new \DateTime('7 days');
         $nextDate->setTime(9, 0);
-        $this->assertSame($nextDate, $returnValue);
+        $this->assertSame($nextDate->getTimestamp(), $returnValue->getTimestamp());
 
         $returnValue = self::getMethod('getHourInterval')->invokeArgs($notifier, array());
         $this->assertSame((60 * 60 - 3 * 60), $returnValue);
