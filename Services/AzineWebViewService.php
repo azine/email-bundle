@@ -1,4 +1,5 @@
 <?php
+
 namespace Azine\EmailBundle\Services;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -11,14 +12,15 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class AzineWebViewService implements WebViewServiceInterface
 {
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.WebViewServiceInterface::getTemplatesForWebPreView()
      */
     public function getTemplatesForWebPreView()
     {
         $templates = array();
-        $templates =$this->addTemplate($templates, "Reset Passwort Email",	AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE);
-        $templates =$this->addTemplate($templates, "Account activation",	AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE);
+        $templates = $this->addTemplate($templates, 'Reset Passwort Email', AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE);
+        $templates = $this->addTemplate($templates, 'Account activation', AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE);
         // override this method to add your own templates
         // $templates =$this->addTemplate($templates, "Some other mail",	ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE);
         // $templates =$this->addTemplate($templates, "VIP Infos",	ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE);
@@ -26,7 +28,8 @@ class AzineWebViewService implements WebViewServiceInterface
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.WebViewServiceInterface::getTestMailAccounts()
      */
     public function getTestMailAccounts()
@@ -39,14 +42,15 @@ class AzineWebViewService implements WebViewServiceInterface
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.WebViewServiceInterface::getDummyVarsFor()
      */
     public function getDummyVarsFor($template, $locale, $variables = array())
     {
-        $variables['subject'] = "some dummy subject";
-        $variables['sendMailAccountName'] = "some name";
-        $variables['sendMailAccountAddress'] = "no-reply@email.com";
+        $variables['subject'] = 'some dummy subject';
+        $variables['sendMailAccountName'] = 'some name';
+        $variables['sendMailAccountAddress'] = 'no-reply@email.com';
 
         // override this method to provide dummy-variables
         // to view rendered templates for emails that you didn't send yet
@@ -76,9 +80,9 @@ class AzineWebViewService implements WebViewServiceInterface
         $this->router = $router;
     }
 
-//////////////////////////////////////////////////////////////////////////
-/* You probably don't need to change or override any of the stuff below */
-//////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    /* You probably don't need to change or override any of the stuff below */
+    //////////////////////////////////////////////////////////////////////////
 
     /**
      * @var UrlGeneratorInterface
@@ -87,40 +91,42 @@ class AzineWebViewService implements WebViewServiceInterface
 
     /**
      * Add an email of a test account, you might want to send html-emails to, to verify the template before sending the emails to "real" recipients/users.
-     * @param  array  $emails
-     * @param  string $description
-     * @param  string $emailAddress
-     * @return array  the array with the added email-test-account
+     *
+     * @param array  $emails
+     * @param string $description
+     * @param string $emailAddress
+     *
+     * @return array the array with the added email-test-account
      */
     protected function addTestMailAccount(array $emails, $description, $emailAddress)
     {
-        $emails[] = array('accountDescription' => $description, 'accountEmail' => $emailAddress );
+        $emails[] = array('accountDescription' => $description, 'accountEmail' => $emailAddress);
 
         return $emails;
     }
 
     /**
-     * Add the required variables to the $templates-array, so the line can be rendered in the template-index
-     * @param  array       $templates
-     * @param  string      $description
-     * @param  string      $templateId
-     * @param  array       $formats
+     * Add the required variables to the $templates-array, so the line can be rendered in the template-index.
+     *
+     * @param array  $templates
+     * @param string $description
+     * @param string $templateId
+     * @param array  $formats
+     *
      * @return array
      */
-    protected function addTemplate($templates, $description, $templateId, $formats = array('txt','html'))
+    protected function addTemplate($templates, $description, $templateId, $formats = array('txt', 'html'))
     {
+        $route = $this->router->generate('azine_email_web_preview', array('template' => urlencode($templateId)));
 
-        $route = $this->router->generate("azine_email_web_preview", array('template' => urlencode($templateId)));
-
-        $template = array(	'url' 			=> $route,
-                            'description'	=> $description,
-                            'formats' 		=> $formats,
-                            'templateId'	=> $templateId,
+        $template = array('url' => $route,
+                            'description' => $description,
+                            'formats' => $formats,
+                            'templateId' => $templateId,
         );
 
         $templates[] = $template;
 
         return $templates;
     }
-
 }

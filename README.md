@@ -677,5 +677,23 @@ The tracking-image will also be inserted in the WebPreView of your emails,
 but to avoid false tracking events, the url will be modified to not
 point to your email-open-tracking system.
 
+# Contributing
+Contributions are very welcome. Please fork the repository and issue your pull-request against the master branch.
+
+The PR should:
+- contain a description what the PR solves or adds to the bundle (reference existing issues if applicable)
+- contain clean code with some iniline documentation and phpdocs, no "pure whitespace" changes.
+- respect the [Symfony best practices](http://symfony.com/doc/current/bundles/best_practices.html) and coding style
+- have phpunit tests covering the new feature or fix
+- result in a 'green' build for your branch on [travis-ci.org](https://travis-ci.org/azine/email-bundle/branches) before you issue the PR
+
+## Code style
+You can check the code style with the `php-cs-fixer`. Optionally you can set up a pre-commit hook which contains the `php-cs-fixer` check. Also see https://github.com/FriendsOfPHP/PHP-CS-Fixer
+
+All you have to do is to move `pre-commit.sample` file from `commit-hooks/` to `.git/hooks/` folder and rename it to `pre-commit`.
+
+`php-cs-fixer` will check the style of your new added code each time you commit, showing you what you have to fix.
+
+
 ## Build-Status etc.
 [![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle) [![Total Downloads](https://poser.pugx.org/azine/email-bundle/downloads.png)](https://packagist.org/packages/azine/email-bundle) [![Latest Stable Version](https://poser.pugx.org/azine/email-bundle/v/stable.png)](https://packagist.org/packages/azine/email-bundle) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/email-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/email-bundle/) [![Code Coverage](https://scrutinizer-ci.com/g/azine/email-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/email-bundle/) [![Dependency Status](https://www.versioneye.com/user/projects/567eae02eb4f470030000001/badge.svg?style=flat)](https://www.versioneye.com/user/projects/567eae02eb4f470030000001) 

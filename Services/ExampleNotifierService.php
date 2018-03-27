@@ -1,4 +1,5 @@
 <?php
+
 namespace Azine\EmailBundle\Services;
 
 use Azine\EmailBundle\Entity\RecipientInterface;
@@ -6,13 +7,16 @@ use Azine\EmailBundle\Entity\RecipientInterface;
 /**
  * This Service compiles and renders the emails to be sent.
  * This class is only an example. Implement your own!
+ *
  * @codeCoverageIgnore
+ *
  * @author Dominik Businger
  */
 class ExampleNotifierService extends AzineNotifierService
 {
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientVarsForNotificationsEmail()
      */
     protected function getRecipientVarsForNotificationsEmail(RecipientInterface $recipient)
@@ -24,7 +28,8 @@ class ExampleNotifierService extends AzineNotifierService
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNotificationsSubject()
      */
     public function getRecipientSpecificNotificationsSubject($contentItems, RecipientInterface $recipient)
@@ -33,7 +38,8 @@ class ExampleNotifierService extends AzineNotifierService
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.AzineNotifierService::getNonRecipientSpecificNewsletterContentItems()
      */
     protected function getNonRecipientSpecificNewsletterContentItems()
@@ -48,7 +54,8 @@ class ExampleNotifierService extends AzineNotifierService
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterSubject()
      */
     public function getRecipientSpecificNewsletterSubject(array $generalContentItems, array $recipientContentItems, array $params, RecipientInterface $recipient, $locale)
@@ -57,7 +64,8 @@ class ExampleNotifierService extends AzineNotifierService
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.AzineNotifierService::getRecipientSpecificNewsletterContentItems()
      */
     protected function getRecipientSpecificNewsletterContentItems(RecipientInterface $recipient)
@@ -70,5 +78,4 @@ class ExampleNotifierService extends AzineNotifierService
 
         return $contentItems;
     }
-
 }

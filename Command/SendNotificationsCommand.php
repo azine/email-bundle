@@ -1,24 +1,27 @@
 <?php
+
 namespace Azine\EmailBundle\Command;
 
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\LockHandler;
 
 /**
- * Aggregate and send pending notifications or newsletters via email
+ * Aggregate and send pending notifications or newsletters via email.
+ *
  * @author dominik
  */
 class SendNotificationsCommand extends ContainerAwareCommand
 {
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Symfony\Component\Console\Command.Command::configure()
      */
     protected function configure()
     {
-        $this	->setName('emails:sendNotifications')
+        $this->setName('emails:sendNotifications')
                 ->setDescription('Aggregate and send pending notifications via email.')
                 ->setHelp(<<<EOF
 The <info>emails:sendNotifications</info> command sends emails for all pending notifications.
@@ -34,7 +37,8 @@ EOF
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Symfony\Component\Console\Command.Command::execute()
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -50,11 +54,11 @@ EOF
         $failedAddresses = array();
         $sentMails = $this->getContainer()->get('azine_email_notifier_service')->sendNotifications($failedAddresses);
 
-        $output->writeln(date(\DateTime::RFC2822)." : ".str_pad($sentMails, 4, " ", STR_PAD_LEFT)." emails have been processed.");
+        $output->writeln(date(\DateTime::RFC2822).' : '.str_pad($sentMails, 4, ' ', STR_PAD_LEFT).' emails have been processed.');
         if (sizeof($failedAddresses) > 0) {
-            $output->writeln(date(\DateTime::RFC2822)." : "."The following email-addresses failed:");
+            $output->writeln(date(\DateTime::RFC2822).' : '.'The following email-addresses failed:');
             foreach ($failedAddresses as $address) {
-                $output->writeln("    ".$address);
+                $output->writeln('    '.$address);
             }
         }
 

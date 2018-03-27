@@ -32,12 +32,13 @@ class AzineEmailController extends Controller
         $pagination = $this->get('knp_paginator')->paginate($query, $request->query->getInt('page', 1));
 
         return $this->render('AzineEmailBundle::emailsDashboard.html.twig',
-            ['form' => $form->createView(), 'pagination' => $pagination ]);
+            array('form' => $form->createView(), 'pagination' => $pagination));
     }
 
     /**
      * Displays an extended view of SentEmail entity searched by a token property
      * @param string $token
+     *
      * @return Response
      */
     public function emailDetailsByTokenAction(Request $request, $token)
@@ -45,18 +46,17 @@ class AzineEmailController extends Controller
         $email = $this->getDoctrine()->getManager()->getRepository(SentEmail::class)
             ->findOneByToken($token);
 
-        if($email instanceof SentEmail){
-
+        if ($email instanceof SentEmail) {
             $recipients = implode(', ', $email->getRecipients());
             $variables = implode(', ', array_keys($email->getVariables()));
 
             return $this->render('AzineEmailBundle::sentEmailDetails.html.twig',
-                ['email' => $email, 'recipients' => $recipients, 'variables' => $variables]);
+                array('email' => $email, 'recipients' => $recipients, 'variables' => $variables));
         }
 
         // the parameters-array is null => the email is not available in webView
-        $days = $this->getParameter("azine_email_web_view_retention");
-        $response = $this->render("AzineEmailBundle:Webview:mail.not.available.html.twig", array('days' => $days));
+        $days = $this->getParameter('azine_email_web_view_retention');
+        $response = $this->render('AzineEmailBundle:Webview:mail.not.available.html.twig', array('days' => $days));
         $response->setStatusCode(404);
 
         return $response;

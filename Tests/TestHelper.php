@@ -1,4 +1,5 @@
 <?php
+
 namespace Azine\EmailBundle\Tests;
 
 use Azine\EmailBundle\Entity\SentEmail;
@@ -13,20 +14,19 @@ class TestHelper
     /**
      * @param EntityManager $manager
      * @param int $count
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public static function addSentEmails(EntityManager $manager, $count = 1)
     {
         while ($count > 0) {
             $sentEmail = new SentEmail();
             $sentEmail->setRecipients(array(self::TEST_EMAIL));
-            $sentEmail->setSent(new \DateTime("2 weeks ago"));
+            $sentEmail->setSent(new \DateTime('2 weeks ago'));
             $sentEmail->setTemplate(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
             $sentEmail->setVariables(array());
-            $sentEmail->setToken($count == 1 ? self::TEST_TOKEN : self::TEST_TOKEN . $count);
+            $sentEmail->setToken(1 == $count ? self::TEST_TOKEN : self::TEST_TOKEN.$count);
             $manager->persist($sentEmail);
 
-            $count--;
+            --$count;
         }
         $manager->flush();
     }

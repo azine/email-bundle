@@ -22,8 +22,10 @@
         "symfony/console": "~2.7,>=2.7|~3.0",
         "symfony/finder": "~2.7,>=2.7|~3.0",
         "symfony/twig-bundle": "~2.7,>=2.7|~3.0",
+        "symfony/filesystem": "~2.0,>=2.6",
+        "symfony/yaml": "~2.0,>=2.1",
         "swiftmailer/swiftmailer": ">=5.4.5,~5.0",
-        "doctrine/orm": "~2.0,>=2.0",
+        "doctrine/orm": "~2.0,>=2.2",
         "monolog/monolog": "~1.6,>=1.6.0",
         "friendsofsymfony/user-bundle": "~2.0",
         "twig/extensions": "~1.0",
@@ -32,7 +34,8 @@
     },
     "require-dev": {
         "symfony/translation": "~2.7,>=2.7|~3.0",
-        "phpunit/phpunit":  "~4.0"
+        "phpunit/phpunit":  "~4.0,>=4.2",
+        "friendsofphp/php-cs-fixer": "^2.2"
     },
     "autoload": {
         "psr-0": { "Azine\\EmailBundle": "" }

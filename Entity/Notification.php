@@ -3,33 +3,34 @@
 namespace Azine\EmailBundle\Entity;
 
 /**
- * Notification
+ * Notification.
  */
 class Notification
 {
     const IMPORTANCE_LOW = 1;
     const IMPORTANCE_NORMAL = 2;
     const IMPORTANCE_HIGH = 3;
+
     /**
-     * Initialize the created-date with "now"
+     * Initialize the created-date with "now".
      */
     public function setCreatedValue()
     {
         $this->created = new \DateTime();
     }
 
-///////////////////////////////////////////////////////////////////
-// generated stuff only below this line.
-// @codeCoverageIgnoreStart
-///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // generated stuff only below this line.
+    // @codeCoverageIgnoreStart
+    ///////////////////////////////////////////////////////////////////
 
     /**
-     * @var integer
+     * @var int
      */
     private $id;
 
     /**
-     * @var integer
+     * @var int
      */
     private $recipient_id;
 
@@ -49,12 +50,12 @@ class Notification
     private $template;
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $send_immediately;
 
     /**
-     * @var integer
+     * @var int
      */
     private $importance;
 
@@ -69,9 +70,9 @@ class Notification
     private $created;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -79,9 +80,10 @@ class Notification
     }
 
     /**
-     * Set recipient_id
+     * Set recipient_id.
      *
-     * @param  integer      $recipientId
+     * @param int $recipientId
+     *
      * @return Notification
      */
     public function setRecipientId($recipientId)
@@ -92,9 +94,9 @@ class Notification
     }
 
     /**
-     * Get recipient_id
+     * Get recipient_id.
      *
-     * @return integer
+     * @return int
      */
     public function getRecipientId()
     {
@@ -102,9 +104,10 @@ class Notification
     }
 
     /**
-     * Set title
+     * Set title.
      *
-     * @param  string       $title
+     * @param string $title
+     *
      * @return Notification
      */
     public function setTitle($title)
@@ -115,7 +118,7 @@ class Notification
     }
 
     /**
-     * Get title
+     * Get title.
      *
      * @return string
      */
@@ -125,9 +128,10 @@ class Notification
     }
 
     /**
-     * Set content
+     * Set content.
      *
-     * @param  string       $content
+     * @param string $content
+     *
      * @return Notification
      */
     public function setContent($content)
@@ -138,7 +142,7 @@ class Notification
     }
 
     /**
-     * Get content
+     * Get content.
      *
      * @return string
      */
@@ -148,9 +152,10 @@ class Notification
     }
 
     /**
-     * Set template
+     * Set template.
      *
-     * @param  string       $template
+     * @param string $template
+     *
      * @return Notification
      */
     public function setTemplate($template)
@@ -161,7 +166,7 @@ class Notification
     }
 
     /**
-     * Get template
+     * Get template.
      *
      * @return string
      */
@@ -171,9 +176,10 @@ class Notification
     }
 
     /**
-     * Set send_immediately
+     * Set send_immediately.
      *
-     * @param  boolean      $sendImmediately
+     * @param bool $sendImmediately
+     *
      * @return Notification
      */
     public function setSendImmediately($sendImmediately)
@@ -184,9 +190,9 @@ class Notification
     }
 
     /**
-     * Get send_immediately
+     * Get send_immediately.
      *
-     * @return boolean
+     * @return bool
      */
     public function getSendImmediately()
     {
@@ -194,9 +200,10 @@ class Notification
     }
 
     /**
-     * Set importance
+     * Set importance.
      *
-     * @param  integer      $importance
+     * @param int $importance
+     *
      * @return Notification
      */
     public function setImportance($importance)
@@ -207,9 +214,9 @@ class Notification
     }
 
     /**
-     * Get importance
+     * Get importance.
      *
-     * @return integer
+     * @return int
      */
     public function getImportance()
     {
@@ -217,9 +224,10 @@ class Notification
     }
 
     /**
-     * Set sent
+     * Set sent.
      *
-     * @param  \DateTime    $sent
+     * @param \DateTime $sent
+     *
      * @return Notification
      */
     public function setSent($sent)
@@ -230,7 +238,7 @@ class Notification
     }
 
     /**
-     * Get sent
+     * Get sent.
      *
      * @return \DateTime
      */
@@ -240,9 +248,10 @@ class Notification
     }
 
     /**
-     * Set created
+     * Set created.
      *
-     * @param  \DateTime    $created
+     * @param \DateTime $created
+     *
      * @return Notification
      */
     public function setCreated($created)
@@ -253,7 +262,7 @@ class Notification
     }
 
     /**
-     * Get created
+     * Get created.
      *
      * @return \DateTime
      */
@@ -261,15 +270,17 @@ class Notification
     {
         return $this->created;
     }
+
     /**
      * @var array
      */
     private $variables;
 
     /**
-     * Set variables
+     * Set variables.
      *
-     * @param  array        $variables
+     * @param array $variables
+     *
      * @return Notification
      */
     public function setVariables($variables)
@@ -280,7 +291,7 @@ class Notification
     }
 
     /**
-     * Get variables
+     * Get variables.
      *
      * @return array
      */

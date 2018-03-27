@@ -1,5 +1,7 @@
 <?php
+
 namespace Azine\EmailBundle\Tests;
+
 //Author		: de77
 //Website		: www.de77.com
 //License		: MIT (http://en.wikipedia.org/wiki/MIT_License)
@@ -21,10 +23,10 @@ class FindInFileUtil
     public $formats = array('.jpg', '.gif', '.avi');
 
     /**
+     * @param string $dir
+     * @param string $text
      *
-     * @param  string $dir
-     * @param  string $text
-     * @return array  of files with the search-text
+     * @return array of files with the search-text
      */
     public function find($dir, $text)
     {
@@ -38,7 +40,7 @@ class FindInFileUtil
         }
 
         $this->results = array();
-        if (substr($dir, -1, 1) != '/') {
+        if ('/' != substr($dir, -1, 1)) {
             $dir .= '/';
         }
         $this->scandir2($dir);
@@ -53,7 +55,7 @@ class FindInFileUtil
     {
         $ext = strrchr($file, '.');
 
-        if ($this->excludeMode == true) {
+        if (true == $this->excludeMode) {
             if (in_array($ext, $this->formats)) {
                 return false;
             }
@@ -63,7 +65,7 @@ class FindInFileUtil
             }
         }
 
-        if (filesize($file)<40960) {
+        if (filesize($file) < 40960) {
             $data = file_get_contents($file);
             if ($this->strpos2($data, $this->text)) {
                 return true;
@@ -98,10 +100,10 @@ class FindInFileUtil
     private function strpos2($haystack, $keyword)
     {
         if (!$this->caseSensitive) {
-            return (mb_stripos($haystack, $keyword) !== false);
+            return false !== mb_stripos($haystack, $keyword);
         }
 
-        return (mb_strpos($haystack, $keyword) !== false);
+        return false !== mb_strpos($haystack, $keyword);
     }
 
     /**
@@ -111,18 +113,18 @@ class FindInFileUtil
     {
         if (is_dir($dir)) {
             if ($dh = opendir($dir)) {
-                while (($file = readdir($dh)) !== false) {
-                    if ($file != '.' and $file != '..') {
-                        if (is_dir($dir . $file)) {
-                            $this->scandir2($dir . $file . '/');
+                while (false !== ($file = readdir($dh))) {
+                    if ('.' != $file and '..' != $file) {
+                        if (is_dir($dir.$file)) {
+                            $this->scandir2($dir.$file.'/');
                         } else {
-                            if ($this->findTxtt($dir . $file)) {
-                                $this->results[] = $dir . $file;
+                            if ($this->findTxtt($dir.$file)) {
+                                $this->results[] = $dir.$file;
                             }
                         }
                     }
                 }
-            closedir($dh);
+                closedir($dh);
             }
         }
     }

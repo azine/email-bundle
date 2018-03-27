@@ -3,26 +3,27 @@
 namespace Azine\EmailBundle\Entity;
 
 /**
- * SentEmail
+ * SentEmail.
  */
 class SentEmail
 {
     /**
-     * Generate a 23-char unique id
+     * Generate a 23-char unique id.
+     *
      * @return string
      */
     public static function getNewToken()
     {
-        return uniqid("", true);
+        return uniqid('', true);
     }
 
-///////////////////////////////////////////////////////////////////
-// generated stuff only below this line.
-// @codeCoverageIgnoreStart
-///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // generated stuff only below this line.
+    // @codeCoverageIgnoreStart
+    ///////////////////////////////////////////////////////////////////
 
     /**
-     * @var integer
+     * @var int
      */
     private $id;
 
@@ -52,9 +53,9 @@ class SentEmail
     private $token;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -62,9 +63,10 @@ class SentEmail
     }
 
     /**
-     * Set recipients
+     * Set recipients.
      *
-     * @param  array     $recipients
+     * @param array $recipients
+     *
      * @return SentEmail
      */
     public function setRecipients($recipients)
@@ -75,7 +77,7 @@ class SentEmail
     }
 
     /**
-     * Get recipients
+     * Get recipients.
      *
      * @return array
      */
@@ -85,9 +87,10 @@ class SentEmail
     }
 
     /**
-     * Set template
+     * Set template.
      *
-     * @param  string    $template
+     * @param string $template
+     *
      * @return SentEmail
      */
     public function setTemplate($template)
@@ -98,7 +101,7 @@ class SentEmail
     }
 
     /**
-     * Get template
+     * Get template.
      *
      * @return string
      */
@@ -108,9 +111,10 @@ class SentEmail
     }
 
     /**
-     * Set variables
+     * Set variables.
      *
-     * @param  array     $variables
+     * @param array $variables
+     *
      * @return SentEmail
      */
     public function setVariables($variables)
@@ -121,7 +125,7 @@ class SentEmail
     }
 
     /**
-     * Get variables
+     * Get variables.
      *
      * @return array
      */
@@ -131,9 +135,10 @@ class SentEmail
     }
 
     /**
-     * Set sent
+     * Set sent.
      *
-     * @param  \DateTime $sent
+     * @param \DateTime $sent
+     *
      * @return SentEmail
      */
     public function setSent($sent)
@@ -144,7 +149,7 @@ class SentEmail
     }
 
     /**
-     * Get sent
+     * Get sent.
      *
      * @return \DateTime
      */
@@ -154,9 +159,10 @@ class SentEmail
     }
 
     /**
-     * Set token
+     * Set token.
      *
-     * @param  string    $token
+     * @param string $token
+     *
      * @return SentEmail
      */
     public function setToken($token)
@@ -167,7 +173,7 @@ class SentEmail
     }
 
     /**
-     * Get token
+     * Get token.
      *
      * @return string
      */

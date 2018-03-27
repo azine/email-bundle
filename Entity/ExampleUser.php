@@ -7,17 +7,18 @@ use FOS\UserBundle\Model\User;
 /**
  * ExampleUser
  * This class is only an example. Implement your own!
+ *
  * @codeCoverageIgnore
  */
-class ExampleUser extends User implements RecipientInterface {
-
+class ExampleUser extends User implements RecipientInterface
+{
     /**
-     * @var integer
+     * @var int
      */
     protected $id;
 
     /**
-     * Set some defaults
+     * Set some defaults.
      */
     public function __construct()
     {
@@ -39,18 +40,16 @@ class ExampleUser extends User implements RecipientInterface {
         if ($firstName) {
             $displayName = $firstName;
         } elseif ($lastName) {
-            $displayName = $this->getSalutation()." ".$lastName;
+            $displayName = $this->getSalutation().' '.$lastName;
         }
 
         return ucwords($displayName);
     }
 
-
-
-///////////////////////////////////////////////////////////////////
-// generated stuff only below this line.
-// @codeCoverageIgnoreStart
-///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // generated stuff only below this line.
+    // @codeCoverageIgnoreStart
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * @var string
@@ -73,19 +72,20 @@ class ExampleUser extends User implements RecipientInterface {
     private $preferredLocale;
 
     /**
-     * @var integer
+     * @var int
      */
     private $notification_mode;
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $newsletter;
 
     /**
-     * Set first_name
+     * Set first_name.
      *
      * @param string $firstName
+     *
      * @return ExampleUser
      */
     public function setFirstName($firstName)
@@ -96,9 +96,9 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Get first_name
+     * Get first_name.
      *
-     * @return string 
+     * @return string
      */
     public function getFirstName()
     {
@@ -106,9 +106,10 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Set last_name
+     * Set last_name.
      *
      * @param string $lastName
+     *
      * @return ExampleUser
      */
     public function setLastName($lastName)
@@ -119,9 +120,9 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Get last_name
+     * Get last_name.
      *
-     * @return string 
+     * @return string
      */
     public function getLastName()
     {
@@ -129,9 +130,10 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Set salutation
+     * Set salutation.
      *
      * @param string $salutation
+     *
      * @return ExampleUser
      */
     public function setSalutation($salutation)
@@ -142,9 +144,9 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Get salutation
+     * Get salutation.
      *
-     * @return string 
+     * @return string
      */
     public function getSalutation()
     {
@@ -152,9 +154,10 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Set preferredLocale
+     * Set preferredLocale.
      *
      * @param string $preferredLocale
+     *
      * @return ExampleUser
      */
     public function setPreferredLocale($preferredLocale)
@@ -165,9 +168,9 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Get preferredLocale
+     * Get preferredLocale.
      *
-     * @return string 
+     * @return string
      */
     public function getPreferredLocale()
     {
@@ -175,9 +178,10 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Set notification_mode
+     * Set notification_mode.
      *
-     * @param integer $notificationMode
+     * @param int $notificationMode
+     *
      * @return ExampleUser
      */
     public function setNotificationMode($notificationMode)
@@ -188,9 +192,9 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Get notification_mode
+     * Get notification_mode.
      *
-     * @return integer 
+     * @return int
      */
     public function getNotificationMode()
     {
@@ -198,9 +202,10 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Set newsletter
+     * Set newsletter.
      *
-     * @param boolean $newsletter
+     * @param bool $newsletter
+     *
      * @return ExampleUser
      */
     public function setNewsletter($newsletter)
@@ -211,9 +216,9 @@ class ExampleUser extends User implements RecipientInterface {
     }
 
     /**
-     * Get newsletter
+     * Get newsletter.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getNewsletter()
     {

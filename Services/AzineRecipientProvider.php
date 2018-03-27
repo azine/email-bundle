@@ -1,10 +1,11 @@
 <?php
+
 namespace Azine\EmailBundle\Services;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
- * Default implementation of the RecipientProviderInterface
+ * Default implementation of the RecipientProviderInterface.
  */
 class AzineRecipientProvider implements RecipientProviderInterface
 {
@@ -18,7 +19,6 @@ class AzineRecipientProvider implements RecipientProviderInterface
     private $newsletterField;
 
     /**
-     *
      * @param ManagerRegistry $managerRegistry
      * @param string          $userClass
      * @param string          $newsletterField
@@ -31,7 +31,8 @@ class AzineRecipientProvider implements RecipientProviderInterface
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.RecipientProviderInterface::getRecipient()
      */
     public function getRecipient($id)
@@ -40,16 +41,17 @@ class AzineRecipientProvider implements RecipientProviderInterface
     }
 
     /**
-     * (non-PHPdoc)
+     * (non-PHPdoc).
+     *
      * @see Azine\EmailBundle\Services.RecipientProviderInterface::getNewsletterRecipientIDs()
      */
     public function getNewsletterRecipientIDs()
     {
         $qb = $this->managerRegistry->getManager()->createQueryBuilder()
-            ->select("n.id")
-            ->from($this->userClass, "n")
+            ->select('n.id')
+            ->from($this->userClass, 'n')
             ->where('n.'.$this->newsletterField.' = true')
-            ->andWhere("n.enabled = 1") // exclude inactive users
+            ->andWhere('n.enabled = 1') // exclude inactive users
             ;
         $results = $qb->getQuery()->execute();
         $ids = array();
@@ -59,5 +61,4 @@ class AzineRecipientProvider implements RecipientProviderInterface
 
         return $ids;
     }
-
 }
