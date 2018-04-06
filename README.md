@@ -635,6 +635,7 @@ parameter values manually to individual links.
 
 In this hierarchy (email template > content item template > individual link) 
 values are not overwritten if they are defined on the more granular level.
+
 You can check the resulting links in the WebPreView of the email.
 
 ## Email-open-tracking with a tracking image (e.g. with piwik or google-analytics)
@@ -694,7 +695,6 @@ All you have to do is to move `pre-commit.sample` file from `commit-hooks/` to `
 `php-cs-fixer` will check the style of your new added code each time you commit and apply fixes to the commit.
 
 To run `php-cs-fixer` manually, install dependencies (`composer install`) and execute `php vendor/friendsofphp/php-cs-fixer/php-cs-fixer --diff --dry-run -v fix --config=.php_cs.dist .`
-
 
 ## Build-Status etc.
 [![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle) 
