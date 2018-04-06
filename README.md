@@ -635,8 +635,7 @@ parameter values manually to individual links.
 
 In this hierarchy (email template > content item template > individual link) 
 values are not overwritten if they are defined on the more granular level.
- 
-You can check the resulting links in the WebPreView of the email.
+ You can check the resulting links in the WebPreView of the email.
 
 ## Email-open-tracking with a tracking image (e.g. with piwik or google-analytics)
 To be able to track with Piwik or GoogleAnalytics (or the like) if an email 
@@ -693,7 +692,6 @@ You can check the code style with the `php-cs-fixer`. Optionally you can set up 
 All you have to do is to move `pre-commit.sample` file from `commit-hooks/` to `.git/hooks/` folder and rename it to `pre-commit`.
 
 `php-cs-fixer` will check the style of your new added code each time you commit, showing you what you have to fix.
-
 
 ## Build-Status etc.
 [![Build Status](https://travis-ci.org/azine/email-bundle.png)](https://travis-ci.org/azine/email-bundle) [![Total Downloads](https://poser.pugx.org/azine/email-bundle/downloads.png)](https://packagist.org/packages/azine/email-bundle) [![Latest Stable Version](https://poser.pugx.org/azine/email-bundle/v/stable.png)](https://packagist.org/packages/azine/email-bundle) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/email-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/email-bundle/) [![Code Coverage](https://scrutinizer-ci.com/g/azine/email-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/email-bundle/) [![Dependency Status](https://www.versioneye.com/user/projects/567eae02eb4f470030000001/badge.svg?style=flat)](https://www.versioneye.com/user/projects/567eae02eb4f470030000001) 
