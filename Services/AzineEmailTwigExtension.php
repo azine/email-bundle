@@ -185,9 +185,9 @@ class AzineEmailTwigExtension extends \Twig_Extension
         $output = '';
         $defaultIndent = '    ';
         ksort($vars);
-        foreach ($vars as $key => $value){
-            if($allDetails && !((array) $value == $vars)) { // avoid infinite recursion
-                $value = "\n" . $this->printVars((array) $value, $allDetails, $indent.$defaultIndent);
+        foreach ($vars as $key => $value) {
+            if ($allDetails && !((array) $value == $vars)) { // avoid infinite recursion
+                $value = "\n".$this->printVars((array) $value, $allDetails, $indent.$defaultIndent);
             } else {
                 if (is_array($value)) {
                     $value = 'array('.sizeof($value).')';

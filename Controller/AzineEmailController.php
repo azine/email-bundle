@@ -5,8 +5,8 @@ namespace Azine\EmailBundle\Controller;
 use Azine\EmailBundle\Entity\Repositories\SentEmailRepository;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Form\SentEmailType;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -16,9 +16,10 @@ class AzineEmailController extends Controller
 {
     /**
      *  Displays an Emails-Dashboard with filters for each property of SentEmails entity and links to
-     *  emailDetailsByToken & webView actions for each email
+     *  emailDetailsByToken & webView actions for each email.
      *
      * @param Request $request
+     *
      * @return Response
      */
     public function emailsDashboardAction(Request $request)
@@ -36,7 +37,8 @@ class AzineEmailController extends Controller
     }
 
     /**
-     * Displays an extended view of SentEmail entity searched by a token property
+     * Displays an extended view of SentEmail entity searched by a token property.
+     *
      * @param string $token
      *
      * @return Response

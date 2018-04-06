@@ -4,7 +4,6 @@ namespace Azine\EmailBundle\Entity\Repositories;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
-use Doctrine\ORM\QueryBuilder;
 
 /**
  * SentEmailRepository.
@@ -18,6 +17,7 @@ class SentEmailRepository extends EntityRepository
      * Search SentEmails by search params.
      *
      * @param $searchParams
+     *
      * @return Query
      */
     public function search($searchParams = array())
