@@ -13,7 +13,7 @@ class TestHelper
 
     /**
      * @param EntityManager $manager
-     * @param int $count
+     * @param int           $count
      */
     public static function addSentEmails(EntityManager $manager, $count = 1)
     {
