@@ -4,6 +4,8 @@ namespace Azine\EmailBundle\Tests\Controller;
 
 use Azine\EmailBundle\Entity\Repositories\SentEmailRepository;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
+use Azine\EmailBundle\Tests\TestHelper;
+use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DomCrawler\Crawler;
@@ -40,7 +42,7 @@ class AzineEmailControllerTest extends WebTestCase
 
         $numberOfPaginationLinks = ceil(count($testSentEmails) / $pageLimit);
 
-        $this->assertSame($numberOfPaginationLinks, $crawler->filter('.pagination .page')->count() + $crawler->filter('.pagination .current')->count(), $numberOfPaginationLinks.' pagination links expected');
+        $this->assertEquals($numberOfPaginationLinks, $crawler->filter('.pagination .page')->count() + $crawler->filter('.pagination .current')->count(), $numberOfPaginationLinks.' pagination links expected');
 
         //click on an email web view link to get to the web page
         $link = $crawler->filter(".sentEmail:contains('".AzineTemplateProvider::NEWSLETTER_TEMPLATE."')")->filter('a.showWebViewButton')->link();
