@@ -40,9 +40,9 @@ class AzineEmailControllerTest extends WebTestCase
 
         $this->assertSame($pageLimit, $crawler->filter('.sentEmail')->count(), 'emailsDashboard expected with '.$pageLimit.' sent emails');
 
-        $numberOfPaginationLinks = ceil(count($testSentEmails) / $pageLimit);
+        $numberOfPaginationLinks = intval(ceil(count($testSentEmails) / $pageLimit));
 
-        $this->assertEquals($numberOfPaginationLinks, $crawler->filter('.pagination .page')->count() + $crawler->filter('.pagination .current')->count(), $numberOfPaginationLinks.' pagination links expected');
+        $this->assertSame($numberOfPaginationLinks, $crawler->filter('.pagination .page')->count() + $crawler->filter('.pagination .current')->count(), $numberOfPaginationLinks.' pagination links expected');
 
         //click on an email web view link to get to the web page
         $link = $crawler->filter(".sentEmail:contains('".AzineTemplateProvider::NEWSLETTER_TEMPLATE."')")->filter('a.showWebViewButton')->link();
