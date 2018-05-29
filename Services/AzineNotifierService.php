@@ -242,7 +242,7 @@ class AzineNotifierService implements NotifierServiceInterface
     /**
      * The translator.
      *
-     * @var Translator
+     * @var TranslatorInterface
      */
     protected $translatorService;
 
