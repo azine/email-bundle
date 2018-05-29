@@ -6,7 +6,7 @@ use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\SentEmail;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
@@ -19,7 +19,7 @@ use Symfony\Component\Routing\RequestContext;
 class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftMailerInterface
 {
     /**
-     * @var Translator
+     * @var TranslatorInterface
      */
     protected $translator;
 
@@ -73,7 +73,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * @param \Swift_Mailer                         $mailer
      * @param UrlGeneratorInterface                 $router
      * @param \Twig_Environment                     $twig
-     * @param Translator                            $translator
+     * @param TranslatorInterface                   $translator
      * @param TemplateProviderInterface             $templateProvider
      * @param ManagerRegistry                       $managerRegistry
      * @param EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder
@@ -84,7 +84,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     public function __construct(\Swift_Mailer $mailer,
                                     UrlGeneratorInterface $router,
                                     \Twig_Environment $twig,
-                                    Translator $translator,
+                                    TranslatorInterface $translator,
                                     TemplateProviderInterface $templateProvider,
                                     ManagerRegistry $managerRegistry,
                                     EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder,

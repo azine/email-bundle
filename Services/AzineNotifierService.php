@@ -7,7 +7,7 @@ use Azine\EmailBundle\Entity\Notification;
 use Azine\EmailBundle\Entity\RecipientInterface;
 use Azine\EmailBundle\Entity\Repositories\NotificationRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -180,12 +180,12 @@ class AzineNotifierService implements NotifierServiceInterface
      * @param ManagerRegistry                  $managerRegistry
      * @param TemplateProviderInterface        $templateProvider
      * @param RecipientProviderInterface       $recipientProvider
-     * @param Translator                       $translatorService
+     * @param TranslatorInterface              $translatorService
      * @param array                            $parameters
      */
     public function __construct(TemplateTwigSwiftMailerInterface $mailer, \Twig_Environment $twig, UrlGeneratorInterface $router,
                                ManagerRegistry $managerRegistry, TemplateProviderInterface $templateProvider, RecipientProviderInterface $recipientProvider,
-            Translator $translatorService, array $parameters)
+            TranslatorInterface $translatorService, array $parameters)
     {
         $this->mailer = $mailer;
         $this->twig = $twig;
