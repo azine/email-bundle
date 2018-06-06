@@ -6,10 +6,10 @@ use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\SentEmail;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
-use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * This Service is used to send html-emails with embedded images.
