@@ -9,6 +9,7 @@ namespace Azine\EmailBundle\Services;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class AzineTemplateProvider implements TemplateProviderInterface
 {
@@ -290,7 +291,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
     private $router;
 
     /**
-     * @var Translator
+     * @var TranslatorInterface
      */
     private $translator;
 
@@ -333,7 +334,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
      */
     protected $snippetArrays = array();
 
-    public function __construct(UrlGeneratorInterface $router, Translator $translator, array $parameters)
+    public function __construct(UrlGeneratorInterface $router, TranslatorInterface $translator, array $parameters)
     {
         $this->router = $router;
         $this->translator = $translator;

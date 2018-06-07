@@ -8,7 +8,7 @@ services:
         class: Azine\EmailBundle\Services\AzineTemplateProvider
         arguments:
           $router:       "@router"
-          $translator:   "@translator.default"
+          $translator:   "@translator"
           $parameters:
             image_dir:  "%azine_email_image_dir%"
             allowed_images_folders: "%azine_email_allowed_images_folders%"
@@ -27,7 +27,7 @@ services:
           $managerRegistry:    "@doctrine"
           $templateProvider:   "@azine_email_template_provider"
           $recipientProvider:  "@azine_email_recipient_provider"
-          $translatorService:  "@translator.default"
+          $translatorService:  "@translator"
           $parameters:
             newsletter_interval :     "%azine_email_newsletter_interval%"
             newsletter_send_time:     "%azine_email_newsletter_send_time%"
@@ -50,7 +50,7 @@ services:
           $mailer:             "@mailer"
           $router:             "@router"
           $twig:               "@twig"
-          $translator:         "@translator.default"
+          $translator:         "@translator"
           $templateProvider:   "@azine_email_template_provider"
           $managerRegistry:    "@doctrine"
           $emailOpenTrackingCodeBuilder: "@azine_email_email_open_tracking_code_builder"
@@ -95,7 +95,7 @@ services:
         public: false
         arguments:
           $templateProvider:   "@azine_email_template_provider"
-          $translator:         "@translator.default"
+          $translator:         "@translator"
           $domainsToTrack:     "%azine_email_domains_for_tracking%"
         tags:
             - { name: twig.extension }
