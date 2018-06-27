@@ -21,6 +21,12 @@ matrix:
         - SYMFONY_VERSION=lts:^3
         - cs_fixer=cs_dry_run
 
+    - env:
+        - SYMFONY_VERSION=lts:^4
+        - cs_fixer=cs_dry_run
+
+  allow_failures:
+    - env: SYMFONY_VERSION=lts:^4
 
 sudo: false
 
