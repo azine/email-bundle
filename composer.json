@@ -34,7 +34,7 @@
     },
     "require-dev": {
         "symfony/translation": "~2.7,>=2.7|~3.0",
-        "phpunit/phpunit":  "~4.0,>=4.2",
+        "phpunit/phpunit":  "~5.0",
         "friendsofphp/php-cs-fixer": "^2.2"
     },
     "autoload": {

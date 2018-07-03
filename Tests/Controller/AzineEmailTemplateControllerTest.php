@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
+use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
@@ -357,7 +358,12 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $controller->setContainer($containerMock);
         $response = $controller->serveImageAction($requestMock, $folderKey, $filename);
         $this->assertSame('image', $response->headers->get('Content-Type'));
-        $this->assertSame('inline; filename="'.$filename.'"', $response->headers->get('Content-Disposition'));
+
+        if (Kernel::VERSION_ID < 40102) {
+            $this->assertSame('inline; filename="'.$filename.'"', $response->headers->get('Content-Disposition'));
+        } else {
+            $this->assertSame('inline; filename='.$filename, $response->headers->get('Content-Disposition'));
+        }
     }
 
     /**
