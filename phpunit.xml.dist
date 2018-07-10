@@ -12,6 +12,10 @@
          bootstrap="Tests/bootstrap.php"
 >
 
+    <php>
+        <env name="KERNEL_CLASS" value="AppKernel" />
+    </php>
+
     <testsuites>
         <testsuite name="Azine/EmailBundle Test Suite">
             <directory>./Tests</directory>
