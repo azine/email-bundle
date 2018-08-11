@@ -270,7 +270,7 @@ class AzineEmailTemplateController extends Controller
     {
         $folder = $this->getTemplateProviderService()->getFolderFrom($folderKey);
         if (false !== $folder) {
-            $fullPath = $folder.$filename;
+            $fullPath = $folder.urldecode($filename);
             $response = BinaryFileResponse::create($fullPath);
             $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
             $response->headers->set('Content-Type', 'image');

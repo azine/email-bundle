@@ -482,8 +482,9 @@ class AzineTemplateProvider implements TemplateProviderInterface
                 $folderKey = $this->isFileAllowed($value);
                 if (false !== $folderKey) {
                     // replace the fs-path with the web-path
-                    $filename = substr($value, strrpos($value, '/') + 1);
-                    $newValue = $this->getRouter()->generate('azine_email_serve_template_image', array('folderKey' => $folderKey, 'filename' => $filename, '_locale' => $locale));
+                    $fsPathToReplace = $this->getFolderFrom($folderKey);
+                    $filename = substr($value, strlen($fsPathToReplace));
+                    $newValue = $this->getRouter()->generate('azine_email_serve_template_image', array('folderKey' => $folderKey, 'filename' => urlencode($filename), '_locale' => $locale));
                     $emailVars[$key] = $newValue;
                 }
             } elseif (is_array($value)) {
