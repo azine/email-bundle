@@ -4,6 +4,7 @@ namespace Azine\EmailBundle\Controller;
 
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Services\TemplateProviderInterface;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
@@ -241,17 +242,20 @@ class AzineEmailTemplateController extends Controller
      */
     private function reAttachAllEntities(array &$vars)
     {
+        /** @var EntityManager $em */
         $em = $this->get('doctrine')->getManager();
         foreach ($vars as $key => $next) {
             if (is_object($next) && method_exists($next, 'getId')) {
                 $className = get_class($next);
                 $managedEntity = $em->find($className, $next->getId());
+                $em->refresh($managedEntity);
                 if ($managedEntity) {
                     $vars[$key] = $managedEntity;
                 }
                 continue;
             } elseif (is_array($next)) {
                 $this->reAttachAllEntities($next);
+                $vars[$key] = $next;
                 continue;
             }
         }
