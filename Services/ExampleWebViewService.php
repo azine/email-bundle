@@ -47,11 +47,11 @@ class ExampleWebViewService extends AzineWebViewService
             $aUser = null;
             $vipVars['vipInfos'] = $someService->getVipInfosFor($aUser);
             $vipVars['userTitle'] = 'You majesty';
-            $variables['contentItems'][] = array(ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE, $vipVars);
+            $variables['contentItems'][] = array(ExampleTemplateProvider::VIP_INFO_MAIL_TEMPLATE => $vipVars);
         } elseif (ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE == $template) {
             $otherMailVars = array();
             $otherMailVars['date'] = new \DateTime('long ago');
-            $variables['contentItems'][] = array(ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE, $otherMailVars);
+            $variables['contentItems'][] = array(ExampleTemplateProvider::SOME_OTHER_MAIL_TEMPLATE => $otherMailVars);
         }
 
         $variables['sendMailAccountName'] = 'some name';
