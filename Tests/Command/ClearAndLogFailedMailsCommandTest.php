@@ -145,7 +145,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
 
     private $failedRecipients = array();
 
-    public function send_failures_callback(\Swift_Mime_Message $message, &$failedRecipients = null)
+    public function send_failures_callback(\Swift_Mime_CharsetObserver $message, &$failedRecipients = null)
     {
         if (sizeof($this->failedRecipients) > 0) {
             $failedRecipients[] = array_pop($this->failedRecipients);

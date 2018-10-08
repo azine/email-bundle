@@ -29,7 +29,8 @@
         "monolog/monolog": "~1.6,>=1.6.0",
         "friendsofsymfony/user-bundle": "~2.0",
         "twig/extensions": "~1.0",
-        "knplabs/knp-paginator-bundle": "^2.6"
+        "knplabs/knp-paginator-bundle": "^2.6",
+        "symfony/lock": ">=3.4"
     },
     "require-dev": {
         "symfony/translation": "~2.7,>=2.7|~3.0",
