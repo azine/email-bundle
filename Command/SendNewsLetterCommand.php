@@ -5,7 +5,6 @@ namespace Azine\EmailBundle\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\LockHandler;
 
 /**
  * Send Newsletter via email.
@@ -44,9 +43,18 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // create the lock
-        $lock = new LockHandler($this->getName());
-        if (!$lock->lock()) {
+        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID < 30400) {
+            $lock = new \Symfony\Component\Filesystem\LockHandler($this->getName());
+            $unlockedCommand = $lock->lock();
+        } else {
+            $store = new \Symfony\Component\Lock\Store\SemaphoreStore();
+            $factory = new \Symfony\Component\Lock\Factory($store);
+
+            $lock = $factory->createLock($this->getName());
+            $unlockedCommand = $lock->acquire();
+        }
+
+        if (!$unlockedCommand) {
             $output->writeln('The command is already running in another process.');
 
             return 0;
