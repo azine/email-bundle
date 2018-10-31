@@ -1,7 +1,7 @@
 {
     "name": "azine/email-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony2 Bundle to send html- & txt-emails (notification about events on your web-app or newsletters etc. scheduled/aggregated) to your users.",
+    "description": "Symfony3 Bundle to send html- & txt-emails (notification about events on your web-app or newsletters etc. scheduled/aggregated) to your users.",
     "keywords": ["email", "newsletter", "notification", "updates", "email web view", "mailgun", "email open tracking"],
     "homepage": "https://github.com/azine/email-bundle",
     "license": "MIT",

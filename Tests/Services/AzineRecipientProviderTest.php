@@ -18,7 +18,7 @@ class AzineRecipientProviderTest extends \PHPUnit\Framework\TestCase
         $repositoryMock = $this->getMockBuilder("Doctrine\ORM\EntityRepository")->disableOriginalConstructor()->getMock();
         $repositoryMock->expects($this->once())->method('find')->with($id, LockMode::NONE, null)->will($this->returnValue($recipientMock));
 
-        $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
+        $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
         $entityManagerMock->expects($this->once())->method('getRepository')->will($this->returnValue($repositoryMock));
 
         $managerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
@@ -43,7 +43,7 @@ class AzineRecipientProviderTest extends \PHPUnit\Framework\TestCase
 
         $queryBuilderMock->expects($this->once())->method('getQuery')->will($this->returnValue(new AzineQueryMock($queryResult)));
 
-        $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
+        $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
         $entityManagerMock->expects($this->once())->method('createQueryBuilder')->will($this->returnValue($queryBuilderMock));
 
         $managerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();

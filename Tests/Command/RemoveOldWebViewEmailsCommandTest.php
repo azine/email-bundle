@@ -90,7 +90,7 @@ class RemoveOldWebViewEmailsCommandTest extends \PHPUnit\Framework\TestCase
         $queryBuilderMock->expects($this->once())->method('setParameter')->will($this->returnSelf());
         $queryBuilderMock->expects($this->once())->method('getQuery')->will($this->returnValue(new AzineQueryMock($deletedWebMails)));
 
-        $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
+        $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
         $entityManagerMock->expects($this->once())->method('createQueryBuilder')->will($this->returnValue($queryBuilderMock));
 
         $doctrineMock = $this->getMockBuilder("\Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();

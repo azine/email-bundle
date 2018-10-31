@@ -16,6 +16,11 @@ class AzineQueryMock extends AbstractQuery
         $this->result = $result;
     }
 
+    protected function doExecute()
+    {
+        return;
+    }
+
     protected function _doExecute()
     {
         return;

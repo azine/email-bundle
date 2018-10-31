@@ -6,6 +6,7 @@ use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
+use Doctrine\ORM\EntityManager;
 
 class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
 {
@@ -32,7 +33,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
                                                                                                                 ));
         $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
-        $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
+        $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry']->expects($this->any())->method('getManager')->will($this->returnValue($mocks['entityManager']));
 
@@ -172,7 +173,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         ));
         $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
-        $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
+        $mocks['entityManager'] = new EntityManager(); $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry']->expects($this->any())->method('getManager')->will($this->returnValue($mocks['entityManager']));
 
@@ -284,7 +285,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
                                                                                                             ));
         $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
-        $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
+        $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry']->expects($this->any())->method('getManager')->will($this->returnValue($mocks['entityManager']));
 
