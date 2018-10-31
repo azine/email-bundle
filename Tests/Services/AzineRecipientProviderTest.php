@@ -6,7 +6,7 @@ use Azine\EmailBundle\Services\AzineRecipientProvider;
 use Azine\EmailBundle\Tests\AzineQueryMock;
 use Doctrine\DBAL\LockMode;
 
-class AzineRecipientProviderTest extends \PHPUnit_Framework_TestCase
+class AzineRecipientProviderTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetRecipient()
     {

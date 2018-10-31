@@ -4,7 +4,7 @@ namespace Azine\EmailBundle\Tests\Entity;
 
 use Azine\EmailBundle\Entity\Notification;
 
-class NotificationTest extends \PHPUnit_Framework_TestCase
+class NotificationTest extends \PHPUnit\Framework\TestCase
 {
     public function testSetCreated()
     {

@@ -7,7 +7,7 @@ use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
 
-class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
+class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
 {
     private function getMockSetup($sendCallback)
     {

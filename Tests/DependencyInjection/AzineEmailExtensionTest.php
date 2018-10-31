@@ -6,7 +6,7 @@ use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Yaml\Yaml;
 
-class AzineEmailExtensionTest extends \PHPUnit_Framework_TestCase
+class AzineEmailExtensionTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ContainerBuilder */
     protected $configuration;

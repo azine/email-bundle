@@ -5,7 +5,7 @@ namespace Azine\EmailBundle\Tests;
 /**
  * @author d.businger
  */
-class AzineEmailBundleSetupTest extends \PHPUnit_Framework_TestCase
+class AzineEmailBundleSetupTest extends \PHPUnit\Framework\TestCase
 {
     public function testMagicQuotes()
     {

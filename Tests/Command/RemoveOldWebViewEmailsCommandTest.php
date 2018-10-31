@@ -10,7 +10,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @author dominik
  */
-class RemoveOldWebViewEmailsCommandTest extends \PHPUnit_Framework_TestCase
+class RemoveOldWebViewEmailsCommandTest extends \PHPUnit\Framework\TestCase
 {
     public function testHelpInfo()
     {

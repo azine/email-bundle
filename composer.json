@@ -17,7 +17,7 @@
         "github-domains": ["github.com"]
     },
     "require": {
-        "php": ">=5.6.0",
+        "php": ">=7.1.0",
         "symfony/framework-bundle": "~2.7,>=2.7|~3.0|~4.0",
         "symfony/console": "~2.7,>=2.7|~3.0|~4.0",
         "symfony/finder": "~2.7,>=2.7|~3.0|~4.0",
@@ -34,7 +34,7 @@
     },
     "require-dev": {
         "symfony/translation": "~2.7,>=2.7|~3.0",
-        "phpunit/phpunit":  "~5.0",
+        "phpunit/phpunit":  "~7.0",
         "friendsofphp/php-cs-fixer": "^2.2"
     },
     "autoload": {

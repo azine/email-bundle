@@ -4,7 +4,7 @@ namespace Azine\EmailBundle\Tests\Entity;
 
 use Azine\EmailBundle\Entity\SentEmail;
 
-class SentEmailTest extends \PHPUnit_Framework_TestCase
+class SentEmailTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetNewToken()
     {

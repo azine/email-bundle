@@ -2,7 +2,7 @@
 
 namespace Azine\EmailBundle\Tests\Entity\Repositories;
 
-class NotificationRepositoryTest extends \PHPUnit_Framework_TestCase
+class NotificationRepositoryTest extends \PHPUnit\Framework\TestCase
 {
     public function testNothing()
     {

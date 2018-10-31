@@ -10,7 +10,7 @@ use Symfony\Component\Process\Process;
 /**
  * @author dominik
  */
-class SendNotificationsCommandTest extends \PHPUnit_Framework_TestCase
+class SendNotificationsCommandTest extends \PHPUnit\Framework\TestCase
 {
     public function testHelpInfo()
     {

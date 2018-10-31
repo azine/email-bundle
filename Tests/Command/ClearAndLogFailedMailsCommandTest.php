@@ -13,7 +13,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @author dominik
  */
-class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
+class ClearAndLogFailedMailsCommandTest extends \PHPUnit\Framework\TestCase
 {
     public function testHelpInfo()
     {

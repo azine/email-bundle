@@ -73,7 +73,7 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
      * @param string $cc             cc-recipient-email(s) or null
      * @param string $bcc            bcc-recipient-email(s) or null
      *
-     * @return null|string Email open tracking code for google analytics or piwik or null
+     * @return string|null Email open tracking code for google analytics or piwik or null
      */
     public function getTrackingImgCode($templateBaseId, array $campaignParams, array $emailTemplateParams, $messageId, $to, $cc, $bcc)
     {
