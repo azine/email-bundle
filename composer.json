@@ -18,12 +18,12 @@
     },
     "require": {
         "php": "^7.0",
-        "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
-        "symfony/console": "^2.8 || ^3.0 || ^4.0",
-        "symfony/finder": "^2.8 || ^3.0 || ^4.0",
-        "symfony/twig-bundle": "^2.8 || ^3.0 || ^4.0",
-        "symfony/filesystem": "^2.8 || ^3.0 || ^4.0",
-        "symfony/yaml": "^2.8 || ^3.0 || ^4.0",
+        "symfony/framework-bundle": ">=2.8",
+        "symfony/console": ">=2.8",
+        "symfony/finder": ">=2.8",
+        "symfony/twig-bundle": ">=2.8",
+        "symfony/filesystem": ">=2.8",
+        "symfony/yaml": ">=2.8",
         "swiftmailer/swiftmailer": ">=5.4.5,~5.0|^6",
         "doctrine/orm": "~2.0,>=2.2",
         "monolog/monolog": "~1.6,>=1.6.0",
@@ -33,7 +33,7 @@
         "symfony/lock": ">=3.4"
     },
     "require-dev": {
-        "symfony/translation": "^2.8 || ^3.0",
+        "symfony/translation": ">=2.8",
         "phpunit/phpunit":  "~7.0",
         "friendsofphp/php-cs-fixer": "^2.2"
     },
