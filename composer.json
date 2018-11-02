@@ -33,7 +33,7 @@
         "symfony/lock": ">=3.4"
     },
     "require-dev": {
-        "symfony/translation": "~3.0",
+        "symfony/translation": "^2.8 || ^3.0",
         "phpunit/phpunit":  "~7.0",
         "friendsofphp/php-cs-fixer": "^2.2"
     },
