@@ -5,6 +5,7 @@ php:
   - 7.2
 
 env:
+  - SYMFONY_VERSION=lts:^2
   - SYMFONY_VERSION=lts:^3
   - SYMFONY_VERSION=lts:^4
 
@@ -13,7 +14,7 @@ matrix:
   fast_finish: true
   include:
     - env:
-        - SYMFONY_VERSION=lts:^3
+        - SYMFONY_VERSION=lts:^2
         - dependencies=lowest
 
     - env:
