@@ -19,6 +19,11 @@
     "require": {
         "php": "^7.0",
         "symfony/framework-bundle": ">=2.8|~3.0|~4.0-stable",
+        "symfony/class-loader": ">=2.8|~3.0|~4.0-stable",
+        "symfony/console": ">=2.8|~3.0|~4.0-stable",
+        "symfony/finder": ">=2.8|~3.0|~4.0-stable",
+        "symfony/twig-bundle": ">=2.8|~3.0|~4.0-stable",
+        "symfony/filesystem": ">=2.8|~3.0|~4.0-stable",
         "swiftmailer/swiftmailer": ">=5.4.5,~5.0|^6",
         "doctrine/orm": "~2.0,>=2.2",
         "monolog/monolog": "~1.6,>=1.6.0",
