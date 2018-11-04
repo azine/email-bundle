@@ -19,7 +19,7 @@
     "require": {
         "php": "^7.0",
         "symfony/framework-bundle": "~3.0|~4.0",
-        "symfony/class-loader": "~3.0-stable|~4.0-stable",
+        "symfony/class-loader": "3.4.x-stable|~4.0-stable",
         "symfony/console": "~3.0|~4.0",
         "symfony/finder": "~3.0|~4.0",
         "symfony/twig-bundle": "~3.0|~4.0",
