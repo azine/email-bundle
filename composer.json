@@ -24,7 +24,7 @@
         "monolog/monolog": "~1.6,>=1.6.0",
         "friendsofsymfony/user-bundle": "~2.0",
         "twig/extensions": "~1.0",
-        "knplabs/knp-paginator-bundle": "^2.6",
+        "knplabs/knp-paginator-bundle": "^2.6"
     },
     "require-dev": {
         "phpunit/phpunit":  "~7.0",
