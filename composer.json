@@ -18,23 +18,15 @@
     },
     "require": {
         "php": "^7.0",
-        "symfony/framework-bundle": "^3.0 || ^4.0",
-        "symfony/flex": "~1.1",
-        "symfony/console": "^3.0 || ^4.0",
-        "symfony/finder": "^3.0 || ^4.0",
-        "symfony/twig-bundle": "^3.0 || ^4.0",
-        "symfony/filesystem": "^3.0 || ^4.0",
-        "symfony/yaml": "^3.0 || ^4.0",
+        "symfony/symfony": "~3.0",
         "swiftmailer/swiftmailer": ">=5.4.5,~5.0|^6",
         "doctrine/orm": "~2.0,>=2.2",
         "monolog/monolog": "~1.6,>=1.6.0",
         "friendsofsymfony/user-bundle": "~2.0",
         "twig/extensions": "~1.0",
         "knplabs/knp-paginator-bundle": "^2.6",
-        "symfony/lock": ">=3.4"
     },
     "require-dev": {
-        "symfony/translation": "^3.0 || ^4.0",
         "phpunit/phpunit":  "~7.0",
         "friendsofphp/php-cs-fixer": "^2.2"
     },
