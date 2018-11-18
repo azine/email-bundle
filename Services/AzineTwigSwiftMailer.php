@@ -4,8 +4,10 @@ namespace Azine\EmailBundle\Services;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\SentEmail;
+use Azine\EmailUpdateConfirmationBundle\Mailer\EmailUpdateConfirmationMailerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
+use FOS\UserBundle\Model\UserInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
@@ -16,7 +18,7 @@ use Symfony\Component\Translation\TranslatorInterface;
  *
  * @author Dominik Businger
  */
-class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftMailerInterface
+class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftMailerInterface, EmailUpdateConfirmationMailerInterface
 {
     /**
      * @var TranslatorInterface
@@ -519,5 +521,26 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         }
 
         return $this->mailer;
+    }
+
+    /**
+     * Send confirmation link to specified new user email.
+     *
+     * @param UserInterface $user
+     * @param $confirmationUrl
+     * @param $toEmail
+     *
+     * @return bool
+     */
+    public function sendUpdateEmailConfirmation(UserInterface $user, $confirmationUrl, $toEmail)
+    {
+        $template = $this->parameters['template']['email_updating'];
+        $fromEmail = $this->parameters['from_email']['confirmation'];
+        $context = array(
+            'user' => $user,
+            'confirmationUrl' => $confirmationUrl,
+        );
+
+        $this->sendMessage($template, $context, $fromEmail, $toEmail);
     }
 }
