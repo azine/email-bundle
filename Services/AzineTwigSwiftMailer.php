@@ -136,7 +136,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     {
         // create the message
         if (null === $message) {
-            $message = \Swift_Message::newInstance();
+            $message = new \Swift_Message();
         }
 
         $message->setSubject($subject);
@@ -244,7 +244,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
                 // add attachment from generated data
             } else {
-                $attachment = \Swift_Attachment::newInstance($file, $fileName);
+                $attachment = new \Swift_Attachment($file, $fileName);
             }
 
             $message->attach($attachment);
@@ -414,7 +414,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                 $imageData = ob_get_clean();
 
                 // encode the image
-                $encodedImage = \Swift_Image::newInstance($imageData, 'generatedImage'.md5($imageData));
+                $encodedImage = new \Swift_Image($imageData, 'generatedImage'.md5($imageData));
                 $id = $message->embed($encodedImage);
                 $params[$key] = $id;
             }

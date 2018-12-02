@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 5.6
   - 7.1
   - 7.2
 
@@ -22,9 +21,6 @@ matrix:
         - SYMFONY_VERSION=lts:^3
         - cs_fixer=cs_dry_run
 
-  exclude:
-    - php: 5.6
-      env: SYMFONY_VERSION=lts:^4
 
 sudo: false
 
@@ -40,7 +36,7 @@ before_script:
   - phpenv config-add travis.php.ini
   - travis_wait composer require symfony/${SYMFONY_VERSION} --prefer-source --no-update -v
   - travis_wait composer install --prefer-source
-  - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest --prefer-stable -n; fi;
+  - if [ "$dependencies" = "lowest" ]; then travis_wait composer update --prefer-lowest --prefer-stable -n; fi;
   - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
 
 script:

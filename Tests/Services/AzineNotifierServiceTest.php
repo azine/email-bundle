@@ -9,7 +9,7 @@ use Azine\EmailBundle\Services\AzineNotifierService;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\Services\ExampleNotifierService;
 
-class AzineNotifierServiceTest extends \PHPUnit_Framework_TestCase
+class AzineNotifierServiceTest extends \PHPUnit\Framework\TestCase
 {
     private function getMockSetup()
     {

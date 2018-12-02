@@ -7,7 +7,7 @@ use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\Services\AzineTwigSwiftMailer;
 
-class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
+class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
 {
     private function getMockSetup($sendCallback)
     {
@@ -64,12 +64,12 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         return $mocks;
     }
 
-    public function returnOne(\Swift_Mime_Message $message, &$failedRecipients = null)
+    public function returnOne($message, &$failedRecipients = null)
     {
         return 1;
     }
 
-    public function returnOneValidateCampaignUrls(\Swift_Mime_Message $message, &$failedRecipients = null)
+    public function returnOneValidateCampaignUrls($message, &$failedRecipients = null)
     {
         $body = $message->getBody();
 
@@ -82,7 +82,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit_Framework_TestCase
         return 1;
     }
 
-    public function returnZeroWithFailedAddress(\Swift_Mime_Message $message, &$failedRecipients = null)
+    public function returnZeroWithFailedAddress($message, &$failedRecipients = null)
     {
         $failedRecipients[] = $message->getTo();
 

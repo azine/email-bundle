@@ -310,7 +310,7 @@ class AzineNotifierService implements NotifierServiceInterface
      * @param string $wrapperTemplateName
      * @param array  $params              array of parameters for this recipient
      *
-     * @return null|string or the failed email addressess
+     * @return string|null or the failed email addressess
      */
     public function sendNotificationsFor($recipientId, $wrapperTemplateName, $params)
     {
