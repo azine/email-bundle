@@ -5,9 +5,9 @@ php:
   - 7.2
 
 env:
-  - SYMFONY_VERSION=lts:^2
-  - SYMFONY_VERSION=lts:^3
-  - SYMFONY_VERSION=lts:^4
+    - SYMFONY_VERSION=lts:^2
+    - SYMFONY_VERSION=lts:^3
+    - SYMFONY_VERSION=lts:^4
 
 
 matrix:
@@ -21,6 +21,8 @@ matrix:
         - SYMFONY_VERSION=lts:^3
         - cs_fixer=cs_dry_run
 
+  allow_failures:
+    - env: SYMFONY_VERSION=lts:^4
 
 sudo: false
 
