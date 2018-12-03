@@ -5,7 +5,7 @@ namespace Azine\EmailBundle\Tests\Services;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 
-class AzineTemplateProviderTest extends \PHPUnit_Framework_TestCase
+class AzineTemplateProviderTest extends \PHPUnit\Framework\TestCase
 {
     private function getMockSetup()
     {

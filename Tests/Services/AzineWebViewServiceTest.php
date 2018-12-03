@@ -4,7 +4,7 @@ namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Services\AzineWebViewService;
 
-class AzineWebViewServiceTest extends \PHPUnit_Framework_TestCase
+class AzineWebViewServiceTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject mock of the UrlGeneratorInterface

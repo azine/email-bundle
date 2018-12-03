@@ -338,7 +338,7 @@ class AzineEmailTemplateController extends Controller
         $emailVars = $this->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale);
 
         // send the mail
-        $message = \Swift_Message::newInstance();
+        $message = new \Swift_Message();
         $mailer = $this->get('azine_email_template_twig_swift_mailer');
         $sent = $mailer->sendSingleEmail($email, 'Test Recipient', $emailVars['subject'], $emailVars, $template.'.txt.twig', $locale, $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName'].' (Test)', $message);
 

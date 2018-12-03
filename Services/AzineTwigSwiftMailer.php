@@ -4,8 +4,10 @@ namespace Azine\EmailBundle\Services;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\SentEmail;
+use Azine\EmailUpdateConfirmationBundle\Mailer\EmailUpdateConfirmationMailerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use FOS\UserBundle\Mailer\TwigSwiftMailer;
+use FOS\UserBundle\Model\UserInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
@@ -16,7 +18,7 @@ use Symfony\Component\Translation\TranslatorInterface;
  *
  * @author Dominik Businger
  */
-class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftMailerInterface
+class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftMailerInterface, EmailUpdateConfirmationMailerInterface
 {
     /**
      * @var TranslatorInterface
@@ -134,7 +136,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     {
         // create the message
         if (null === $message) {
-            $message = \Swift_Message::newInstance();
+            $message = new \Swift_Message();
         }
 
         $message->setSubject($subject);
@@ -242,7 +244,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
 
                 // add attachment from generated data
             } else {
-                $attachment = \Swift_Attachment::newInstance($file, $fileName);
+                $attachment = new \Swift_Attachment($file, $fileName);
             }
 
             $message->attach($attachment);
@@ -412,7 +414,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                 $imageData = ob_get_clean();
 
                 // encode the image
-                $encodedImage = \Swift_Image::newInstance($imageData, 'generatedImage'.md5($imageData));
+                $encodedImage = new \Swift_Image($imageData, 'generatedImage'.md5($imageData));
                 $id = $message->embed($encodedImage);
                 $params[$key] = $id;
             }
@@ -519,5 +521,26 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         }
 
         return $this->mailer;
+    }
+
+    /**
+     * Send confirmation link to specified new user email.
+     *
+     * @param UserInterface $user
+     * @param $confirmationUrl
+     * @param $toEmail
+     *
+     * @return bool
+     */
+    public function sendUpdateEmailConfirmation(UserInterface $user, $confirmationUrl, $toEmail)
+    {
+        $template = $this->parameters['template']['email_updating'];
+        $fromEmail = $this->parameters['from_email']['confirmation'];
+        $context = array(
+            'user' => $user,
+            'confirmationUrl' => $confirmationUrl,
+        );
+
+        $this->sendMessage($template, $context, $fromEmail, $toEmail);
     }
 }

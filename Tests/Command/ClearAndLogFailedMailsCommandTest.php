@@ -13,7 +13,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @author dominik
  */
-class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
+class ClearAndLogFailedMailsCommandTest extends \PHPUnit\Framework\TestCase
 {
     public function testHelpInfo()
     {
@@ -145,7 +145,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit_Framework_TestCase
 
     private $failedRecipients = array();
 
-    public function send_failures_callback(\Swift_Mime_Message $message, &$failedRecipients = null)
+    public function send_failures_callback($message, &$failedRecipients = null)
     {
         if (sizeof($this->failedRecipients) > 0) {
             $failedRecipients[] = array_pop($this->failedRecipients);
