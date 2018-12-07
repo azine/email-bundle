@@ -39,8 +39,7 @@
         "friendsofphp/php-cs-fixer": "^2.2"
     },
     "autoload": {
-        "psr-0": { "Azine\\EmailBundle": "" }
+        "psr-4": { "Azine\\EmailBundle\\": "" }
     },
-    "minimum-stability": "dev",
-    "target-dir": "Azine/EmailBundle"
+    "minimum-stability": "dev"
 }
