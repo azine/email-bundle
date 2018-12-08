@@ -34,10 +34,6 @@
         <source>email.dashboard.label</source>
         <target>Emails Dashboard</target>
       </trans-unit>
-      <trans-unit id="a3621d0c6a1dd7078d1fd5694235d30c5d773c42" resname="email.dashboard.loading">
-        <source>email.dashboard.token.label</source>
-        <target>Loading</target>
-      </trans-unit>
       <trans-unit id="42ef3de07015d2b8fbaa88e63dae5e492180b606" resname="email.dashboard.recipients.label">
         <source>email.dashboard.recipients.label</source>
         <target>Recipients</target>
