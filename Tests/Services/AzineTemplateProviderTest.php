@@ -220,16 +220,16 @@ class AzineTemplateProviderTest extends \PHPUnit\Framework\TestCase
 
         $params = array(AzineTemplateProvider::EMAIL_WEB_VIEW_TOKEN => $tokenValue,
                         AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME => $campaignValue,
-                        AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => $sourceValue);
+                        AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => $sourceValue, );
 
         $templateProvider->addCustomHeaders('testTemplate', $message, $params);
 
         $headerSet = $message->getHeaders();
         $this->assertTrue($headerSet->has('x-azine-webview-token'));
-        $this->assertEquals($headerSet->get('x-azine-webview-token')->getValue(), $tokenValue);
+        $this->assertSame($headerSet->get('x-azine-webview-token')->getValue(), $tokenValue);
         $this->assertTrue($headerSet->has('x-utm_campaign'));
-        $this->assertEquals($headerSet->get('x-utm_campaign')->getValue(), $campaignValue);
+        $this->assertSame($headerSet->get('x-utm_campaign')->getValue(), $campaignValue);
         $this->assertTrue($headerSet->has('x-utm_source'));
-        $this->assertEquals($headerSet->get('x-utm_source')->getValue(), $sourceValue);
+        $this->assertSame($headerSet->get('x-utm_source')->getValue(), $sourceValue);
     }
 }
