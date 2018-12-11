@@ -29,6 +29,7 @@
         "monolog/monolog": "~1.6,>=1.6.0",
         "friendsofsymfony/user-bundle": "~2.0",
         "twig/extensions": "~1.0",
+        "ramsey/uuid": "~3.2",
         "knplabs/knp-paginator-bundle": "^2.6",
         "azine/emailupdateconfirmation-bundle": "~1.0",
         "symfony/lock": ">=3.4"

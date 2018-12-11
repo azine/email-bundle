@@ -206,4 +206,30 @@ class AzineTemplateProviderTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($templateProvider->saveWebViewFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE));
         $this->assertFalse($templateProvider->saveWebViewFor('some other string'));
     }
+
+    public function testAddCustomHeaders()
+    {
+        $message = new \Swift_Message();
+
+        $mocks = $this->getMockSetup();
+        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
+
+        $tokenValue = 'testToken';
+        $campaignValue = 'testCampaignValue';
+        $sourceValue = 'testSourceValue';
+
+        $params = array(AzineTemplateProvider::EMAIL_WEB_VIEW_TOKEN => $tokenValue,
+                        AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME => $campaignValue,
+                        AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => $sourceValue, );
+
+        $templateProvider->addCustomHeaders('testTemplate', $message, $params);
+
+        $headerSet = $message->getHeaders();
+        $this->assertTrue($headerSet->has('x-azine-webview-token'));
+        $this->assertSame($headerSet->get('x-azine-webview-token')->getValue(), $tokenValue);
+        $this->assertTrue($headerSet->has('x-utm_campaign'));
+        $this->assertSame($headerSet->get('x-utm_campaign')->getValue(), $campaignValue);
+        $this->assertTrue($headerSet->has('x-utm_source'));
+        $this->assertSame($headerSet->get('x-utm_source')->getValue(), $sourceValue);
+    }
 }
