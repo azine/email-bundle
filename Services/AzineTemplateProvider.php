@@ -222,23 +222,21 @@ class AzineTemplateProvider implements TemplateProviderInterface
      */
     public function addCustomHeaders($template, \Swift_Message $message, array $params)
     {
-        //$headerSet = $message->getHeaders();
+        $headerSet = $message->getHeaders();
         //$headerSet->addTextHeader($name, $vale);
+
         if (array_key_exists($this->getWebViewTokenId(), $params)) {
 
-            $headerSet = $message->getHeaders();
             $headerSet->addTextHeader('x-azine-webview-token', $params[$this->getWebViewTokenId()]);
         }
 
         if (array_key_exists(AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME, $params)) {
 
-            $headerSet = $message->getHeaders();
             $headerSet->addTextHeader('x-utm_campaign', $params[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME]);
         }
 
         if (array_key_exists(AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE, $params)) {
 
-            $headerSet = $message->getHeaders();
             $headerSet->addTextHeader('x-utm_source', $params[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE]);
         }
     }
