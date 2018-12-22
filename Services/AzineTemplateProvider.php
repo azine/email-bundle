@@ -17,6 +17,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
     const NEWSLETTER_TEMPLATE = 'AzineEmailBundle::newsletterEmailLayout';
     const NOTIFICATIONS_TEMPLATE = 'AzineEmailBundle::notificationsEmailLayout';
     const CONTENT_ITEM_MESSAGE_TEMPLATE = 'AzineEmailBundle:contentItem:message';
+    const EMAIL_UPDATE_CONFIRMATION_TEMPLATE = '@AzineEmailUpdateConfirmation/Email/email_update_confirmation';
     const FOS_USER_PWD_RESETTING_TEMPLATE = '@FOSUser/Resetting/email';
     const FOS_USER_REGISTRATION_TEMPLATE = '@FOSUser/Registration/email';
     const FOS_USER_CONFIRM_EMAIL_UPDATE = '@FOSUser/Profile/email_update_confirmation';
@@ -55,6 +56,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
         if (self::FOS_USER_PWD_RESETTING_TEMPLATE == $template
             || self::FOS_USER_REGISTRATION_TEMPLATE == $template
             || self::FOS_USER_CONFIRM_EMAIL_UPDATE == $template
+            || self::EMAIL_UPDATE_CONFIRMATION_TEMPLATE == $template
         ) {
             $newVars[self::SEND_IMMEDIATELY_FLAG] = true;
         }
