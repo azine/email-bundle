@@ -15,9 +15,9 @@ Symfony2 Bundle provides an infrastructure for the following functionalities:
 ## Table of contents
 * [Quick start guide &amp; examples](#quick-start-guide--examples)
 * [Requirements](#requirements)
-      * [1. Swift-Mailer with working configuration](#1-swift-mailer-with-working-configuration)
-      * [2. Doctrine for notification spooling](#2-doctrine-for-notification-spooling)
-      * [3. FOSUserBundle](#3-fosuserbundle)
+   * [1. Swift-Mailer with working configuration](#1-swift-mailer-with-working-configuration)
+   * [2. Doctrine for notification spooling](#2-doctrine-for-notification-spooling)
+   * [3. FOSUserBundle](#3-fosuserbundle)
 * [Installation](#installation)
 * [Configuration options](#configuration-options)
 * [Customise the content and subjects of your emails](#customise-the-content-and-subjects-of-your-emails)
