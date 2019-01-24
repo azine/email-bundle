@@ -22,6 +22,10 @@
         <source>email.dashboard.token.label</source>
         <target>Details</target>
       </trans-unit>
+      <trans-unit id="db5b451a4c49ac84143d7d42d075f83588efcde8" resname="email.dashboard.empty.preview.text">
+        <source>email.dashboard.empty.preview.text</source>
+        <target>Click on the token of a sent email to view the email here.</target>
+      </trans-unit>
       <trans-unit id="09f43c8efdd487f74ae11228fe52e26ae4dbf0a7" resname="email.dashboard.filter.button.label">
         <source>email.dashboard.filter.button.label</source>
         <target>Filter</target>

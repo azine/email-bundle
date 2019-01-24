@@ -10,7 +10,15 @@
             overflow-y: hidden;
         }
         .emailDetails{
+            border-top: 1px solid;
             height: 50%;
+
+        }
+        .emailDetails .emptyPreview{
+            font-size: larger;
+            font-weight: bold;
+            margin-top: 100px;
+            text-align: center;
         }
         .emailList{
             position: relative;
@@ -154,7 +162,7 @@
         </div>
     </div>
     <div id="modal" class="emailDetails">
-        <div class ="loading"></div>
+        <div class="emptyPreview">{{ 'email.dashboard.empty.preview.text' | trans }}</div>
     </div>
 {% endblock %}
 
