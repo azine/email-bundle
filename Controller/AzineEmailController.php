@@ -5,14 +5,14 @@ namespace Azine\EmailBundle\Controller;
 use Azine\EmailBundle\Entity\Repositories\SentEmailRepository;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Form\SentEmailType;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * This controller provides actions related to SentEmails stored in the database.
  */
-class AzineEmailController extends Controller
+class AzineEmailController extends AbstractController
 {
     /**
      *  Displays an Emails-Dashboard with filters for each property of SentEmails entity and links to

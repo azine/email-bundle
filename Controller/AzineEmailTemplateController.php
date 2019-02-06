@@ -5,7 +5,7 @@ namespace Azine\EmailBundle\Controller;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Services\TemplateProviderInterface;
 use Doctrine\ORM\EntityManager;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +27,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *
  * @author dominik
  */
-class AzineEmailTemplateController extends Controller
+class AzineEmailTemplateController extends AbstractController
 {
     /**
      * Show a set of options to view html- and text-versions of email in the browser and send them as emails to test-accounts.

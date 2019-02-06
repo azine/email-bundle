@@ -122,3 +122,14 @@ services:
         class: Azine\EmailBundle\Command\ClearAndLogFailedMailsCommand
         tags:
             - { name: console.command }
+
+###################################################################
+## Controllers
+###################################################################
+    Azine\EmailBundle\Controller\AzineEmailController:
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    Azine\EmailBundle\Controller\AzineEmailTemplateController:
+        calls:
+            - [setContainer, ["@service_container"]]
