@@ -7,7 +7,7 @@ php:
 env:
     - SYMFONY_VERSION=lts:^2
     - SYMFONY_VERSION=lts:^3
-    - SYMFONY_VERSION=lts:^4
+    - SYMFONY_VERSION=flex:^1
 
 
 matrix:

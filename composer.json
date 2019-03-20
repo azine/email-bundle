@@ -42,5 +42,5 @@
     "autoload": {
         "psr-4": { "Azine\\EmailBundle\\": "" }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }
