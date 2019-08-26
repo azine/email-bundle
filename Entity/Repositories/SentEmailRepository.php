@@ -45,6 +45,8 @@ class SentEmailRepository extends EntityRepository
             }
         }
 
+        $queryBuilder->orderBy('e.sent', 'desc');
+
         return $queryBuilder->getQuery();
     }
 }
