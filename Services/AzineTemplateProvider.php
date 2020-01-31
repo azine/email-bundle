@@ -364,6 +364,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
             }
         }
         $this->allowedImageFolders[md5($this->templateImageDir)] = $this->templateImageDir;
+        $this->allowedImageFolders = array_unique($this->allowedImageFolders);
         $this->tracking_params_campaign_content = $parameters[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT];
         $this->tracking_params_campaign_medium = $parameters[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM];
         $this->tracking_params_campaign_name = $parameters[AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME];

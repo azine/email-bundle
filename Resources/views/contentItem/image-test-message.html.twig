@@ -1,0 +1,9 @@
+{% autoescape false %}
+{% spaceless %}
+<h4>{{ title }}</h4>
+<p>
+	<img src="{{ test_image }}" title="{{ original_location }}" width="50" height="50" />
+	{{ original_location }}
+</p>
+{% endspaceless %}
+{% endautoescape %}
