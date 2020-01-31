@@ -40,7 +40,6 @@ interface TemplateTwigSwiftMailerInterface
      * @param string|array of strings $to          => email-addresses
      * @param string                  $toName      will be ignored it $to is an array
      * @param string                  $subject
-     * @param array                   $params
      * @param string                  $template
      * @param string                  $emailLocale
      * @param string                  $from        defaults to azine's mailer

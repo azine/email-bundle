@@ -19,9 +19,8 @@ class AzineRecipientProvider implements RecipientProviderInterface
     private $newsletterField;
 
     /**
-     * @param ManagerRegistry $managerRegistry
-     * @param string          $userClass
-     * @param string          $newsletterField
+     * @param string $userClass
+     * @param string $newsletterField
      */
     public function __construct(ManagerRegistry $managerRegistry, $userClass, $newsletterField)
     {

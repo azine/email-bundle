@@ -18,8 +18,6 @@ class AzineEmailController extends Controller
      *  Displays an Emails-Dashboard with filters for each property of SentEmails entity and links to
      *  emailDetailsByToken & webView actions for each email.
      *
-     * @param Request $request
-     *
      * @return Response
      */
     public function emailsDashboardAction(Request $request)

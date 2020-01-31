@@ -125,10 +125,8 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
      * http://dyn.com/blog/tracking-email-opens-via-google-analytics/
      * https://developers.google.com/analytics/devguides/collection/protocol/v1/email#protocol.
      *
-     * @param string       $baseUrl             string something like: https://www.google-analytics.com/collect?v=1&cm=email&t=event&ec=email&ea=open&tid=TRACKING_ID replace the TRACKING_ID with your google analytics tracking ID.
+     * @param string       $baseUrl        string something like: https://www.google-analytics.com/collect?v=1&cm=email&t=event&ec=email&ea=open&tid=TRACKING_ID replace the TRACKING_ID with your google analytics tracking ID.
      * @param string       $templateBaseId
-     * @param array        $campaignParams
-     * @param array        $emailTemplateParams
      * @param string       $messageId
      * @param string|array $recipients
      *
@@ -151,11 +149,8 @@ class AzineEmailOpenTrackingCodeBuilder implements EmailOpenTrackingCodeBuilderI
     /**
      * Build tracking image code with an URL according to these sources:.
      *
-     *
-     * @param string $baseUrl             string something like: https://your.host.com/piwik-directory/piwik.php?&rec=1&bots=1&e_c=email&e_a=open&e_v=1&idsite=SITE_ID replace the path to your piwik.php and the SITE_ID according to your needs.
-     * @param string $templateBaseId      string
-     * @param array  $campaignParams
-     * @param array  $emailTemplateParams
+     * @param string $baseUrl        string something like: https://your.host.com/piwik-directory/piwik.php?&rec=1&bots=1&e_c=email&e_a=open&e_v=1&idsite=SITE_ID replace the path to your piwik.php and the SITE_ID according to your needs.
+     * @param string $templateBaseId string
      * @param string $messageId
      * @param string $recipients
      *

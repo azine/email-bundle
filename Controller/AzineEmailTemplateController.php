@@ -129,8 +129,7 @@ class AzineEmailTemplateController extends Controller
     /**
      * Show a web-version of an email that has been sent to recipients and has been stored in the database.
      *
-     * @param Request $request
-     * @param string  $token
+     * @param string $token
      *
      * @return Response
      */
@@ -181,8 +180,6 @@ class AzineEmailTemplateController extends Controller
     /**
      * Check if the user is allowed to see the email.
      * => the mail is public or the user is among the recipients or the user is an admin.
-     *
-     * @param SentEmail $mail
      *
      * @return bool
      */
@@ -264,9 +261,8 @@ class AzineEmailTemplateController extends Controller
     /**
      * Serve the image from the templates-folder.
      *
-     * @param Request $request
-     * @param string  $folderKey
-     * @param string  $filename
+     * @param string $folderKey
+     * @param string $filename
      *
      * @return BinaryFileResponse
      */
@@ -295,7 +291,6 @@ class AzineEmailTemplateController extends Controller
 
     /**
      * @param string   $view
-     * @param array    $parameters
      * @param Response $response
      *
      * @return Response
@@ -322,9 +317,8 @@ class AzineEmailTemplateController extends Controller
     /**
      * Send a test-mail for the template to the given email-address.
      *
-     * @param Request $request
-     * @param string  $template templateId without ending => AzineEmailBundle::baseEmailLayout (without .txt.twig)
-     * @param string  $email
+     * @param string $template templateId without ending => AzineEmailBundle::baseEmailLayout (without .txt.twig)
+     * @param string $email
      *
      * @return RedirectResponse
      */

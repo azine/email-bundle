@@ -72,9 +72,6 @@ class AzineWebViewService implements WebViewServiceInterface
         return $variables;
     }
 
-    /**
-     * @param UrlGeneratorInterface $router
-     */
     public function __construct(UrlGeneratorInterface $router)
     {
         $this->router = $router;
@@ -92,7 +89,6 @@ class AzineWebViewService implements WebViewServiceInterface
     /**
      * Add an email of a test account, you might want to send html-emails to, to verify the template before sending the emails to "real" recipients/users.
      *
-     * @param array  $emails
      * @param string $description
      * @param string $emailAddress
      *

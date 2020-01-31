@@ -83,7 +83,6 @@ class AzineEmailControllerTest extends WebTestCase
      *
      * @param string $url
      * @param string $username
-     * @param Client $client
      *
      * @return Crawler $crawler of the page of the url or the page after the login
      */

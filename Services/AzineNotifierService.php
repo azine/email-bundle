@@ -36,8 +36,6 @@ class AzineNotifierService implements NotifierServiceInterface
      * render the notifications-template or one of the  notification-item-templates that
      * are rendered into the notifications-template.
      *
-     * @param RecipientInterface $recipient
-     *
      * @return array
      */
     protected function getRecipientVarsForNotificationsEmail(RecipientInterface $recipient)
@@ -52,8 +50,7 @@ class AzineNotifierService implements NotifierServiceInterface
     /**
      * Get the subject for the notifications-email to send. Override this function to implement your custom subject-lines.
      *
-     * @param array of array     $contentItems
-     * @param RecipientInterface $recipient
+     * @param array of array $contentItems
      *
      * @return string
      */
@@ -106,8 +103,6 @@ class AzineNotifierService implements NotifierServiceInterface
     /**
      * Override this function to add more parameters that are required to render the newsletter template.
      *
-     * @param RecipientInterface $recipient
-     *
      * @return array
      */
     public function getRecipientSpecificNewsletterParams(RecipientInterface $recipient)
@@ -120,8 +115,6 @@ class AzineNotifierService implements NotifierServiceInterface
      * depending on the recipient of the newsletter.
      *
      * E.g. a list of the recipients latest activites.
-     *
-     * @param RecipientInterface $recipient
      *
      * @return array of arrays with templatesIds (without ending) as key and params to render the template as value.
      *               => array(
@@ -162,8 +155,6 @@ class AzineNotifierService implements NotifierServiceInterface
      * - all user-specific content items as returned by AzineNotifierService::getRecipientSpecificNewsletterContentItems
      * - all non-user-specific content items as returned by AzineNotifierService::getNonRecipientSpecificNewsletterContentItems
      *
-     * @param array $contentItems
-     *
      * @return array
      */
     public function orderContentItems(array $contentItems)
@@ -173,15 +164,6 @@ class AzineNotifierService implements NotifierServiceInterface
 
     /**
      * Over ride this constructor if you need to inject more dependencies to get all the data together that you need for your newsletter/notifications.
-     *
-     * @param TemplateTwigSwiftMailerInterface $mailer
-     * @param \Twig_Environment                $twig
-     * @param UrlGeneratorInterface            $router
-     * @param ManagerRegistry                  $managerRegistry
-     * @param TemplateProviderInterface        $templateProvider
-     * @param RecipientProviderInterface       $recipientProvider
-     * @param TranslatorInterface              $translatorService
-     * @param array                            $parameters
      */
     public function __construct(TemplateTwigSwiftMailerInterface $mailer, \Twig_Environment $twig, UrlGeneratorInterface $router,
                                ManagerRegistry $managerRegistry, TemplateProviderInterface $templateProvider, RecipientProviderInterface $recipientProvider,
@@ -437,8 +419,6 @@ class AzineNotifierService implements NotifierServiceInterface
      * Get the Notifications that have not yet been sent yet.
      * Ordered by "template" and "title".
      *
-     * @param RecipientInterface $recipient
-     *
      * @return array of Notification
      */
     protected function getNotificationsFor(RecipientInterface $recipient)
@@ -488,8 +468,6 @@ class AzineNotifierService implements NotifierServiceInterface
 
     /**
      * Update (set sent = now) and save the notifications.
-     *
-     * @param array $notifications
      */
     protected function setNotificationsAsSent(array $notifications)
     {
@@ -502,8 +480,6 @@ class AzineNotifierService implements NotifierServiceInterface
 
     /**
      * Mark all Notifications as sent long ago, as the recipient never want's to get any notifications.
-     *
-     * @param RecipientInterface $recipient
      */
     protected function markAllNotificationsAsSentFarInThePast(RecipientInterface $recipient)
     {

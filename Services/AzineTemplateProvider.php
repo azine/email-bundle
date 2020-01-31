@@ -143,7 +143,6 @@ class AzineTemplateProvider implements TemplateProviderInterface
      * does not contain the path to the image-file anymore but now contains the CID of the embedded image.
      *
      * @param string $template    the template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default"
-     * @param array  $vars
      * @param string $emailLocale
      *
      * @throws \Exception
@@ -484,7 +483,6 @@ class AzineTemplateProvider implements TemplateProviderInterface
     /**
      * Recursively replace all absolute image-file-paths with relative web-paths.
      *
-     * @param array  $emailVars
      * @param string $locale
      *
      * @return array

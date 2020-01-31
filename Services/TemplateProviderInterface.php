@@ -24,7 +24,6 @@ interface TemplateProviderInterface
      * This function will be called AFTER the images have been embeded, so you can define vars that include embede images => e.g. see variable "cellSeparator" in class AzineTemplateProvider.
      *
      * @param string $template    the twig template for the email to render (template id in standard-notation, without the ending ( .txt.twig) => "AcmeFooBundle:bar:default")
-     * @param array  $vars
      * @param string $emailLocale the locale to be used for translations for this single email
      * @param bool   $forWebView
      *
@@ -35,9 +34,7 @@ interface TemplateProviderInterface
     /**
      * Just before sending the message, extra custom headers can be added to the message.
      *
-     * @param string         $template
-     * @param \Swift_Message $message
-     * @param array          $params
+     * @param string $template
      *
      * @return array of \Swift_Mime_Header
      */
@@ -55,7 +52,6 @@ interface TemplateProviderInterface
      *
      * @see \Azine\EmailBundle\Services\AzineTemplateProvider::makeImagePathsWebRelative for a reference implementation
      *
-     * @param array $emailVars
      * @param $locale
      *
      * @return mixed emailVars-array with relative paths for images

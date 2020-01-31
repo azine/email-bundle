@@ -72,16 +72,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     private $imageCache = array();
 
     /**
-     * @param \Swift_Mailer                         $mailer
-     * @param UrlGeneratorInterface                 $router
-     * @param \Twig_Environment                     $twig
-     * @param TranslatorInterface                   $translator
-     * @param TemplateProviderInterface             $templateProvider
-     * @param ManagerRegistry                       $managerRegistry
-     * @param EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder
-     * @param AzineEmailTwigExtension               $emailTwigExtension
-     * @param array                                 $parameters
-     * @param \Swift_Mailer                         $immediateMailer
+     * @param \Swift_Mailer $immediateMailer
      */
     public function __construct(\Swift_Mailer $mailer,
                                     UrlGeneratorInterface $router,
@@ -124,7 +115,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * @param string       $bccName
      * @param $replyTo
      * @param $replyToName
-     * @param array $params
      * @param $template
      * @param array          $attachments
      * @param null           $emailLocale
@@ -318,9 +308,8 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * Remove all Embeded Attachments that are not referenced in the html-body from the message
      * to avoid using unneccary bandwidth.
      *
-     * @param \Swift_Message $message
-     * @param array          $params   the parameters used to render the html
-     * @param string         $htmlBody
+     * @param array  $params   the parameters used to render the html
+     * @param string $htmlBody
      *
      * @return \Swift_Message
      */
@@ -466,7 +455,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
      * @param string         $to
      * @param string         $toName
      * @param string         $subject
-     * @param array          $params
      * @param string         $template
      * @param string         $emailLocale
      * @param null           $from
@@ -526,7 +514,6 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     /**
      * Send confirmation link to specified new user email.
      *
-     * @param UserInterface $user
      * @param $confirmationUrl
      * @param $toEmail
      *

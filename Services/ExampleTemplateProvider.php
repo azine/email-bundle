@@ -59,7 +59,6 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
      * @see Azine\EmailBundle\Services\AzineTemplateProvider::getSnippetArrayFor()
      *
      * @param string $template
-     * @param array  $vars
      * @param string $emailLocale
      *
      * @return array
@@ -80,9 +79,7 @@ class ExampleTemplateProvider extends AzineTemplateProvider implements TemplateP
     /**
      * @see Azine\EmailBundle\Services\AzineTemplateProvider::addCustomHeaders()
      *
-     * @param string         $template
-     * @param \Swift_Message $message
-     * @param array          $params
+     * @param string $template
      *
      * @return array
      */

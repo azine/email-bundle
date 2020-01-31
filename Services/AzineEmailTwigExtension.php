@@ -22,8 +22,7 @@ class AzineEmailTwigExtension extends \Twig_Extension
     private $domainsToTrack;
 
     /**
-     * @param TemplateProviderInterface $templateProvider
-     * @param array of string           $domainsToTrack
+     * @param array of string $domainsToTrack
      */
     public function __construct(TemplateProviderInterface $templateProvider, TranslatorInterface $translator, array $domainsToTrack = array())
     {
