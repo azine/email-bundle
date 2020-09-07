@@ -23,13 +23,12 @@ the first loop get's all the arrays, the second loop get's the template from the
 #}
 {% for contentItemArrays in contentItems  %}
 {% for contentItemTemplate, contentItemParams in contentItemArrays %}
-
-
-{{ txtHR }}{# this line separates different content items visualy, replace it with what ever you think is niceer #}
-
 {% filter addCampaignParamsForTemplate(contentItemTemplate, contentItemParams) %}
 {% include contentItemTemplate ~ '.txt.twig' with contentItemParams %} {# You can add multiple content-blocks by adding items to the contentItems array.#}
 {% endfilter %}
+{{ txtHR }}{# this line separates different content items visualy, replace it with what ever you think is niceer #}
+
+
 {% endfor %}
 {% endfor %}
 
