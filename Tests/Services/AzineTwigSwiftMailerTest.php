@@ -111,7 +111,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
                 $generatedImage = "<img src='".$context['embededUsedGeneratedImage']."' alt='generatedImage'>";
             }
 
-            return  "<html><body><h1>a html body</h1>$generatedImage<a href='http://some.url.com/' ><img src='".$context['logo_png']."' alt='logo'></a><p>with a paragraph and <a href='https://foo.bar.com/index.php?q=4'>links</a>.</p></body><html>";
+            return "<html><body><h1>a html body</h1>$generatedImage<a href='http://some.url.com/' ><img src='".$context['logo_png']."' alt='logo'></a><p>with a paragraph and <a href='https://foo.bar.com/index.php?q=4'>links</a>.</p></body><html>";
         } elseif ('body_text' == $name) {
             return "a text body \n \n with new lines.";
         }

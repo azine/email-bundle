@@ -239,7 +239,7 @@ class AzineNotifierService implements NotifierServiceInterface
         // this is because if the last run started 60min. ago, then the notifications
         // for any recipient have been send after that and would be skipped until the next run.
         // if your cron-job runs every minute, this is not needed.
-        return 	60 * 60 - 3 * 60;
+        return 60 * 60 - 3 * 60;
     }
 
     /**

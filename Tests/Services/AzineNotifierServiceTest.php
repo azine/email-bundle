@@ -95,7 +95,7 @@ class AzineNotifierServiceTest extends \PHPUnit\Framework\TestCase
         return true;
     }
 
-    public function testSendNewsletter_NoContent()
+    public function testSendNewsletterNoContent()
     {
         $failedAddresses = array();
         $recipientIds = array(11, 12, 13, 14);
@@ -140,7 +140,7 @@ class AzineNotifierServiceTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($sentMailCount, $sentMails, "Not the right number of emails has been sent successfully. Expected $sentMailCount");
     }
 
-    public function testSendNotificationsAzineNotifierService_NoNotifications()
+    public function testSendNotificationsAzineNotifierServiceNoNotifications()
     {
         $failedAddresses = array();
         $recipientIds = array(11, 12, 13, 14);

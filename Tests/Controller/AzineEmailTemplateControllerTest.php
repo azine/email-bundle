@@ -124,7 +124,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $this->assertNotContains('<!doctype', $response->getContent());
     }
 
-    public function testWebViewAction_User_access_allowed()
+    public function testWebViewActionUserAccessAllowed()
     {
         $token = 'fdasdfasfafsadf';
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
@@ -164,7 +164,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $controller->webViewAction($requestMock, $token);
     }
 
-    public function testWebViewAction_Anonymous_access_allowed()
+    public function testWebViewActionAnonymousAccessAllowed()
     {
         $token = 'fdasdfasfafsadf';
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
@@ -203,7 +203,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
     /**
      * @expectedException \Symfony\Component\Security\Core\Exception\AccessDeniedException
      */
-    public function testWebViewAction_User_access_denied()
+    public function testWebViewActionUserAccessDenied()
     {
         $token = 'fdasdfasfafsadf';
         $userMail = 'an-other-user@email.com';
@@ -242,7 +242,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
     /**
      * @expectedException \Symfony\Component\Security\Core\Exception\AccessDeniedException
      */
-    public function testWebViewAction_Anonymous_Access_denied()
+    public function testWebViewActionAnonymousAccessDenied()
     {
         $token = 'fdasdfasfafsadf';
         $sentEmail = new SentEmail();
@@ -275,7 +275,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $controller->webViewAction($requestMock, $token);
     }
 
-    public function testWebViewAction_Admin_with_CampaignParams()
+    public function testWebViewActionAdminWithCampaignParams()
     {
         $token = 'fdasdfasfafsadf';
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
@@ -322,7 +322,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $this->assertContains('http://testurl.com/with/?param=1&campaign=newsletter&keyword=2013-11-19', $response->getContent());
     }
 
-    public function testWebViewAction_MailNotFound()
+    public function testWebViewActionMailNotFound()
     {
         $token = 'fdasdfasfafsadf-not-found';
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
@@ -369,7 +369,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
     /**
      * @expectedException \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
      */
-    public function testServeImageAction_404()
+    public function testServeImageAction404()
     {
         $folderKey = 'asdfadfasfasfd';
         $filename = 'testImage.not.found.png';
