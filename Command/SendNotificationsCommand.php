@@ -65,15 +65,17 @@ EOF
         $failedAddresses = array();
         $sentMails = $this->getContainer()->get('azine_email_notifier_service')->sendNotifications($failedAddresses);
 
-        $output->writeln(date(\DateTime::RFC2822).' : '.str_pad($sentMails, 4, ' ', STR_PAD_LEFT).' emails have been processed.');
+        $output->writeln(date(\DateTime::RFC2822) . ' : ' . str_pad($sentMails, 4, ' ', STR_PAD_LEFT) . ' emails have been processed.');
         if (sizeof($failedAddresses) > 0) {
-            $output->writeln(date(\DateTime::RFC2822).' : '.'The following email-addresses failed:');
+            $output->writeln(date(\DateTime::RFC2822) . ' : ' . 'The following email-addresses failed:');
             foreach ($failedAddresses as $address) {
-                $output->writeln('    '.$address);
+                $output->writeln('    ' . $address);
             }
         }
 
         // (optional) release the lock (otherwise, PHP will do it for you automatically)
-        $lock->release();
+        if (isset($lock) && method_exists($lock, '$release')) {
+            $lock->release();
+        }
     }
 }
