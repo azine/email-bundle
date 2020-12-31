@@ -55,7 +55,6 @@ EOF
             $output->writeln('Unable to identify available Locking classes. Running without locks');
             $unlockedCommand = true;
         }
-        }
 
         if (!$unlockedCommand) {
             $output->writeln('The command is already running in another process.');
