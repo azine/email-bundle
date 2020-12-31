@@ -42,15 +42,19 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID < 30400) {
+        if (class_exists('Symfony\Component\Filesystem\LockHandler')) {
             $lock = new \Symfony\Component\Filesystem\LockHandler($this->getName());
             $unlockedCommand = $lock->lock();
-        } else {
+        } elseif (class_exists('\Symfony\Component\Lock\Store\SemaphoreStore') && class_exists('\Symfony\Component\Lock\Factory')) {
             $store = new \Symfony\Component\Lock\Store\SemaphoreStore();
             $factory = new \Symfony\Component\Lock\Factory($store);
 
             $lock = $factory->createLock($this->getName());
             $unlockedCommand = $lock->acquire();
+        } else {
+            $output->writeln('Unable to identify available Locking classes. Running without locks');
+            $unlockedCommand = true;
+        }
         }
 
         if (!$unlockedCommand) {
