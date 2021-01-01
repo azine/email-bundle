@@ -79,7 +79,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                                     \Twig_Environment $twig,
                                     TranslatorInterface $translator,
                                     TemplateProviderInterface $templateProvider,
-                                    ManagerRegistry $managerRegistry,
+                                    $managerRegistry,
                                     EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder,
                                     AzineEmailTwigExtension $emailTwigExtension,
                                     array $parameters,
