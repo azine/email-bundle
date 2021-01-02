@@ -5,16 +5,15 @@ php:
   - 7.2
 
 env:
-    - SYMFONY_VERSION=lts:^2
     - SYMFONY_VERSION=lts:^3
+    - SYMFONY_VERSION=lts:^4
     - SYMFONY_VERSION=flex:^1
-
 
 matrix:
   fast_finish: true
   include:
     - env:
-        - SYMFONY_VERSION=lts:^2
+        - SYMFONY_VERSION=lts:^3
         - dependencies=lowest
 
     - env:
@@ -37,12 +36,12 @@ before_install:
 before_script:
   - phpenv config-add travis.php.ini
   - travis_wait composer require symfony/${SYMFONY_VERSION} --prefer-source --no-update -v
-  - travis_wait composer install --prefer-source
-  - if [ "$dependencies" = "lowest" ]; then travis_wait composer update --prefer-lowest --prefer-stable -n; fi;
   - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
+  - if [ "$dependencies" != "lowest" ]; then travis_wait composer update --prefer-source; fi;
+  - if [ "$dependencies" = "lowest" ]; then travis_wait composer update --prefer-lowest --prefer-stable -n; fi;
 
 script:
-  - travis_wait vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover Tests/
+  - travis_wait vendor/phpunit/phpunit/phpunit --coverage-text --coverage-clover=coverage.clover Tests/
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
   - if [ "$cs_fixer" = "cs_dry_run" ]; then php vendor/friendsofphp/php-cs-fixer/php-cs-fixer --diff --dry-run -v fix --config=.php_cs.dist ./; fi;
