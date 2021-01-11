@@ -22,6 +22,14 @@
         <source>email.dashboard.token.label</source>
         <target>Details</target>
       </trans-unit>
+      <trans-unit id="95062e6834fcbc490caf72caae146b04bc6aa672" resname="email.dashboard.emailDetail.click.to.close">
+        <source>email.dashboard.emailDetail.click.to.close</source>
+        <target>Klicken zum schliessen</target>
+      </trans-unit>
+      <trans-unit id="08445e07ec6a84b88d039516a8583b34a560fc6f" resname="email.dashboard.emailDetail.label">
+        <source>email.dashboard.emailDetail.label</source>
+        <target>Email-Details</target>
+      </trans-unit>
       <trans-unit id="db5b451a4c49ac84143d7d42d075f83588efcde8" resname="email.dashboard.empty.preview.text">
         <source>email.dashboard.empty.preview.text</source>
         <target>Klicke auf das Token eines versandten Emails um das Email hier anzuzeigen.</target>
