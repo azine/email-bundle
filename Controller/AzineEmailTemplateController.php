@@ -334,7 +334,11 @@ class AzineEmailTemplateController extends Controller
         // send the mail
         $message = new \Swift_Message();
         $mailer = $this->get('azine_email_template_twig_swift_mailer');
-        $sent = $mailer->sendSingleEmail($email, 'Test Recipient', $emailVars['subject'], $emailVars, $template.'.txt.twig', $locale, $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName'].' (Test)', $message);
+        $emailArray = array();
+        foreach (mailparse_rfc822_parse_addresses($email) as $next){
+            $emailArray[$next['address']] = "Test-Mail-Recipient";
+        }
+        $sent = $mailer->sendSingleEmail($emailArray, null, $emailVars['subject'], $emailVars, $template.'.txt.twig', $locale, $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName'].' (Test)', $message);
 
         $flashBag = $request->getSession()->getFlashBag();
 
