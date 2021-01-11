@@ -179,19 +179,21 @@ class AzineEmailTwigExtension extends \Twig_Extension
         return $txt;
     }
 
-    public function printVars(array $vars, $allDetails = false, $indent = '')
+    public function printVars(array $vars, $allDetails = false, $indent = '', $maxRecursionDepth = 3)
     {
         $output = '';
         $defaultIndent = '    ';
         ksort($vars);
         foreach ($vars as $key => $value) {
-            if ($allDetails && !((array) $value == $vars)) { // avoid infinite recursion
-                $value = "\n".$this->printVars((array) $value, $allDetails, $indent.$defaultIndent);
+            if ($maxRecursionDepth > 0 && $allDetails && !((array) $value == $vars)) { // avoid infinite recursion
+                $value = "\n".$this->printVars((array) $value, $allDetails, $indent.$defaultIndent, $maxRecursionDepth - 1);
             } else {
                 if (is_array($value)) {
                     $value = 'array('.sizeof($value).')';
                 } elseif (is_object($value)) {
                     $value = 'object('.get_class($value).')';
+                } else {
+                    $value = htmlentities($value);
                 }
             }
             $output .= "$indent $key: $value\n";
