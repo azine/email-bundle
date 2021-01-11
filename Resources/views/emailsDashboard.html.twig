@@ -7,18 +7,6 @@
             padding:0;
             margin:0;
             height:100%;
-            overflow-y: hidden;
-        }
-        .emailDetails{
-            border-top: 1px solid;
-            height: 50%;
-
-        }
-        .emailDetails .emptyPreview{
-            font-size: larger;
-            font-weight: bold;
-            margin-top: 100px;
-            text-align: center;
         }
         .emailList{
             position: relative;
@@ -28,11 +16,7 @@
             height: calc(100% - 115px);
             overflow-y: scroll;
         }
-        .emailPagination{
-            position: absolute;
-            bottom: 0px;
-        }
-        #reveal{
+        #revealVars, #revealEmailDetails{
             width: 80%;
             height: 80%;
             position: fixed;
@@ -46,6 +30,13 @@
             display: none;
             margin: auto;
         }
+        .emailDetails{
+            height: calc(100% - 35px);;
+        }
+        #revealEmailDetailsIframe{
+            width: 100%;
+            height: 100%;
+        }
         .clickToClose{
             height: 35px;
             padding:5px;
@@ -58,8 +49,12 @@
             text-align: right;
         }
         .variables{
-            overflow-y: scroll;
+            overflow: scroll;
             height:calc(100% - 35px);
+        }
+
+        pre{
+            overflow: visible;
         }
 
     </style>
@@ -68,26 +63,30 @@
 {% block javascripts -%}
     {{ parent() }}
     <script type="text/javascript">
-        $(".showDetailsButton, .showWebViewButton, .showWebViewLink").click(function(e) {
-
-            e.preventDefault();
-            $('#modal').html('<iframe id="myid" style="width:100%;height:100%;" />');
-            $('iframe#myid').attr('src', $(this).attr('href'));
-            $('iframe#myid').load();
-        });
-
         $( document ).ready(function() {
+            $(".showDetailsButton, .showWebViewButton, .showWebViewLink").click(function(e) {
+
+                e.preventDefault();
+                $('#modal.emailDetails').html('<iframe id="revealEmailDetailsIframe" />');
+                $("#revealEmailDetails").css('display', "block");
+                $('iframe#revealEmailDetailsIframe').attr('src', $(this).attr('href'));
+                $('iframe#revealEmailDetailsIframe').load();
+            });
+            $("#revealEmailDetails .clickToClose").click(function(){
+                $("#revealEmailDetails").hide();
+            });
+
             if($(".sentEmail").length == 1)
             {
                 $( ".sentEmail .showWebViewButton" ).click();
             }
 
             $("td.variables").click(function(){
-                $("#reveal .variables pre small").html($(this).attr('title'));
-                $("#reveal").css('display', "block");
+                $("#revealVars .variables pre small").html($(this).attr('title'));
+                $("#revealVars").css('display', "block");
             });
-            $("#reveal .clickToClose").click(function(){
-                $("#reveal").hide();
+            $("#revealVars .clickToClose").click(function(){
+                $("#revealVars").hide();
             });
             $(".clearButton").click(function () {
                 $("input").val("");
@@ -97,7 +96,7 @@
     </script>
 {% endblock javascripts %}
 {% block body %}
-    <div id="reveal">
+    <div id="revealVars">
         <div class="clickToClose">{{ 'email.dashboard.variables.label'|trans }}
             <span>{{ 'email.dashboard.variables.click.to.close' | trans }} x&nbsp;</span>
         </div>
@@ -106,6 +105,14 @@
                 <small>
                 </small>
             </pre>
+        </div>
+    </div>
+    <div id="revealEmailDetails">
+        <div class="clickToClose">{{ 'email.dashboard.emailDetail.label'|trans }}
+            <span>{{ 'email.dashboard.emailDetail.click.to.close' | trans }} x&nbsp;</span>
+        </div>
+        <div id="modal" class="emailDetails">
+            <div class="emptyPreview">{{ 'email.dashboard.empty.preview.text' | trans }}</div>
         </div>
     </div>
     <div class="emailList">
@@ -160,9 +167,6 @@
         <div class="emailPagination">
         {{ knp_pagination_render(pagination) }}
         </div>
-    </div>
-    <div id="modal" class="emailDetails">
-        <div class="emptyPreview">{{ 'email.dashboard.empty.preview.text' | trans }}</div>
     </div>
 {% endblock %}
 
