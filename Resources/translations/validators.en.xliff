@@ -8,47 +8,47 @@
     <body>
       <trans-unit id="f48ccf84018671218aac090abf90770212497b70" resname="fos_user.email.already_used">
         <source>fos_user.email.already_used</source>
-        <target state="new">fos_user.email.already_used</target>
+        <target>Email address already used</target>
       </trans-unit>
       <trans-unit id="d0e28536be754aebc7ef73cdc6cf0d729311ce1d" resname="fos_user.email.blank">
         <source>fos_user.email.blank</source>
-        <target state="new">fos_user.email.blank</target>
+        <target>Email cannot be blank</target>
       </trans-unit>
       <trans-unit id="17a097b4a496b3378a290ea4f8a05bc2a7879142" resname="fos_user.email.invalid">
         <source>fos_user.email.invalid</source>
-        <target state="new">fos_user.email.invalid</target>
+        <target>Invalid email</target>
       </trans-unit>
       <trans-unit id="9760d0f9c28fee7f91e5cad9e282921b13cd2f0b" resname="fos_user.email.long">
         <source>fos_user.email.long</source>
-        <target state="new">fos_user.email.long</target>
+        <target>Email too long</target>
       </trans-unit>
       <trans-unit id="1a1b926521b2b3010b91de1787f9265b3d6a97ae" resname="fos_user.email.short">
         <source>fos_user.email.short</source>
-        <target state="new">fos_user.email.short</target>
+        <target>Email to short</target>
       </trans-unit>
       <trans-unit id="1df43a6e24af03c39d20b2f1f5cbefdef7b30416" resname="fos_user.password.blank">
         <source>fos_user.password.blank</source>
-        <target state="new">fos_user.password.blank</target>
+        <target>Password cannot be empty</target>
       </trans-unit>
       <trans-unit id="4b3130df261ac66147653997d2d83952a330faac" resname="fos_user.password.short">
         <source>fos_user.password.short</source>
-        <target state="new">fos_user.password.short</target>
+        <target>Password too short</target>
       </trans-unit>
       <trans-unit id="77c8ec07f205976bbed1a3ce90fdc458891bb81d" resname="fos_user.username.already_used">
         <source>fos_user.username.already_used</source>
-        <target state="new">fos_user.username.already_used</target>
+        <target>Username already used</target>
       </trans-unit>
       <trans-unit id="312a20b0239a4236f4b08e4e0ed35153a03667d0" resname="fos_user.username.blank">
         <source>fos_user.username.blank</source>
-        <target state="new">fos_user.username.blank</target>
+        <target>Username cannot be blank</target>
       </trans-unit>
       <trans-unit id="56ef686ed0b86d02dd4077e0796a4f1e61377552" resname="fos_user.username.long">
         <source>fos_user.username.long</source>
-        <target state="new">fos_user.username.long</target>
+        <target>Username too long</target>
       </trans-unit>
       <trans-unit id="920e8d37f8a7c923ece7d123d55668ac522d612d" resname="fos_user.username.short">
         <source>fos_user.username.short</source>
-        <target state="new">fos_user.username.short</target>
+        <target>Username too short</target>
       </trans-unit>
     </body>
   </file>
