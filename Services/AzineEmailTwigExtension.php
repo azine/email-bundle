@@ -179,10 +179,13 @@ class AzineEmailTwigExtension extends \Twig_Extension
         return $txt;
     }
 
-    public function printVars(array $vars, $allDetails = false, $indent = '', $maxRecursionDepth = 3)
+    public function printVars($vars, $allDetails = false, $indent = '', $maxRecursionDepth = 3)
     {
         $output = '';
         $defaultIndent = '    ';
+        if(is_object($vars)) {
+            $vars = (array) $vars;
+        }
         ksort($vars);
         foreach ($vars as $key => $value) {
             if ($maxRecursionDepth > 0 && $allDetails && !((array) $value == $vars)) { // avoid infinite recursion
