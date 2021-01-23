@@ -95,8 +95,8 @@ class AzineEmailTemplateController extends Controller
         $campaignParams = $this->getTemplateProviderService()->getCampaignParamsFor($template, $emailVars);
         $campaignParams['utm_medium'] = 'webPreview';
         if (sizeof($campaignParams) > 0) {
-            $htmlBody = $response->getContent();
-            $htmlBody = $this->get('azine.email.bundle.twig.filters')->addCampaignParamsToAllUrls($htmlBody, $campaignParams);
+            $content = $response->getContent();
+            $content = $this->get('azine.email.bundle.twig.filters')->addCampaignParamsToAllUrls($content, $campaignParams);
 
             $emailOpenTrackingCodeBuilder = $this->get('azine_email_email_open_tracking_code_builder');
             if ($emailOpenTrackingCodeBuilder) {
@@ -105,11 +105,11 @@ class AzineEmailTemplateController extends Controller
                 if ($imgTrackingCode && strlen($imgTrackingCode) > 0) {
                     // replace the tracking url, so no request is made to the real tracking system.
                     $imgTrackingCode = str_replace('://', '://webview-dummy-domain.', $imgTrackingCode);
-                    $htmlCloseTagPosition = strpos($htmlBody, '</html>');
-                    $htmlBody = substr_replace($htmlBody, $imgTrackingCode, $htmlCloseTagPosition, 0);
+                    $htmlCloseTagPosition = strpos($content, '</html>');
+                    $content = substr_replace($content, $imgTrackingCode, $htmlCloseTagPosition, 0);
                 }
             }
-            $response->setContent($htmlBody);
+            $response->setContent($content);
         }
 
         // if the requested format is txt, remove the html-part
@@ -120,7 +120,9 @@ class AzineEmailTemplateController extends Controller
             // cut away the html-part
             $content = $response->getContent();
             $textEnd = stripos($content, '<!doctype');
-            $response->setContent(substr($content, 0, $textEnd));
+            if($textEnd > 0) {
+                $response->setContent(substr($content, 0, $textEnd));
+            }
         }
 
         return $response;
