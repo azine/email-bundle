@@ -7,7 +7,7 @@ The steps are as follows (some described in this document, some are in the [READ
 
 - install AzineEmailBundle: see ["Installation"-Section in the README.md](README.md#installation)
 - update your User-Class: see [ExampleUser](Entity/ExampleUser.php)
-- implement a RecipientProvider or use the provided default-provider: see [AzineRecipientProvider](Services/AzineRecipientProvider)
+- implement a RecipientProvider or use the provided default-provider: see [AzineRecipientProvider](Services/AzineRecipientProvider.php)
 - implement a NotifierService: see [below](#implement-a-notifierservice-required)
 - implement a TemplateProvider: see [below](#implement-a-templateprovider-optional-required-if-you-adduse-your-own-templates)
 - implement a WebViewService: see [below](#implement-a-webviewservice-optional)
