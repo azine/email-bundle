@@ -29,4 +29,26 @@ class TestHelper
         }
         $manager->flush();
     }
+
+
+    /**
+     * @param $url
+     * @param $locale
+     * @return false|string
+     */
+    public static function makeAbsolutPath($url, $locale){
+        $indexOfLocale = strpos($url, "/$locale/");
+        if($indexOfLocale!==false){
+            return substr($url, $indexOfLocale);
+        }
+        $hostStartIndex = strpos($url, "http") !== false ? strpos($url, "//") + 2 : 0;
+        $appEndIndex = strpos($url, ".php/", $hostStartIndex );
+        if($appEndIndex !== false){
+            return substr($url, $appEndIndex + 4 );
+        }
+
+        $hostEndIndex = strpos($url, "/", $hostStartIndex);
+        return substr($url, $hostEndIndex);
+    }
+
 }

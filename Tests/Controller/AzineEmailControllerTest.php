@@ -35,14 +35,14 @@ class AzineEmailControllerTest extends WebTestCase
 
         $testSentEmails = $sentEmailRep->search(array('template' => AzineTemplateProvider::NEWSLETTER_TEMPLATE))->getArrayResult();
 
-        $listUrl = substr($this->getRouter()->generate('azine_admin_email_dashboard', array('_locale' => 'en', 'limit' => $pageLimit, 'sentEmail[template]' => AzineTemplateProvider::NEWSLETTER_TEMPLATE)), 13);
+        $listUrl = TestHelper::makeAbsolutPath($this->getRouter()->generate('azine_admin_email_dashboard', array('_locale' => 'en', 'limit' => $pageLimit, 'sentEmail[template]' => AzineTemplateProvider::NEWSLETTER_TEMPLATE)),"en");
         $crawler = $this->loginUserIfRequired($client, $listUrl);
 
         $this->assertSame($pageLimit, $crawler->filter('.sentEmail')->count(), 'emailsDashboard expected with '.$pageLimit.' sent emails');
 
         $numberOfPaginationLinks = intval(ceil(count($testSentEmails) / $pageLimit));
 
-        $this->assertSame($numberOfPaginationLinks, $crawler->filter('.pagination .page')->count() + $crawler->filter('.pagination .current')->count(), $numberOfPaginationLinks.' pagination links expected');
+        $this->assertSame($numberOfPaginationLinks, $crawler->filter('.pagination .page.current')->count() + 1, $numberOfPaginationLinks.' pagination links expected');
 
         //click on an email web view link to get to the web page
         $link = $crawler->filter(".sentEmail:contains('".AzineTemplateProvider::NEWSLETTER_TEMPLATE."')")->filter('a.showWebViewButton')->link();

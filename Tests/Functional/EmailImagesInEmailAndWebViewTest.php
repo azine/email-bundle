@@ -6,8 +6,8 @@ use Azine\EmailBundle\Entity\Notification;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Services\AzineNotifierService;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
-use Azine\PlatformBundle\Services\NotifierService;
-use Azine\PlatformBundle\Tests\FindInFile;
+use Azine\EmailBundle\Tests\FindInFileUtil;
+use Azine\EmailBundle\Tests\TestHelper;
 use Doctrine\ORM\EntityManager;
 use FOS\UserBundle\Model\User;
 use FOS\UserBundle\Model\UserManager;
@@ -115,12 +115,11 @@ class EmailImagesInEmailAndWebViewTest extends WebTestCase
 
     private function sendEmail(array $contentItems, string $subjectLine)
     {
-        /** @var AzineNotifierService $notifierService */
-        $notifierService = $this->appContainer->get('azine_email.example.notifier_service');
+        $notifierService = $this->appContainer->get('azine_email_notifier_service');
 
         $params = array('subject' => $subjectLine);
         $params = array_merge($params, $notifierService->getRecipientSpecificNewsletterParams($this->testRecipient));
-        $params[NotifierService::CONTENT_ITEMS] = $contentItems;
+        $params[AzineNotifierService::CONTENT_ITEMS] = $contentItems;
 
         $newsletterTemplate = 'AzineEmailBundle::newsletterEmailLayout';
         $notifierService->sendNewsletterFor($this->testRecipient, $params, $newsletterTemplate);
@@ -143,7 +142,7 @@ class EmailImagesInEmailAndWebViewTest extends WebTestCase
         $router = $this->appContainer->get('router');
         $router->getContext()->setParameter('_locale', $this->testRecipient->getPreferredLocale());
         $router->getContext()->setPathInfo('/');
-        $webViewUrl = '/'.$router->generate('azine_email_webview', array('token' => $sentEmail->getToken()), RouterInterface::RELATIVE_PATH);
+        $webViewUrl = TestHelper::makeAbsolutPath($router->generate('azine_email_webview', array('token' => $sentEmail->getToken()), RouterInterface::ABSOLUTE_PATH),$this->testRecipient->getPreferredLocale());
 
         $client = static::createClient();
         $client->followRedirects();
@@ -160,10 +159,15 @@ class EmailImagesInEmailAndWebViewTest extends WebTestCase
         });
 
         foreach ($urls as $nextUrl) {
+            $nextUrl = TestHelper::makeAbsolutPath($nextUrl, $this->testRecipient->getPreferredLocale());
+            if(strpos($nextUrl, '/bundle/') == 0){
+                $this->assertFileExists($this->getKernel()->getProjectDir()."/web".$nextUrl);
+                continue;
+            }
             $imageCrawler = $client->request('GET', $nextUrl);
             $statusCode = $client->getResponse()->getStatusCode();
             ($client->getRequest()->getUri());
-            $this->assertSame(200, $statusCode, 'Image failed to load correctly.');
+            $this->assertSame(200, $statusCode, 'Image failed to load correctly');
         }
     }
 
@@ -260,7 +264,7 @@ class EmailImagesInEmailAndWebViewTest extends WebTestCase
      */
     private function findTextInSpooledTestEmail($searchString)
     {
-        $findInFile = new FindInFile();
+        $findInFile = new FindInFileUtil();
         $findInFile->excludeMode = false;
         $findInFile->formats = array('.message');
         $result = $findInFile->find($this->getSpoolDirectory(), $searchString);
