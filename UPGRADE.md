@@ -122,3 +122,17 @@ To support the full tracking functionality of google analytics the tracking para
 ### Optional changes
 
 - if you use piwik to do the tracking, then install https://plugins.piwik.org/AdvancedCampaignReporting to get the best out of it.
+
+## Upgrade to PHP 8.5 / Symfony 7.4
+
+### Dependency changes
+- Minimum PHP is now `8.5`.
+- Symfony components are now constrained to `^7.4`.
+- PHPUnit was upgraded to `^11.5` and `phpunit.xml.dist` now uses the PHPUnit 11 schema.
+- Legacy hard dependency on `friendsofsymfony/user-bundle` was removed (it is now optional in `suggest`).
+- `twig/extensions` was replaced by `twig/extra-bundle`.
+
+### CI changes
+- Travis CI configuration was removed.
+- GitHub Actions now runs composer validation and the PHPUnit suite on every push and pull request.
+

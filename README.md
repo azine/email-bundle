@@ -74,6 +74,26 @@ provide recipient information (name/email/notification interval/newsletter subsc
 for the mails to be sent.
 
 ## Installation
+
+## Modern platform requirements
+
+As of this modernization pass, this bundle targets:
+
+- PHP **8.5+**
+- Symfony **7.4+**
+- PHPUnit **11.5+** (development/test)
+
+### Running tests locally
+
+```bash
+composer validate --strict --no-check-publish
+composer update
+vendor/bin/phpunit -c phpunit.xml.dist
+```
+
+> Note: this bundle still uses SwiftMailer APIs internally for backward compatibility with existing integrations.
+
+
 To install AzineEmailBundle with Composer just add the following to your `composer.json` file:
 
 ```javascript
