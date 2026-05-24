@@ -28,7 +28,6 @@
     },
     "require": {
         "php": "^8.5",
-        "azine/emailupdateconfirmation-bundle": "^1.0",
         "doctrine/orm": "^2.20 || ^3.0",
         "knplabs/knp-paginator-bundle": "^6.0",
         "monolog/monolog": "^2.9 || ^3.0",
@@ -50,7 +49,8 @@
         "symfony/translation": "^7.4"
     },
     "suggest": {
-        "friendsofsymfony/user-bundle": "Optional: integrate bundle helpers with FOSUser templates and user model."
+        "friendsofsymfony/user-bundle": "Optional: integrate bundle helpers with FOSUser templates and user model.",
+        "azine/emailupdateconfirmation-bundle": "Optional legacy integration; current releases are tied to Symfony <=4 and are not compatible with Symfony 7.4."
     },
     "autoload": {
         "psr-4": {

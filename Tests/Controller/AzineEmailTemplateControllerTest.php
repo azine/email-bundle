@@ -27,7 +27,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
     /**
      * delete all files from spool-folder.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
     }
 

@@ -37,7 +37,7 @@ class EmailImagesInEmailAndWebViewTest extends WebTestCase
     /** @var array */
     private $testImages = array();
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->uniqueId = md5(microtime().'_'.random_int(0, 1000));
 
@@ -100,7 +100,7 @@ class EmailImagesInEmailAndWebViewTest extends WebTestCase
         $this->verifyWebView();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         // revert the test-User password & salt
         $this->testRecipient->setPassword($this->originalUserPassword);

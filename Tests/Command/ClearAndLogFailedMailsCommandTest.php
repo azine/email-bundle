@@ -207,7 +207,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit\Framework\TestCase
         return $display;
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         $finder = Finder::create()->in(__DIR__.'/mock.spool.path/')->name('*');
