@@ -44,7 +44,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.59",
-        "phpunit/phpunit": "^11.5",
+        "phpunit/phpunit": "^9.6",
         "symfony/phpunit-bridge": "^7.4",
         "symfony/translation": "^7.4"
     },

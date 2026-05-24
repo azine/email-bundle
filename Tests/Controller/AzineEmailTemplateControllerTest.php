@@ -10,7 +10,7 @@ use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\Tests\FindInFileUtil;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -84,7 +84,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
     {
         $requestMock = $this->getMockBuilder("Symfony\Component\HttpFoundation\Request")->disableOriginalConstructor()->setMethods(array('getLocale'))->getMock();
         $requestMock->expects($this->exactly(3))->method('getLocale')->will($this->returnValue('en'));
-        $requestMock->query = new ParameterBag();
+        $requestMock->query = new InputBag();
         $webViewServiceMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineWebViewService")->disableOriginalConstructor()->getMock();
         $webViewServiceMock->expects($this->exactly(3))->method('getDummyVarsFor')->will($this->returnValue(array()));
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
@@ -121,7 +121,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $controller->webPreViewAction($requestMock, AzineTemplateProvider::NEWSLETTER_TEMPLATE, 'html');
         $response = $controller->webPreViewAction($requestMock, AzineTemplateProvider::NEWSLETTER_TEMPLATE, 'txt');
         $this->assertSame('text/plain', $response->headers->get('Content-Type'));
-        $this->assertNotContains('<!doctype', $response->getContent());
+        $this->assertStringNotContainsString('<!doctype', $response->getContent());
     }
 
     public function testWebViewAction_User_access_allowed()
@@ -130,7 +130,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
         $twigMock->expects($this->once())->method('renderResponse')->will($this->returnCallback(array($this, 'renderResponseCallback')));
         $userMail = 'a-user@email.com';
-        $userMock = $this->getMockBuilder('FOS\UserBundle\Model\User')->getMock();
+        $userMock = $this->getMockBuilder('stdClass')->addMethods(array('getEmail', 'hasRole'))->getMock();
         $userMock->expects($this->once())->method('getEmail')->will($this->returnValue($userMail));
         $sentEmail = new SentEmail();
         $sentEmail->setRecipients(array($userMail));
@@ -141,7 +141,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
         $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
-        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
@@ -177,7 +177,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
         $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
-        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
@@ -207,7 +207,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
     {
         $token = 'fdasdfasfafsadf';
         $userMail = 'an-other-user@email.com';
-        $userMock = $this->getMockBuilder('FOS\UserBundle\Model\User')->getMock();
+        $userMock = $this->getMockBuilder('stdClass')->addMethods(array('getEmail', 'hasRole'))->getMock();
         $userMock->expects($this->once())->method('getEmail')->will($this->returnValue($userMail));
         $sentEmail = new SentEmail();
         $sentEmail->setRecipients(array('someuser@email.com'));
@@ -218,7 +218,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
         $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
-        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
@@ -254,7 +254,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
         $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
-        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
         $securityTokenMock->expects($this->once())->method('getUser')->will($this->returnValue(null));
@@ -280,7 +280,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $token = 'fdasdfasfafsadf';
         $twigMock = $this->getMockBuilder("Symfony\Bundle\TwigBundle\TwigEngine")->disableOriginalConstructor()->getMock();
         $twigMock->expects($this->once())->method('renderResponse')->will($this->returnCallback(array($this, 'renderResponseCallback')));
-        $userMock = $this->getMockBuilder('FOS\UserBundle\Model\User')->getMock();
+        $userMock = $this->getMockBuilder('stdClass')->addMethods(array('getEmail', 'hasRole'))->getMock();
         $userMock->expects($this->once())->method('getEmail')->will($this->returnValue('admin@email.com'));
         $userMock->expects($this->once())->method('hasRole')->with('ROLE_ADMIN')->will($this->returnValue(true));
         $sentEmail = new SentEmail();
@@ -292,7 +292,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
         $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue($sentEmail));
         $doctrineManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManagerMock")->disableOriginalConstructor()->getMock();
-        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
         $securityTokenMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\TokenInterface")->disableOriginalConstructor()->getMock();
@@ -329,7 +329,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $twigMock->expects($this->once())->method('renderResponse')->will($this->returnCallback(array($this, 'renderResponseCallback')));
         $repositoryMock = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\SentEmailRepository")->disableOriginalConstructor()->setMethods(array('findOneByToken'))->getMock();
         $repositoryMock->expects($this->once())->method('findOneByToken')->will($this->returnValue(null));
-        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $doctrineManagerRegistryMock = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
         $containerMock->expects($this->once())->method('getParameter')->with('azine_email_web_view_retention')->will($this->returnValue(123));
@@ -492,7 +492,7 @@ Füge "no-reply@some.host.com" zu deinem Adressbuch hinzu, um den Empfang von az
         if (false !== strpos($json, 'Getting the spam-info failed')) {
             $this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n$json");
         }
-        $this->assertNotContains('Getting the spam-info failed.', $jsonResponse->getContent(), "Spamcheck returned:\n".$jsonResponse->getContent());
+        $this->assertStringNotContainsString('Getting the spam-info failed.', $jsonResponse->getContent(), "Spamcheck returned:\n".$jsonResponse->getContent());
         $this->assertStringContainsString('SpamScore', $jsonResponse->getContent());
     }
 }

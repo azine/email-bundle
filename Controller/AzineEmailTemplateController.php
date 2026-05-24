@@ -5,7 +5,7 @@ namespace Azine\EmailBundle\Controller;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Services\TemplateProviderInterface;
 use Doctrine\ORM\EntityManager;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +27,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *
  * @author dominik
  */
-class AzineEmailTemplateController extends Controller
+class AzineEmailTemplateController extends AbstractController
 {
     /**
      * Show a set of options to view html- and text-versions of email in the browser and send them as emails to test-accounts.
@@ -35,10 +35,10 @@ class AzineEmailTemplateController extends Controller
     public function indexAction(Request $request)
     {
         $customEmail = $request->get('customEmail', 'custom@email.com');
-        $templates = $this->get('azine_email_web_view_service')->getTemplatesForWebPreView();
-        $emails = $this->get('azine_email_web_view_service')->getTestMailAccounts();
+        $templates = $this->container->get('azine_email_web_view_service')->getTemplatesForWebPreView();
+        $emails = $this->container->get('azine_email_web_view_service')->getTestMailAccounts();
 
-        return $this->get('templating')
+        return $this->container->get('templating')
                     ->renderResponse('AzineEmailBundle:Webview:index.html.twig',
                     array(
                         'customEmail' => $customEmail,
@@ -66,7 +66,7 @@ class AzineEmailTemplateController extends Controller
 
         // merge request vars with dummyVars, but make sure request vars remain as they are.
         $emailVars = array_merge(array(), $request->query->all());
-        $emailVars = $this->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale, $emailVars);
+        $emailVars = $this->container->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale, $emailVars);
         $emailVars = array_merge($emailVars, $request->query->all());
 
         // add the styles
@@ -74,7 +74,7 @@ class AzineEmailTemplateController extends Controller
 
         // add the from-email for the footer-text
         if (!array_key_exists('fromEmail', $emailVars)) {
-            $noReply = $this->getParameter('azine_email_no_reply');
+            $noReply = $this->container->getParameter('azine_email_no_reply');
             $emailVars['fromEmail'] = $noReply['email'];
             $emailVars['fromName'] = $noReply['name'];
         }
@@ -96,9 +96,9 @@ class AzineEmailTemplateController extends Controller
         $campaignParams['utm_medium'] = 'webPreview';
         if (sizeof($campaignParams) > 0) {
             $content = $response->getContent();
-            $content = $this->get('azine.email.bundle.twig.filters')->addCampaignParamsToAllUrls($content, $campaignParams);
+            $content = $this->container->get('azine.email.bundle.twig.filters')->addCampaignParamsToAllUrls($content, $campaignParams);
 
-            $emailOpenTrackingCodeBuilder = $this->get('azine_email_email_open_tracking_code_builder');
+            $emailOpenTrackingCodeBuilder = $this->container->get('azine_email_email_open_tracking_code_builder');
             if ($emailOpenTrackingCodeBuilder) {
                 // add an image at the end of the html tag with the tracking-params to track email-opens
                 $imgTrackingCode = $emailOpenTrackingCodeBuilder->getTrackingImgCode($template, $campaignParams, $emailVars, 'dummy', 'dummy@from.email.com', null, null);
@@ -160,19 +160,19 @@ class AzineEmailTemplateController extends Controller
                 $campaignParams = $templateProvider->getCampaignParamsFor($template, $emailVars);
 
                 if (null != $campaignParams && sizeof($campaignParams) > 0) {
-                    $response->setContent($this->get('azine.email.bundle.twig.filters')->addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
+                    $response->setContent($this->container->get('azine.email.bundle.twig.filters')->addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
                 }
 
                 return $response;
 
                 // if the user is not allowed to see this mail
             }
-            $msg = $this->get('translator')->trans('web.pre.view.test.mail.access.denied');
+            $msg = $this->container->get('translator')->trans('web.pre.view.test.mail.access.denied');
             throw new AccessDeniedException($msg);
         }
 
         // the parameters-array is null => the email is not available in webView
-        $days = $this->getParameter('azine_email_web_view_retention');
+        $days = $this->container->getParameter('azine_email_web_view_retention');
         $response = $this->renderResponse('AzineEmailBundle:Webview:mail.not.available.html.twig', array('days' => $days));
         $response->setStatusCode(404);
 
@@ -201,7 +201,7 @@ class AzineEmailTemplateController extends Controller
             throw new \LogicException('The SecurityBundle is not registered in your application.');
             // @codeCoverageIgnoreEnd
         }
-        $token = $this->get('security.token_storage')->getToken();
+        $token = $this->container->get('security.token_storage')->getToken();
 
         // check if the token is not null and the user in the token an object
         if ($token instanceof TokenInterface && is_object($token->getUser())) {
@@ -242,7 +242,7 @@ class AzineEmailTemplateController extends Controller
     private function reAttachAllEntities(array &$vars)
     {
         /** @var EntityManager $em */
-        $em = $this->get('doctrine')->getManager();
+        $em = $this->container->get('doctrine')->getManager();
         foreach ($vars as $key => $next) {
             if (is_object($next) && method_exists($next, 'getId')) {
                 $className = get_class($next);
@@ -288,7 +288,7 @@ class AzineEmailTemplateController extends Controller
      */
     protected function getTemplateProviderService()
     {
-        return $this->get('azine_email_template_provider');
+        return $this->container->get('azine_email_template_provider');
     }
 
     /**
@@ -299,7 +299,7 @@ class AzineEmailTemplateController extends Controller
      */
     protected function renderResponse($view, array $parameters = array(), Response $response = null)
     {
-        return $this->get('templating')->renderResponse($view, $parameters, $response);
+        return $this->container->get('templating')->renderResponse($view, $parameters, $response);
     }
 
     /**
@@ -311,7 +311,7 @@ class AzineEmailTemplateController extends Controller
      */
     protected function getSentEmailForToken($token)
     {
-        $sentEmail = $this->get('doctrine')->getRepository('AzineEmailBundle:SentEmail')->findOneByToken($token);
+        $sentEmail = $this->container->get('doctrine')->getRepository('AzineEmailBundle:SentEmail')->findOneByToken($token);
 
         return $sentEmail;
     }
@@ -331,11 +331,11 @@ class AzineEmailTemplateController extends Controller
         $template = urldecode($template);
 
         // get the email-vars for email-sending => absolute fs-paths to images
-        $emailVars = $this->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale);
+        $emailVars = $this->container->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale);
 
         // send the mail
         $message = new \Swift_Message();
-        $mailer = $this->get('azine_email_template_twig_swift_mailer');
+        $mailer = $this->container->get('azine_email_template_twig_swift_mailer');
         $emailArray = array();
         foreach (mailparse_rfc822_parse_addresses($email) as $next){
             $emailArray[$next['address']] = "Test-Mail-Recipient";
@@ -374,19 +374,19 @@ class AzineEmailTemplateController extends Controller
 
         // inform about sent/failed emails
         if ($sent) {
-            $msg = $this->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
+            $msg = $this->container->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
             $flashBag->add('info', $msg);
 
         //@codeCoverageIgnoreStart
         } else {
             // this only happens if the mail-server has a problem
-            $msg = $this->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
+            $msg = $this->container->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
             $flashBag->add('warn', $msg);
             //@codeCoverageIgnoreStart
         }
 
         // show the index page again.
-        return new RedirectResponse($this->get('router')->generate('azine_email_template_index', array('customEmail' => $email)));
+        return new RedirectResponse($this->container->get('router')->generate('azine_email_template_index', array('customEmail' => $email)));
     }
 
     /**
@@ -454,7 +454,7 @@ class AzineEmailTemplateController extends Controller
      */
     public function checkSpamScoreOfSentEmailAction(Request $request)
     {
-        $msgString = $request->get('emailSource');
+        $msgString = $request->container->get('emailSource');
         $spamReport = $this->getSpamIndexReport($msgString);
         $spamInfo = '';
         if (is_array($spamReport)) {

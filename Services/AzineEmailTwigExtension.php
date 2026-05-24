@@ -4,7 +4,7 @@ namespace Azine\EmailBundle\Services;
 
 use Symfony\Component\Translation\TranslatorInterface;
 
-class AzineEmailTwigExtension extends \Twig_Extension
+class AzineEmailTwigExtension extends \Twig\Extension\AbstractExtension
 {
     /**
      * @var TemplateProviderInterface

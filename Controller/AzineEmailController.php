@@ -5,14 +5,14 @@ namespace Azine\EmailBundle\Controller;
 use Azine\EmailBundle\Entity\Repositories\SentEmailRepository;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Form\SentEmailType;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * This controller provides actions related to SentEmails stored in the database.
  */
-class AzineEmailController extends Controller
+class AzineEmailController extends AbstractController
 {
     /**
      *  Displays an Emails-Dashboard with filters for each property of SentEmails entity and links to
@@ -26,9 +26,9 @@ class AzineEmailController extends Controller
         $form->handleRequest($request);
         $searchParams = $form->getData();
         /** @var SentEmailRepository $repository */
-        $repository = $this->getDoctrine()->getManager()->getRepository(SentEmail::class);
+        $repository = $this->container->container->get('doctrine')->getManager()->getRepository(SentEmail::class);
         $query = $repository->search($searchParams);
-        $pagination = $this->get('knp_paginator')->paginate($query, $request->query->getInt('page', 1));
+        $pagination = $this->container->get('knp_paginator')->paginate($query, $request->query->getInt('page', 1));
 
         return $this->render('AzineEmailBundle::emailsDashboard.html.twig',
             array('form' => $form->createView(), 'pagination' => $pagination));
@@ -43,7 +43,7 @@ class AzineEmailController extends Controller
      */
     public function emailDetailsByTokenAction(Request $request, $token)
     {
-        $email = $this->getDoctrine()->getManager()->getRepository(SentEmail::class)
+        $email = $this->container->container->get('doctrine')->getManager()->getRepository(SentEmail::class)
             ->findOneByToken($token);
 
         if ($email instanceof SentEmail) {
@@ -55,7 +55,7 @@ class AzineEmailController extends Controller
         }
 
         // the parameters-array is null => the email is not available in webView
-        $days = $this->getParameter('azine_email_web_view_retention');
+        $days = $this->container->getParameter('azine_email_web_view_retention');
         $response = $this->render('AzineEmailBundle:Webview:mail.not.available.html.twig', array('days' => $days));
         $response->setStatusCode(404);
 

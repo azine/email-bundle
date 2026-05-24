@@ -101,7 +101,7 @@ Some more text
         $this->assertStringContainsString('link text1: http://acme.com/link1', $txt, "Link with html as link-text didn't work as expected.");
         $this->assertStringContainsString('link text2: http://acme.com/link2', $txt, "Link with html and linebreaks as link-text didn't work as expected.");
         $this->assertStringContainsString('http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
-        $this->assertNotContains('link text3: http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
+        $this->assertStringNotContainsString('link text3: http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
         $this->assertStringContainsString('here: http://acme.com/link4', $txt, "Link with url as link-text didn't work as expected.");
     }
 

@@ -14,6 +14,26 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SendNewsLetterCommand extends Command
 {
+    /** @var ContainerInterface|null */
+    private $container;
+
+    public function setContainer(?ContainerInterface $container = null): ?ContainerInterface
+    {
+        $previous = $this->container;
+        $this->container = $container;
+
+        return $previous;
+    }
+
+    protected function getContainer(): ContainerInterface
+    {
+        if (null === $this->container) {
+            throw new \LogicException('Container has not been set.');
+        }
+
+        return $this->container;
+    }
+
     /**
      * (non-PHPdoc).
      *
@@ -49,7 +69,7 @@ EOF
             $unlockedCommand = $lock->lock();
         } else {
             $store = new \Symfony\Component\Lock\Store\SemaphoreStore();
-            $factory = new \Symfony\Component\Lock\Factory($store);
+            $factory = new \Symfony\Component\Lock\LockFactory($store);
 
             $lock = $factory->createLock($this->getName());
             $unlockedCommand = $lock->acquire();

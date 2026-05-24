@@ -19,7 +19,7 @@ class AzineNotifierServiceTest extends \PHPUnit\Framework\TestCase
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
         $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $mocks['notificationRepository'] = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\NotificationRepository")->disableOriginalConstructor()->getMock();
-        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry']->expects($this->any())->method('getManager')->will($this->returnValue($mocks['entityManager']));
         $mocks['managerRegistry']->expects($this->any())->method('getRepository')->will($this->returnValue($mocks['notificationRepository']));
         $mocks['templateProvider'] = $this->getMockBuilder("Azine\EmailBundle\Services\TemplateProviderInterface")->disableOriginalConstructor()->getMock();

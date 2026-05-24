@@ -93,7 +93,7 @@ class RemoveOldWebViewEmailsCommandTest extends \PHPUnit\Framework\TestCase
         $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $entityManagerMock->expects($this->once())->method('createQueryBuilder')->will($this->returnValue($queryBuilderMock));
 
-        $doctrineMock = $this->getMockBuilder("\Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $doctrineMock = $this->getMockBuilder("\Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $doctrineMock->expects($this->once())->method('getManager')->will($this->returnValue($entityManagerMock));
 
         if (!$useKeep) {

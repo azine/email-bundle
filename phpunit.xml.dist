@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
-         bootstrap="Tests/bootstrap.php"
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
          colors="true"
-         cacheDirectory=".phpunit.cache"
-         beStrictAboutOutputDuringTests="false"
-         failOnRisky="true"
-         failOnWarning="true">
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         bootstrap="Tests/bootstrap.php"
+>
     <php>
-        <env name="KERNEL_CLASS" value="AppKernel"/>
+        <env name="KERNEL_CLASS" value="AppKernel" />
     </php>
 
     <testsuites>
         <testsuite name="Azine/EmailBundle Test Suite">
-            <directory>Tests</directory>
+            <directory>./Tests</directory>
         </testsuite>
     </testsuites>
-
-    <coverage includeUncoveredFiles="true">
-        <report>
-            <text outputFile="php://stdout"/>
-        </report>
-    </coverage>
 </phpunit>
