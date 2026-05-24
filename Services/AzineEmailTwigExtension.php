@@ -2,7 +2,7 @@
 
 namespace Azine\EmailBundle\Services;
 
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AzineEmailTwigExtension extends \Twig\Extension\AbstractExtension
 {

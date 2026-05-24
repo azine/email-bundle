@@ -2,7 +2,7 @@
 
 namespace Azine\EmailBundle\Services;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * Default implementation of the RecipientProviderInterface.

@@ -9,7 +9,7 @@ namespace Azine\EmailBundle\Services;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AzineTemplateProvider implements TemplateProviderInterface
 {

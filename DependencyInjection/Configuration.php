@@ -21,10 +21,10 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode(AzineEmailExtension::RECIPIENT_CLASS)->isRequired()->defaultValue('Acme\\SomeBundle\\Entity\\User')->info('the class of your implementation of the RecipientInterface')->end()
+                ->scalarNode(AzineEmailExtension::RECIPIENT_CLASS)->defaultValue('Acme\\SomeBundle\\Entity\\User')->info('the class of your implementation of the RecipientInterface')->end()
                 ->scalarNode(AzineEmailExtension::RECIPIENT_NEWSLETTER_FIELD)->defaultValue('newsletter')->info('the fieldname of the boolean field on the recipient class indicating, that a newsletter should be sent or not')->end()
                 ->scalarNode(AzineEmailExtension::NOTIFIER_SERVICE)->defaultValue('azine_email.example.notifier_service')->info('the service-id of your implementation of the nofitier service to be used')->end()
-                ->scalarNode(AzineEmailExtension::TEMPLATE_PROVIDER)->isRequired()->defaultValue('azine_email.example.template_provider')->info('the service-id of your implementation of the template provider service to be used')->end()
+                ->scalarNode(AzineEmailExtension::TEMPLATE_PROVIDER)->defaultValue('azine_email.example.template_provider')->info('the service-id of your implementation of the template provider service to be used')->end()
                 ->scalarNode(AzineEmailExtension::RECIPIENT_PROVIDER)->defaultValue('azine_email.default.recipient_provider')->info('the service-id of the implementation of the RecipientProviderInterface to be used')->end()
                 ->scalarNode(AzineEmailExtension::TEMPLATE_TWIG_SWIFT_MAILER)->defaultValue('azine_email.default.template_twig_swift_mailer')->info('the service-id of the mailer service to be used')->end()
                 ->arrayNode(AzineEmailExtension::NO_REPLY)->isRequired()

@@ -6,9 +6,9 @@ use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\Notification;
 use Azine\EmailBundle\Entity\RecipientInterface;
 use Azine\EmailBundle\Entity\Repositories\NotificationRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * This Service compiles and renders the emails to be sent.

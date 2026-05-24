@@ -273,7 +273,7 @@ class AzineEmailTemplateController extends AbstractController
         $folder = $this->getTemplateProviderService()->getFolderFrom($folderKey);
         if (false !== $folder) {
             $fullPath = $folder.urldecode($filename);
-            $response = BinaryFileResponse::create($fullPath);
+            $response = new BinaryFileResponse($fullPath);
             $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
             $response->headers->set('Content-Type', 'image');
 
@@ -297,7 +297,7 @@ class AzineEmailTemplateController extends AbstractController
      *
      * @return Response
      */
-    protected function renderResponse($view, array $parameters = array(), Response $response = null)
+    protected function renderResponse($view, array $parameters = array(), ?Response $response = null)
     {
         return $this->container->get('templating')->renderResponse($view, $parameters, $response);
     }
@@ -454,7 +454,7 @@ class AzineEmailTemplateController extends AbstractController
      */
     public function checkSpamScoreOfSentEmailAction(Request $request)
     {
-        $msgString = $request->container->get('emailSource');
+        $msgString = $request->request->get('emailSource');
         $spamReport = $this->getSpamIndexReport($msgString);
         $spamInfo = '';
         if (is_array($spamReport)) {

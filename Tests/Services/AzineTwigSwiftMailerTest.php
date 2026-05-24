@@ -15,7 +15,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         $mocks['mailer']->expects($this->once())->method('send')->will($this->returnCallback($sendCallback));
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
         $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
-        $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
+        $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig\Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
         $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
 
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
@@ -33,7 +33,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
         $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
-        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry']->expects($this->any())->method('getManager')->will($this->returnValue($mocks['entityManager']));
 
         $mocks['parameters'] = array(AzineEmailExtension::NO_REPLY => array(
@@ -155,7 +155,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         $mocks['mailer']->expects($this->once())->method('send')->will($this->returnCallback(array($this, 'returnZeroWithFailedAddress')));
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
         $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
-        $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
+        $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig\Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
         $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
 
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
@@ -173,7 +173,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
         $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
-        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry']->expects($this->any())->method('getManager')->will($this->returnValue($mocks['entityManager']));
 
         $mocks['parameters'] = array(AzineEmailExtension::NO_REPLY => array(
@@ -267,7 +267,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
 
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
         $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
-        $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig_Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
+        $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig\Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
         $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
 
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
@@ -285,7 +285,7 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
 
         $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
-        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
+        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
         $mocks['managerRegistry']->expects($this->any())->method('getManager')->will($this->returnValue($mocks['entityManager']));
 
         $mocks['parameters'] = array(AzineEmailExtension::NO_REPLY => array(
