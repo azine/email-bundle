@@ -318,8 +318,8 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $controller = new AzineEmailTemplateController();
         $controller->setContainer($containerMock);
         $response = $controller->webViewAction($requestMock, $token);
-        $this->assertContains('http://testurl.com/?campaign=newsletter&keyword=2013-11-19', $response->getContent());
-        $this->assertContains('http://testurl.com/with/?param=1&campaign=newsletter&keyword=2013-11-19', $response->getContent());
+        $this->assertStringContainsString('http://testurl.com/?campaign=newsletter&keyword=2013-11-19', $response->getContent());
+        $this->assertStringContainsString('http://testurl.com/with/?param=1&campaign=newsletter&keyword=2013-11-19', $response->getContent());
     }
 
     public function testWebViewAction_MailNotFound()
@@ -423,7 +423,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $response = $controller->sendTestEmailAction($container->get('request'), AzineTemplateProvider::NEWSLETTER_TEMPLATE, $to);
         $this->assertSame(302, $response->getStatusCode(), 'Status-Code 302 expected.');
         $uri = $router->generate('azine_email_template_index');
-        $this->assertContains("Redirecting to $uri", $response->getContent(), 'Redirect expected.');
+        $this->assertStringContainsString("Redirecting to $uri", $response->getContent(), 'Redirect expected.');
         $findInFile = new FindInFileUtil();
         $findInFile->excludeMode = false;
         $findInFile->formats = array('.message');
@@ -493,6 +493,6 @@ Füge "no-reply@some.host.com" zu deinem Adressbuch hinzu, um den Empfang von az
             $this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n$json");
         }
         $this->assertNotContains('Getting the spam-info failed.', $jsonResponse->getContent(), "Spamcheck returned:\n".$jsonResponse->getContent());
-        $this->assertContains('SpamScore', $jsonResponse->getContent());
+        $this->assertStringContainsString('SpamScore', $jsonResponse->getContent());
     }
 }

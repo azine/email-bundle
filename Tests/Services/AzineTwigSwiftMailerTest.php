@@ -74,10 +74,10 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         $body = $message->getBody();
 
         // has a email-tracking-image at the end
-        $this->assertContains("<img src='https://www.google-analytics.com/?tid=blabla", $body, 'Email open tracking image not found.');
+        $this->assertStringContainsString("<img src='https://www.google-analytics.com/?tid=blabla", $body, 'Email open tracking image not found.');
 
         // links have tracking-parameters
-        $this->assertContains('&utm_medium=email', $body, 'Email links are expected to have tracking parameters attached.');
+        $this->assertStringContainsString('&utm_medium=email', $body, 'Email links are expected to have tracking parameters attached.');
 
         return 1;
     }

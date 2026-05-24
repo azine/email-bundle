@@ -20,7 +20,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit\Framework\TestCase
         $command = $this->getCommand();
 
         $display = $command->getHelp();
-        $this->assertContains('Any email-address that still failed, is logged.', $display);
+        $this->assertStringContainsString('Any email-address that still failed, is logged.', $display);
     }
 
     public function testSendingFailedMails()
@@ -33,8 +33,8 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit\Framework\TestCase
         $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->exactly($count)));
 
         $display = $this->executeCommandAndGetDisplay($command, array(''));
-        $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@example.com'", $display);
-        $this->assertContains('Sent!', $display);
+        $this->assertStringContainsString("Retrying to send 'subject blabbla' to 'test-recipient@example.com'", $display);
+        $this->assertStringContainsString('Sent!', $display);
     }
 
     public function testSendingFailedMailsWithDate()
@@ -47,8 +47,8 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit\Framework\TestCase
         $command->setContainer($this->getMockSetup($failedRecipients, false, false, $this->exactly($count)));
 
         $display = $this->executeCommandAndGetDisplay($command, array('date' => ' > now -1 minute'));
-        $this->assertContains("Retrying to send 'subject blabbla' to 'test-recipient@example.com'", $display);
-        $this->assertContains('Sent!', $display);
+        $this->assertStringContainsString("Retrying to send 'subject blabbla' to 'test-recipient@example.com'", $display);
+        $this->assertStringContainsString('Sent!', $display);
     }
 
     public function testSendingFailedMailsNoMailsFound()
@@ -59,7 +59,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit\Framework\TestCase
 
         $display = $this->executeCommandAndGetDisplay($command, array(''));
 
-        $this->assertContains('No failed-message-files found', $display);
+        $this->assertStringContainsString('No failed-message-files found', $display);
     }
 
     public function testSendingFailedMailsWithoutTransport()
@@ -70,7 +70,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit\Framework\TestCase
 
         $display = $this->executeCommandAndGetDisplay($command, array(''));
 
-        $this->assertContains('Could not load transport. Is file-spooling configured in your config.yml for this environment?', $display);
+        $this->assertStringContainsString('Could not load transport. Is file-spooling configured in your config.yml for this environment?', $display);
     }
 
     public function testSendingFailedMailsWithoutSpooling()
@@ -81,7 +81,7 @@ class ClearAndLogFailedMailsCommandTest extends \PHPUnit\Framework\TestCase
 
         $display = $this->executeCommandAndGetDisplay($command, array(''));
 
-        $this->assertContains('Could not find file spool path. Is file-spooling configured in your config.yml for this environment?', $display);
+        $this->assertStringContainsString('Could not find file spool path. Is file-spooling configured in your config.yml for this environment?', $display);
     }
 
     /**

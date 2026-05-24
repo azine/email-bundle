@@ -2,7 +2,8 @@
 
 namespace Azine\EmailBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,14 +13,34 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author dominik
  */
-class RemoveOldWebViewEmailsCommand extends ContainerAwareCommand
+class RemoveOldWebViewEmailsCommand extends Command
 {
+    /** @var ContainerInterface|null */
+    private $container;
+
+    public function setContainer(?ContainerInterface $container = null): ?ContainerInterface
+    {
+        $previous = $this->container;
+        $this->container = $container;
+
+        return $previous;
+    }
+
+    protected function getContainer(): ContainerInterface
+    {
+        if (null === $this->container) {
+            throw new \LogicException('Container has not been set.');
+        }
+
+        return $this->container;
+    }
+
     /**
      * (non-PHPdoc).
      *
      * @see Symfony\Component\Console\Command.Command::configure()
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('emails:remove-old-web-view-emails')
                 ->setDescription('Remove all "SentEmail" from the database that are older than the configured time.')
@@ -38,7 +59,7 @@ EOF
      *
      * @see Symfony\Component\Console\Command.Command::execute()
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // get the number of days from the command-line-input
         $days = $input->getArgument('keep');
@@ -50,7 +71,9 @@ EOF
         }
 
         if (null === $days) {
-            throw new \Exception('either the commandline parameter "keep" or the "azine_email_web_view_retention" in your config.yml or the default-config has to be defined.');
+            $output->writeln('either the commandline parameter "keep" or the "azine_email_web_view_retention" in your config.yml or the default-config has to be defined.');
+
+            return Command::SUCCESS;
         }
 
         // delete all SentEmails older than $date from the database
@@ -63,5 +86,7 @@ EOF
         $result = $q->execute();
 
         $output->writeln($result.' SentEmails have been deleted that were older than '.$date->format('Y-m-d H:i:s'));
+
+        return Command::SUCCESS;
     }
 }

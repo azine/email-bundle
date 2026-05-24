@@ -98,11 +98,11 @@ Some more text
         $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
         $txt = $twigExtension->stripAndConvertTags($html);
 
-        $this->assertContains('link text1: http://acme.com/link1', $txt, "Link with html as link-text didn't work as expected.");
-        $this->assertContains('link text2: http://acme.com/link2', $txt, "Link with html and linebreaks as link-text didn't work as expected.");
-        $this->assertContains('http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
+        $this->assertStringContainsString('link text1: http://acme.com/link1', $txt, "Link with html as link-text didn't work as expected.");
+        $this->assertStringContainsString('link text2: http://acme.com/link2', $txt, "Link with html and linebreaks as link-text didn't work as expected.");
+        $this->assertStringContainsString('http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
         $this->assertNotContains('link text3: http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
-        $this->assertContains('here: http://acme.com/link4', $txt, "Link with url as link-text didn't work as expected.");
+        $this->assertStringContainsString('here: http://acme.com/link4', $txt, "Link with url as link-text didn't work as expected.");
     }
 
     /**

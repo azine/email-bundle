@@ -2,7 +2,8 @@
 
 namespace Azine\EmailBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -11,14 +12,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author dominik
  */
-class SendNotificationsCommand extends ContainerAwareCommand
+class SendNotificationsCommand extends Command
 {
     /**
      * (non-PHPdoc).
      *
      * @see Symfony\Component\Console\Command.Command::configure()
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('emails:sendNotifications')
                 ->setDescription('Aggregate and send pending notifications via email.')
@@ -40,7 +41,7 @@ EOF
      *
      * @see Symfony\Component\Console\Command.Command::execute()
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID < 30400) {
             $lock = new \Symfony\Component\Filesystem\LockHandler($this->getName());
@@ -72,5 +73,7 @@ EOF
 
         // (optional) release the lock (otherwise, PHP will do it for you automatically)
         $lock->release();
+
+        return Command::SUCCESS;
     }
 }

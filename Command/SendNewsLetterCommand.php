@@ -2,7 +2,8 @@
 
 namespace Azine\EmailBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -11,14 +12,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author dominik
  */
-class SendNewsLetterCommand extends ContainerAwareCommand
+class SendNewsLetterCommand extends Command
 {
     /**
      * (non-PHPdoc).
      *
      * @see Symfony\Component\Console\Command.Command::configure()
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('emails:sendNewsletter')
                 ->setDescription('Send Newsletter via email to all subscribers.')
@@ -41,7 +42,7 @@ EOF
      *
      * @see Symfony\Component\Console\Command.Command::execute()
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID < 30400) {
             $lock = new \Symfony\Component\Filesystem\LockHandler($this->getName());
@@ -72,5 +73,7 @@ EOF
                 $output->writeln('       '.$address);
             }
         }
+
+        return Command::SUCCESS;
     }
 }

@@ -16,7 +16,7 @@ class SendNewsLetterCommandTest extends \PHPUnit\Framework\TestCase
     {
         $command = $this->getCommand();
         $display = $command->getHelp();
-        $this->assertContains('Depending on you Swiftmailer-Configuration the email will be send directly or will be written to the spool.', $display);
+        $this->assertStringContainsString('Depending on you Swiftmailer-Configuration the email will be send directly or will be written to the spool.', $display);
     }
 
     public function testSend()
@@ -25,7 +25,7 @@ class SendNewsLetterCommandTest extends \PHPUnit\Framework\TestCase
         $tester = new CommandTester($command);
         $tester->execute(array(''));
         $display = $tester->getDisplay();
-        $this->assertContains(AzineNotifierServiceMock::EMAIL_COUNT.' newsletter emails have been sent.', $display);
+        $this->assertStringContainsString(AzineNotifierServiceMock::EMAIL_COUNT.' newsletter emails have been sent.', $display);
     }
 
     public function testSendFail()
@@ -34,8 +34,8 @@ class SendNewsLetterCommandTest extends \PHPUnit\Framework\TestCase
         $tester = new CommandTester($command);
         $tester->execute(array(''));
         $display = $tester->getDisplay();
-        $this->assertContains((AzineNotifierServiceMock::EMAIL_COUNT - 1).' newsletter emails have been sent.', $display);
-        $this->assertContains(AzineNotifierServiceMock::FAILED_ADDRESS, $display);
+        $this->assertStringContainsString((AzineNotifierServiceMock::EMAIL_COUNT - 1).' newsletter emails have been sent.', $display);
+        $this->assertStringContainsString(AzineNotifierServiceMock::FAILED_ADDRESS, $display);
     }
 
     /**
@@ -80,6 +80,6 @@ class SendNewsLetterCommandTest extends \PHPUnit\Framework\TestCase
             usleep(10);
         }
 
-        $this->assertContains('The command is already running in another process.', $process2->getOutput().$process1->getOutput());
+        $this->assertStringContainsString('The command is already running in another process.', $process2->getOutput().$process1->getOutput());
     }
 }

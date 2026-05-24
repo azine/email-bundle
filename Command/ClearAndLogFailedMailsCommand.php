@@ -2,7 +2,8 @@
 
 namespace Azine\EmailBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,9 +18,29 @@ use Symfony\Component\Finder\Finder;
  *
  * @author dominik
  */
-class ClearAndLogFailedMailsCommand extends ContainerAwareCommand
+class ClearAndLogFailedMailsCommand extends Command
 {
-    protected function configure()
+    /** @var ContainerInterface|null */
+    private $container;
+
+    public function setContainer(?ContainerInterface $container = null): ?ContainerInterface
+    {
+        $previous = $this->container;
+        $this->container = $container;
+
+        return $previous;
+    }
+
+    protected function getContainer(): ContainerInterface
+    {
+        if (null === $this->container) {
+            throw new \LogicException('Container has not been set.');
+        }
+
+        return $this->container;
+    }
+
+    protected function configure(): void
     {
         $this->setName('emails:clear-and-log-failures')
             ->setDescription('Clears and logs failed emails from the spool')
@@ -36,7 +57,7 @@ EOF
             ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $failedRecipients = array();
 
@@ -47,7 +68,7 @@ EOF
         } catch (ServiceNotFoundException $ex) {
             $output->writeln("\n\n\nCould not load transport. Is file-spooling configured in your config.yml for this environment?\n\n\n");
 
-            return;
+            return Command::SUCCESS;
         }
 
         try {
@@ -57,7 +78,7 @@ EOF
         } catch (InvalidArgumentException $ex) {
             $output->writeln("\n\n\nCould not find file spool path. Is file-spooling configured in your config.yml for this environment?\n\n\n");
 
-            return;
+            return Command::SUCCESS;
         }
 
         // start the mail transport
@@ -77,7 +98,7 @@ EOF
         if (0 == $finder->count()) {
             $output->writeln("No failed-message-files found in '$spoolPath' for retry.");
 
-            return;
+            return Command::SUCCESS;
         }
 
         foreach ($finder as $failedFile) {
@@ -110,5 +131,7 @@ EOF
             $logger = $this->getContainer()->get('logger');
             $logger->warning('<error>Failed to send an email to : '.implode(', ', $failedRecipients).'</error>');
         }
+
+        return Command::SUCCESS;
     }
 }

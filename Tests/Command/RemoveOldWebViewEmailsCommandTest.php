@@ -18,8 +18,8 @@ class RemoveOldWebViewEmailsCommandTest extends \PHPUnit\Framework\TestCase
         $application->add(new RemoveOldWebViewEmailsCommand());
 
         $command = $application->find('emails:remove-old-web-view-emails');
-        $this->assertContains('command deletes all SentEmail entities from the database', $command->getHelp());
-        $this->assertContains('Remove all "SentEmail" from the database that are older than the configured time.', $command->getDescription());
+        $this->assertStringContainsString('command deletes all SentEmail entities from the database', $command->getHelp());
+        $this->assertStringContainsString('Remove all "SentEmail" from the database that are older than the configured time.', $command->getDescription());
     }
 
     /**
@@ -37,7 +37,7 @@ class RemoveOldWebViewEmailsCommandTest extends \PHPUnit\Framework\TestCase
         $tester = new CommandTester($command);
         $tester->execute(array(''));
         $display = $tester->getDisplay();
-        $this->assertContains('either the commandline parameter "keep" or the "azine_email_web_view_retention" in your config.yml or the default-config has to be defined.', $display);
+        $this->assertStringContainsString('either the commandline parameter "keep" or the "azine_email_web_view_retention" in your config.yml or the default-config has to be defined.', $display);
     }
 
     public function testDeleteSentEmailsFromWebView()
@@ -53,8 +53,8 @@ class RemoveOldWebViewEmailsCommandTest extends \PHPUnit\Framework\TestCase
         $tester = new CommandTester($command);
         $tester->execute(array(''));
         $display = $tester->getDisplay();
-        $this->assertContains("using the parameter from the configuration => '$days' days.", $display);
-        $this->assertContains("$deletedWebMails SentEmails have been deleted that were older than", $display);
+        $this->assertStringContainsString("using the parameter from the configuration => '$days' days.", $display);
+        $this->assertStringContainsString("$deletedWebMails SentEmails have been deleted that were older than", $display);
     }
 
     public function testDeleteSentEmailsFromWebViewWithDayParam()
@@ -70,7 +70,7 @@ class RemoveOldWebViewEmailsCommandTest extends \PHPUnit\Framework\TestCase
         $tester = new CommandTester($command);
         $tester->execute(array('keep' => 121));
         $display = $tester->getDisplay();
-        $this->assertContains("$deletedWebMails SentEmails have been deleted that were older than", $display);
+        $this->assertStringContainsString("$deletedWebMails SentEmails have been deleted that were older than", $display);
         $this->assertTrue(false === strpos($display, 'using the parameter from the configuration'), "display is:\n\n$display");
     }
 
