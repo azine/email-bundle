@@ -16,8 +16,8 @@ class AzineEmailTwigExtensionTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(5, sizeof($filters), 'Unexpected number of Twig filters');
 
         foreach ($filters as $filter) {
-            /* @var $filter \Twig_SimpleFilter */
-            $this->assertTrue($filter instanceof \Twig_SimpleFilter, 'Twig_SimpleFilter expected as filter');
+            /* @var $filter \Twig\TwigFilter */
+            $this->assertTrue($filter instanceof \Twig\TwigFilter, 'Twig_SimpleFilter expected as filter');
             $filterNames[] = $filter->getName();
         }
         $this->assertContains('textWrap', $filterNames, 'The filter textWrap should exist.');

@@ -185,7 +185,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $params['emailLocale'] = $emailLocale;
 
         // render the email parts
-        $twigTemplate = $this->loadTemplate($template);
+        $twigTemplate = $this->load($template);
         $textBody = $twigTemplate->renderBlock('body_text', $params);
         $message->addPart($textBody, 'text/plain');
 
@@ -353,7 +353,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
     private function loadTemplate($template)
     {
         if (!array_key_exists($template, $this->templateCache)) {
-            $this->templateCache[$template] = $this->twig->loadTemplate($template);
+            $this->templateCache[$template] = $this->twig->load($template);
         }
 
         return $this->templateCache[$template];

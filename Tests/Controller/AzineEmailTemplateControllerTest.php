@@ -146,7 +146,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
-        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
         $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue('tokenId'));
@@ -182,7 +182,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->never())->method('getUser');
-        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
         $tokenStorageMock->expects($this->never())->method('getToken');
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
         $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue('tokenId'));
@@ -222,7 +222,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
-        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->setMethods(array('trans'))->getMock();
         $translatorMock->expects($this->once())->method('trans')->will($this->returnValue('translation'));
@@ -258,7 +258,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->once())->method('getUser')->will($this->returnValue(null));
-        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->setMethods(array('trans'))->getMock();
         $translatorMock->expects($this->once())->method('trans')->will($this->returnValue('translation'));
@@ -297,7 +297,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
-        $tokenStorageMock = $this->getMockBuilder("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface")->disableOriginalConstructor()->getMock();
+        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $translatorMock->expects($this->any())->method('trans')->will($this->returnArgument(0));

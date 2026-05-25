@@ -11,7 +11,7 @@ class SentEmailTest extends \PHPUnit\Framework\TestCase
         $tockens = array();
         while (sizeof($tockens) < 100) {
             $newToken = SentEmail::getNewToken();
-            $this->assertStringNotContainsString($newToken, $tockens);
+            $this->assertNotContains($newToken, $tockens);
             $tockens[] = $newToken;
         }
     }

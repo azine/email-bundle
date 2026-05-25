@@ -15,7 +15,7 @@ class AzineNotifierServiceTest extends \PHPUnit\Framework\TestCase
     {
         $mocks = array();
         $mocks['mailer'] = $this->getMockBuilder("Azine\EmailBundle\Services\TemplateTwigSwiftMailerInterface")->disableOriginalConstructor()->getMock();
-        $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
+        $mocks['twig'] = $this->getMockBuilder("\Twig\Environment")->disableOriginalConstructor()->getMock();
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
         $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $mocks['notificationRepository'] = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\NotificationRepository")->disableOriginalConstructor()->getMock();
@@ -190,7 +190,7 @@ class AzineNotifierServiceTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(sizeof($recipientIds) - 1, $sentMails);
     }
 
-    private function mockRecipients(\PHPUnit_Framework_MockObject_MockObject $mock, array $ids)
+    private function mockRecipients($mock, array $ids)
     {
         $notificationType = 0;
         $notificationTypes = array(RecipientInterface::NOTIFICATION_MODE_IMMEDIATELY, RecipientInterface::NOTIFICATION_MODE_HOURLY, RecipientInterface::NOTIFICATION_MODE_DAYLY);

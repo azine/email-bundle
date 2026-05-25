@@ -14,9 +14,9 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         $mocks['mailer'] = $this->getMockBuilder("\Swift_Mailer")->disableOriginalConstructor()->getMock();
         $mocks['mailer']->expects($this->once())->method('send')->will($this->returnCallback($sendCallback));
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
-        $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
+        $mocks['twig'] = $this->getMockBuilder("\Twig\Environment")->disableOriginalConstructor()->getMock();
         $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig\Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
-        $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
+        $mocks['twig']->expects($this->once())->method('load')->will($this->returnValue($mocks['baseTemplateMock']));
 
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue('azine.translation.mock'));
@@ -154,9 +154,9 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         $mocks['mailer'] = $this->getMockBuilder("\Swift_Mailer")->disableOriginalConstructor()->getMock();
         $mocks['mailer']->expects($this->once())->method('send')->will($this->returnCallback(array($this, 'returnZeroWithFailedAddress')));
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
-        $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
+        $mocks['twig'] = $this->getMockBuilder("\Twig\Environment")->disableOriginalConstructor()->getMock();
         $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig\Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
-        $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
+        $mocks['twig']->expects($this->once())->method('load')->will($this->returnValue($mocks['baseTemplateMock']));
 
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue('azine.translation.mock'));
@@ -266,9 +266,9 @@ class AzineTwigSwiftMailerTest extends \PHPUnit\Framework\TestCase
         $mocks['mailer']->expects($this->never())->method('send');
 
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
-        $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
+        $mocks['twig'] = $this->getMockBuilder("\Twig\Environment")->disableOriginalConstructor()->getMock();
         $mocks['baseTemplateMock'] = $this->getMockBuilder("\Twig\Template")->disableOriginalConstructor()->setMethods(array('renderBlock'))->getMockForAbstractClass();
-        $mocks['twig']->expects($this->once())->method('loadTemplate')->will($this->returnValue($mocks['baseTemplateMock']));
+        $mocks['twig']->expects($this->once())->method('load')->will($this->returnValue($mocks['baseTemplateMock']));
 
         $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $mocks['translator']->expects($this->any())->method('trans')->will($this->returnValue('azine.translation.mock'));

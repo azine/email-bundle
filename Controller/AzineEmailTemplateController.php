@@ -273,6 +273,9 @@ class AzineEmailTemplateController extends AbstractController
         $folder = $this->getTemplateProviderService()->getFolderFrom($folderKey);
         if (false !== $folder) {
             $fullPath = $folder.urldecode($filename);
+            if (!is_file($fullPath)) {
+                throw new FileNotFoundException($filename);
+            }
             $response = new BinaryFileResponse($fullPath);
             $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
             $response->headers->set('Content-Type', 'image');
@@ -427,7 +430,11 @@ class AzineEmailTemplateController extends AbstractController
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Accept: application/json'));
         curl_setopt($ch, CURLOPT_TIMEOUT, 5); // max wait for 5sec for reply
 
-        $result = json_decode(curl_exec($ch), true);
+        $responseBody = curl_exec($ch);
+        $result = json_decode($responseBody ?: '', true);
+        if (!is_array($result)) {
+            $result = array();
+        }
         $error = curl_error($ch);
         $result['curlHttpCode'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -454,7 +461,7 @@ class AzineEmailTemplateController extends AbstractController
      */
     public function checkSpamScoreOfSentEmailAction(Request $request)
     {
-        $msgString = $request->request->get('emailSource');
+        $msgString = $request->get('emailSource');
         $spamReport = $this->getSpamIndexReport($msgString);
         $spamInfo = '';
         if (is_array($spamReport)) {
