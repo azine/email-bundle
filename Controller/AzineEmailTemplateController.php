@@ -196,7 +196,7 @@ class AzineEmailTemplateController extends AbstractController
 
         // get the current user
         $currentUser = null;
-        if (!$this->has('security.token_storage')) {
+        if (!$this->container->has('security.token_storage')) {
             // @codeCoverageIgnoreStart
             throw new \LogicException('The SecurityBundle is not registered in your application.');
             // @codeCoverageIgnoreEnd

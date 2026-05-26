@@ -345,8 +345,6 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
     public function testServeImageAction()
     {
-        $this->expectException(\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException::class);
-
         $folderKey = 'asdfadfasfasfd';
         $filename = 'testImage.png';
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();

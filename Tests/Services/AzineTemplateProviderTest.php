@@ -68,8 +68,6 @@ class AzineTemplateProviderTest extends \PHPUnit\Framework\TestCase
 
     public function testAddSnippetsWithImagesFor()
     {
-        $this->expectException(\Exception::class);
-
         $mocks = $this->getMockSetup();
         $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
 

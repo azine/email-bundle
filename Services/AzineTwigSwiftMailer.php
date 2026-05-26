@@ -4,7 +4,6 @@ namespace Azine\EmailBundle\Services;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\SentEmail;
-use Azine\EmailUpdateConfirmationBundle\Mailer\EmailUpdateConfirmationMailerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\UserBundle\Model\UserInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -17,7 +16,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @author Dominik Businger
  */
-class AzineTwigSwiftMailer implements TemplateTwigSwiftMailerInterface, EmailUpdateConfirmationMailerInterface
+class AzineTwigSwiftMailer implements TemplateTwigSwiftMailerInterface
 {
 
     /**
