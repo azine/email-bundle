@@ -6,7 +6,6 @@ use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailUpdateConfirmationBundle\Mailer\EmailUpdateConfirmationMailerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use FOS\UserBundle\Mailer\TwigSwiftMailer;
 use FOS\UserBundle\Model\UserInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -18,8 +17,28 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @author Dominik Businger
  */
-class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftMailerInterface, EmailUpdateConfirmationMailerInterface
+class AzineTwigSwiftMailer implements TemplateTwigSwiftMailerInterface, EmailUpdateConfirmationMailerInterface
 {
+
+    /**
+     * @var \Swift_Mailer
+     */
+    protected $mailer;
+
+    /**
+     * @var UrlGeneratorInterface
+     */
+    protected $router;
+
+    /**
+     * @var \Twig_Environment
+     */
+    protected $twig;
+
+    /**
+     * @var array
+     */
+    protected $parameters;
     /**
      * @var TranslatorInterface
      */
@@ -85,7 +104,10 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
                                     array $parameters,
                                     \Swift_Mailer $immediateMailer = null)
     {
-        parent::__construct($mailer, $router, $twig, $parameters);
+        $this->mailer = $mailer;
+        $this->router = $router;
+        $this->twig = $twig;
+        $this->parameters = $parameters;
         $this->immediateMailer = $immediateMailer;
         $this->translator = $translator;
         $this->templateProvider = $templateProvider;
@@ -185,7 +207,7 @@ class AzineTwigSwiftMailer extends TwigSwiftMailer implements TemplateTwigSwiftM
         $params['emailLocale'] = $emailLocale;
 
         // render the email parts
-        $twigTemplate = $this->load($template);
+        $twigTemplate = $this->loadTemplate($template);
         $textBody = $twigTemplate->renderBlock('body_text', $params);
         $message->addPart($textBody, 'text/plain');
 

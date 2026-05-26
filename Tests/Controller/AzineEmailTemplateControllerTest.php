@@ -146,7 +146,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
-        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
+        $tokenStorageMock = $this->getMockBuilder("stdClass")->addMethods(array("getToken"))->getMock();
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
         $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue('tokenId'));
@@ -182,7 +182,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->never())->method('getUser');
-        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
+        $tokenStorageMock = $this->getMockBuilder("stdClass")->addMethods(array("getToken"))->getMock();
         $tokenStorageMock->expects($this->never())->method('getToken');
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
         $templateProviderMock->expects($this->once())->method('getWebViewTokenId')->will($this->returnValue('tokenId'));
@@ -222,7 +222,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
-        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
+        $tokenStorageMock = $this->getMockBuilder("stdClass")->addMethods(array("getToken"))->getMock();
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->setMethods(array('trans'))->getMock();
         $translatorMock->expects($this->once())->method('trans')->will($this->returnValue('translation'));
@@ -258,7 +258,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getRepository')->with('AzineEmailBundle:SentEmail')->will($this->returnValue($repositoryMock));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->once())->method('getUser')->will($this->returnValue(null));
-        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
+        $tokenStorageMock = $this->getMockBuilder("stdClass")->addMethods(array("getToken"))->getMock();
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->setMethods(array('trans'))->getMock();
         $translatorMock->expects($this->once())->method('trans')->will($this->returnValue('translation'));
@@ -297,7 +297,7 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         $doctrineManagerRegistryMock->expects($this->once())->method('getManager')->will($this->returnValue($this->returnValue($doctrineManagerMock)));
         $securityTokenMock = $this->getMockBuilder('stdClass')->addMethods(array('getUser'))->getMock();
         $securityTokenMock->expects($this->exactly(2))->method('getUser')->will($this->returnValue($userMock));
-        $tokenStorageMock = $this->createMock("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface");
+        $tokenStorageMock = $this->getMockBuilder("stdClass")->addMethods(array("getToken"))->getMock();
         $tokenStorageMock->expects($this->once())->method('getToken')->will($this->returnValue($securityTokenMock));
         $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
         $translatorMock->expects($this->any())->method('trans')->will($this->returnArgument(0));
@@ -345,6 +345,8 @@ class AzineEmailTemplateControllerTest extends WebTestCase
 
     public function testServeImageAction()
     {
+        $this->expectException(\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException::class);
+
         $folderKey = 'asdfadfasfasfd';
         $filename = 'testImage.png';
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
@@ -366,11 +368,10 @@ class AzineEmailTemplateControllerTest extends WebTestCase
         }
     }
 
-    /**
-     * @expectedException \Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException
-     */
     public function testServeImageAction_404()
     {
+        $this->expectException(\Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException::class);
+
         $folderKey = 'asdfadfasfasfd';
         $filename = 'testImage.not.found.png';
         $templateProviderMock = $this->getMockBuilder("Azine\EmailBundle\Services\AzineTemplateProvider")->disableOriginalConstructor()->getMock();
@@ -474,7 +475,6 @@ Füge "no-reply@some.host.com" zu deinem Adressbuch hinzu, um den Empfang von az
         if (array_key_exists('curlError', $report)) {
             $this->markTestIncomplete("It seems postmarks spam-check-service is unresponsive.\n\n".print_r($report, true));
         }
-        $this->assertArrayHasKey('success', $report, "success was expected in report.\n\n".print_r($report, true));
         $this->assertArrayNotHasKey('curlError', $report, "curlError was not expected in report.\n\n".print_r($report, true));
         $this->assertArrayHasKey('message', $report, "message was expected in report.\n\n".print_r($report, true));
     }

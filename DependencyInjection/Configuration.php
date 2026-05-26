@@ -27,7 +27,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode(AzineEmailExtension::TEMPLATE_PROVIDER)->defaultValue('azine_email.example.template_provider')->info('the service-id of your implementation of the template provider service to be used')->end()
                 ->scalarNode(AzineEmailExtension::RECIPIENT_PROVIDER)->defaultValue('azine_email.default.recipient_provider')->info('the service-id of the implementation of the RecipientProviderInterface to be used')->end()
                 ->scalarNode(AzineEmailExtension::TEMPLATE_TWIG_SWIFT_MAILER)->defaultValue('azine_email.default.template_twig_swift_mailer')->info('the service-id of the mailer service to be used')->end()
-                ->arrayNode(AzineEmailExtension::NO_REPLY)->isRequired()
+                ->arrayNode(AzineEmailExtension::NO_REPLY)
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode(AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS)->defaultValue('no-reply@example.com')->info('the no-reply email-address')->end()

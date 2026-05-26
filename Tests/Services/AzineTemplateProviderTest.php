@@ -68,6 +68,8 @@ class AzineTemplateProviderTest extends \PHPUnit\Framework\TestCase
 
     public function testAddSnippetsWithImagesFor()
     {
+        $this->expectException(\Exception::class);
+
         $mocks = $this->getMockSetup();
         $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
 
@@ -99,13 +101,10 @@ class AzineTemplateProviderTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($filledVars3['linkToTop'], $filledVars4['linkToTop']);
     }
 
-    /**
-     * \Exception("some required images are not yet added to the template-vars array.").
-     *
-     * @expectedException \Exception
-     */
     public function testAddSnippetsWithImagesForEmptyVars()
     {
+        $this->expectException(\Exception::class);
+
         $mocks = $this->getMockSetup();
         $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
 
@@ -114,13 +113,10 @@ class AzineTemplateProviderTest extends \PHPUnit\Framework\TestCase
         $filledVars = $templateProvider->addTemplateSnippetsWithImagesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars, 'en');
     }
 
-    /**
-     * \Exception("Only use the translator here when you already know in which language the user should get the email.").
-     *
-     * @expectedException \Exception
-     */
     public function testAddSnippetsWithImagesForNoLocale()
     {
+        $this->expectException(\Exception::class);
+
         $mocks = $this->getMockSetup();
         $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
 

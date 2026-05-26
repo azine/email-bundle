@@ -15,7 +15,7 @@ class AzineNotifierServiceTest extends \PHPUnit\Framework\TestCase
     {
         $mocks = array();
         $mocks['mailer'] = $this->getMockBuilder("Azine\EmailBundle\Services\TemplateTwigSwiftMailerInterface")->disableOriginalConstructor()->getMock();
-        $mocks['twig'] = $this->getMockBuilder("\Twig\Environment")->disableOriginalConstructor()->getMock();
+        $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
         $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
         $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
         $mocks['notificationRepository'] = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\NotificationRepository")->disableOriginalConstructor()->getMock();
