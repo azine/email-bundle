@@ -1,229 +1,225 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
+use Azine\EmailBundle\Services\SymfonyMailerTemplateProvider;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AzineTemplateProviderTest extends \PHPUnit\Framework\TestCase
+class AzineTemplateProviderTest extends TestCase
 {
-    private function getMockSetup()
+    public function testAddTemplateVariablesFor(): void
     {
-        $translatorMock = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->setMethods(array('trans'))->getMock();
+        $provider = $this->createProvider();
+        $contentVariables = ['testVar' => 'testValue'];
 
-        $translatorMock->expects($this->any())->method('trans')->will($this->returnValueMap(array(
-                                                        array('html.email.go.to.top.link.label', array(), 'messages', 'de', 'de übersetzung'),
-                                                        array('html.email.go.to.top.link.label', array(), 'messages', 'en', 'en translation'),
-                                                )));
+        $resetVariables = $provider->addTemplateVariablesFor(
+            AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE,
+            $contentVariables,
+        );
+        self::assertSame('testValue', $resetVariables['testVar']);
+        self::assertTrue($resetVariables[AzineTemplateProvider::SEND_IMMEDIATELY_FLAG]);
 
-        $routerMock = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
-        $routerMock->expects($this->any())->method('generate')->withAnyParameters()->will($this->returnCallback(array($this, 'createRelativeUrl')));
+        $registrationVariables = $provider->addTemplateVariablesFor(
+            AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE,
+            $contentVariables,
+        );
+        self::assertSame('testValue', $registrationVariables['testVar']);
+        self::assertTrue($registrationVariables[AzineTemplateProvider::SEND_IMMEDIATELY_FLAG]);
 
-        $params = array(AzineEmailExtension::TEMPLATE_IMAGE_DIR => realpath(__DIR__.'/../../Resources/htmlTemplateImages/'),
-                            AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => array(realpath(__DIR__.'/../../Resources/htmlTemplateImages/')),
-                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME => 'utm_campaign',
-                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_TERM => 'utm_term',
-                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => 'utm_source',
-                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM => 'utm_medium',
-                            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => 'utm_content',
+        $contentVariables[AzineTemplateProvider::CONTENT_ITEMS] = [[
+            AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => ['otherTestVar' => 'otherTestValue'],
+        ]];
+        $filledVariables = $provider->addTemplateVariablesFor(
+            AzineTemplateProvider::BASE_TEMPLATE,
+            $contentVariables,
+        );
+
+        self::assertSame('testValue', $filledVariables['testVar']);
+        self::assertSame(
+            'otherTestValue',
+            $filledVariables[AzineTemplateProvider::CONTENT_ITEMS][0]
+                [AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE]['otherTestVar'],
+        );
+        self::assertFileExists($filledVariables['logo_png']);
+    }
+
+    public function testAddsLocaleSpecificSnippetsRecursively(): void
+    {
+        $provider = $this->createProvider();
+        $contentVariables = [
+            'testVar' => 'testValue',
+            AzineTemplateProvider::CONTENT_ITEMS => [[
+                AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => ['otherTestVar' => 'otherTestValue'],
+            ]],
+        ];
+        $contentVariables = $provider->addTemplateVariablesFor(
+            AzineTemplateProvider::BASE_TEMPLATE,
+            $contentVariables,
+        );
+
+        $english = $provider->addTemplateSnippetsWithImagesFor(
+            AzineTemplateProvider::BASE_TEMPLATE,
+            $contentVariables,
+            'en',
+        );
+        $german = $provider->addTemplateSnippetsWithImagesFor(
+            AzineTemplateProvider::BASE_TEMPLATE,
+            $contentVariables,
+            'de',
+        );
+
+        self::assertSame('testValue', $english['testVar']);
+        self::assertStringContainsString('en translation', $english['linkToTop']);
+        self::assertStringContainsString('de übersetzung', $german['linkToTop']);
+        self::assertArrayHasKey(
+            'linkToTop',
+            $english[AzineTemplateProvider::CONTENT_ITEMS][0]
+                [AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE],
+        );
+    }
+
+    public function testSnippetGenerationRejectsMissingBaseVariables(): void
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('required images');
+
+        $this->createProvider()->addTemplateSnippetsWithImagesFor(
+            AzineTemplateProvider::BASE_TEMPLATE,
+            ['testVar' => 'testValue'],
+            'en',
+        );
+    }
+
+    public function testSnippetGenerationRequiresLocale(): void
+    {
+        $provider = $this->createProvider();
+        $variables = $provider->addTemplateVariablesFor(AzineTemplateProvider::BASE_TEMPLATE, []);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('know in which language');
+
+        $provider->addTemplateSnippetsWithImagesFor(
+            AzineTemplateProvider::BASE_TEMPLATE,
+            $variables,
+            null,
+        );
+    }
+
+    public function testCampaignParametersPreserveExistingBehavior(): void
+    {
+        $provider = $this->createProvider();
+
+        self::assertSame(
+            'newsletter',
+            $provider->getCampaignParamsFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE)['utm_source'],
+        );
+        self::assertSame(
+            'mailnotify',
+            $provider->getCampaignParamsFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE)['utm_source'],
+        );
+        self::assertSame(
+            'message',
+            $provider->getCampaignParamsFor(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE)['utm_content'],
+        );
+        self::assertSame(
+            [],
+            $provider->getCampaignParamsFor(AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE),
+        );
+    }
+
+    public function testAllowedImageFoldersAndWebPaths(): void
+    {
+        $provider = $this->createProvider();
+        $allowedImage = $provider->getTemplateImageDir().'logo.png';
+        $folderKey = $provider->isFileAllowed($allowedImage);
+
+        self::assertIsString($folderKey);
+        self::assertSame($provider->getTemplateImageDir(), $provider->getFolderFrom($folderKey));
+        self::assertFalse($provider->isFileAllowed(__FILE__));
+        self::assertFalse($provider->getFolderFrom('unknown'));
+
+        $relative = $provider->makeImagePathsWebRelative(['logo' => $allowedImage], 'en');
+        self::assertStringStartsWith('/template/images/', $relative['logo']);
+        self::assertStringContainsString('_locale=en', $relative['logo']);
+    }
+
+    public function testWebViewPolicyAndTokenStayStable(): void
+    {
+        $provider = $this->createProvider();
+
+        self::assertSame(AzineTemplateProvider::EMAIL_WEB_VIEW_TOKEN, $provider->getWebViewTokenId());
+        self::assertTrue($provider->saveWebViewFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE));
+        self::assertFalse($provider->saveWebViewFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE));
+        self::assertFalse($provider->saveWebViewFor(AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE));
+    }
+
+    public function testSymfonyMimeCustomHeaders(): void
+    {
+        $provider = $this->createProvider(true);
+        $email = new Email();
+
+        $provider->addCustomHeadersToEmail('testTemplate', $email, [
+            AzineTemplateProvider::EMAIL_WEB_VIEW_TOKEN => 'testToken',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME => 'testCampaignValue',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => 'testSourceValue',
+        ]);
+
+        $headers = $email->getHeaders();
+        self::assertSame('testToken', $headers->get('x-azine-webview-token')?->getBodyAsString());
+        self::assertSame('testCampaignValue', $headers->get('x-utm_campaign')?->getBodyAsString());
+        self::assertSame('testSourceValue', $headers->get('x-utm_source')?->getBodyAsString());
+    }
+
+    private function createProvider(bool $symfonyMailerProvider = false): AzineTemplateProvider
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator
+            ->method('trans')
+            ->willReturnCallback(static function (
+                string $id,
+                array $parameters = [],
+                ?string $domain = null,
+                ?string $locale = null,
+            ): string {
+                return 'de' === $locale ? 'de übersetzung' : 'en translation';
+            });
+
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router
+            ->method('generate')
+            ->willReturnCallback(static function (string $routeName, array $parameters = []): string {
+                if ('azine_email_serve_template_image' === $routeName) {
+                    return sprintf(
+                        '/template/images/%s?_locale=%s',
+                        $parameters['filename'],
+                        $parameters['_locale'],
                     );
+                }
 
-        return array('router' => $routerMock, 'translator' => $translatorMock, 'params' => $params);
-    }
+                return '/some/relative/url';
+            });
 
-    public function createRelativeUrl($routeName, $params)
-    {
-        if ('azine_email_serve_template_image' == $routeName) {
-            return '/template/images/'.$params['filename'];
-        }
-        echo $routeName;
+        $parameters = [
+            AzineEmailExtension::TEMPLATE_IMAGE_DIR => realpath(__DIR__.'/../../Resources/htmlTemplateImages/'),
+            AzineEmailExtension::ALLOWED_IMAGES_FOLDERS => [
+                realpath(__DIR__.'/../../Resources/htmlTemplateImages/'),
+            ],
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME => 'utm_campaign',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_TERM => 'utm_term',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => 'utm_source',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_MEDIUM => 'utm_medium',
+            AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_CONTENT => 'utm_content',
+        ];
 
-        return '/some/relative/url/to/images/folder';
-    }
-
-    public function testAddTemplateVariablesFor()
-    {
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-
-        // test without contentItems
-        $contentVars = array('testVar' => 'testValue');
-        $filledVars = $templateProvider->addTemplateVariablesFor(AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE, $contentVars);
-        $this->assertSame('testValue', $filledVars['testVar']);
-        $this->assertGreaterThan(sizeof($contentVars), sizeof($filledVars));
-
-        $filledVars = $templateProvider->addTemplateVariablesFor(AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE, $contentVars);
-        $this->assertSame('testValue', $filledVars['testVar']);
-        $this->assertGreaterThan(sizeof($contentVars), sizeof($filledVars));
-
-        // test with contentItems
-        $contentVars[AzineTemplateProvider::CONTENT_ITEMS] = array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('otherTestVar' => 'otherTestValue')));
-        $filledVars = $templateProvider->addTemplateVariablesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars);
-        $this->assertSame('testValue', $filledVars['testVar']);
-        $this->assertGreaterThan(sizeof($contentVars), sizeof($filledVars));
-        $this->assertTrue(is_array($filledVars[AzineTemplateProvider::CONTENT_ITEMS]));
-        $this->assertTrue(is_array($filledVars[AzineTemplateProvider::CONTENT_ITEMS][0][AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE]));
-        $this->assertSame('otherTestValue', $filledVars[AzineTemplateProvider::CONTENT_ITEMS][0][AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE]['otherTestVar']);
-    }
-
-    public function testAddSnippetsWithImagesFor()
-    {
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-
-        $contentVars = array('testVar' => 'testValue');
-        $contentVars[AzineTemplateProvider::CONTENT_ITEMS] = array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('otherTestVar' => 'otherTestValue')));
-        $contentVars = $templateProvider->addTemplateVariablesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars);
-
-        $filledVars = $templateProvider->addTemplateSnippetsWithImagesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars, 'en');
-        $this->assertSame('testValue', $filledVars['testVar']);
-        $this->assertTrue(array_key_exists('linkToTop', $filledVars));
-
-        $contentVars2 = array('testVar' => 'testValue');
-        $contentVars2[AzineTemplateProvider::CONTENT_ITEMS] = array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('otherTestVar' => 'otherTestValue')));
-        $contentVars2 = $templateProvider->addTemplateVariablesFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE, $contentVars2);
-
-        $filledVars2 = $templateProvider->addTemplateSnippetsWithImagesFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE, $contentVars2, 'en');
-        $this->assertSame($filledVars['linkToTop'], $filledVars2['linkToTop']);
-
-        $contentVars3 = array('testVar' => 'testValue');
-        $contentVars3[AzineTemplateProvider::CONTENT_ITEMS] = array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('otherTestVar' => 'otherTestValue')));
-        $contentVars3 = $templateProvider->addTemplateVariablesFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE, $contentVars3);
-
-        $filledVars3 = $templateProvider->addTemplateSnippetsWithImagesFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE, $contentVars3, 'de');
-        $this->assertTrue(array_key_exists('linkToTop', $filledVars3));
-        $this->assertNotSame($filledVars['linkToTop'], $filledVars3['linkToTop']);
-
-        $filledVars4 = $templateProvider->addTemplateSnippetsWithImagesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars, 'de', true);
-        $this->assertTrue(array_key_exists('linkToTop', $filledVars4));
-        $this->assertSame($filledVars3['linkToTop'], $filledVars4['linkToTop']);
-    }
-
-    public function testAddSnippetsWithImagesForEmptyVars()
-    {
-        $this->expectException(\Exception::class);
-
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-
-        $contentVars = array('testVar' => 'testValue');
-        $contentVars[AzineTemplateProvider::CONTENT_ITEMS] = array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('otherTestVar' => 'otherTestValue')));
-        $filledVars = $templateProvider->addTemplateSnippetsWithImagesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars, 'en');
-    }
-
-    public function testAddSnippetsWithImagesForNoLocale()
-    {
-        $this->expectException(\Exception::class);
-
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-
-        $contentVars = array('testVar' => 'testValue');
-        $contentVars[AzineTemplateProvider::CONTENT_ITEMS] = array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('otherTestVar' => 'otherTestValue')));
-        $contentVars = $templateProvider->addTemplateVariablesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars);
-        $filledVars = $templateProvider->addTemplateSnippetsWithImagesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars, null);
-    }
-
-    public function testGetCampaignParamsFor()
-    {
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-
-        $campaignParams1 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE);
-        $this->assertSame(3, sizeof($campaignParams1));
-        $this->assertSame('newsletter', $campaignParams1['utm_source']);
-
-        $campaignParams2 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE);
-        $this->assertSame(3, sizeof($campaignParams2));
-        $this->assertSame('mailnotify', $campaignParams2['utm_source']);
-
-        $campaignParams3 = $templateProvider->getCampaignParamsFor(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE);
-        $this->assertTrue(is_array($campaignParams3));
-        $this->assertSame(3, sizeof($campaignParams3));
-    }
-
-    public function testIsFileAllowed()
-    {
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-
-        $allowed1 = $mocks['params'][AzineEmailExtension::TEMPLATE_IMAGE_DIR].'/logo.png';
-        $key = $templateProvider->isFileAllowed($allowed1);
-        $this->assertTrue(is_string($key), "$allowed1 is not allowed, but it should!");
-
-        $allowed2 = $mocks['params'][AzineEmailExtension::ALLOWED_IMAGES_FOLDERS][0].'/logo.png';
-        $this->assertTrue(is_string($templateProvider->isFileAllowed($allowed2)), "$allowed2 is not allowed, but it should!");
-
-        $notAllowed = __FILE__;
-        $this->assertFalse(is_string($templateProvider->isFileAllowed($notAllowed)), "$notAllowed is allowed, but it should not!");
-
-        $this->assertTrue(is_dir($templateProvider->getFolderFrom($key)));
-        $this->assertFalse(is_dir($templateProvider->getFolderFrom('noKey')));
-    }
-
-    public function testMakeImagePathsWebRelative()
-    {
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-        $locale = 'en';
-
-        $contentVars = array('testVar' => 'testValue');
-        $contentVars[AzineTemplateProvider::CONTENT_ITEMS] = array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('otherTestVar' => 'otherTestValue')));
-        $contentVars = $templateProvider->addTemplateVariablesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars);
-        $contentVars = $templateProvider->addTemplateSnippetsWithImagesFor(AzineTemplateProvider::BASE_TEMPLATE, $contentVars, $locale);
-
-        $relativeVars = $templateProvider->makeImagePathsWebRelative($contentVars, $locale);
-        $this->assertTrue(is_file(realpath($contentVars['logo_png'])));
-        $this->assertNotSame($relativeVars['logo_png'], $contentVars['logo_png']);
-
-        $contentItemImage = $contentVars[AzineTemplateProvider::CONTENT_ITEMS][0][AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE]['logo_png'];
-        $contentItemImage2 = $relativeVars[AzineTemplateProvider::CONTENT_ITEMS][0][AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE]['logo_png'];
-        $this->assertTrue(is_file(realpath($contentItemImage)));
-        $this->assertNotSame($contentItemImage, $contentItemImage2);
-    }
-
-    public function testGetWebViewTokenId()
-    {
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-        $this->assertSame(AzineTemplateProvider::EMAIL_WEB_VIEW_TOKEN, $templateProvider->getWebViewTokenId());
-    }
-
-    public function testSaveWebViewFor()
-    {
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-
-        $this->assertFalse($templateProvider->saveWebViewFor(AzineTemplateProvider::FOS_USER_PWD_RESETTING_TEMPLATE));
-        $this->assertFalse($templateProvider->saveWebViewFor(AzineTemplateProvider::FOS_USER_REGISTRATION_TEMPLATE));
-        $this->assertFalse($templateProvider->saveWebViewFor(AzineTemplateProvider::NOTIFICATIONS_TEMPLATE));
-        $this->assertTrue($templateProvider->saveWebViewFor(AzineTemplateProvider::NEWSLETTER_TEMPLATE));
-        $this->assertFalse($templateProvider->saveWebViewFor('some other string'));
-    }
-
-    public function testAddCustomHeaders()
-    {
-        $message = new \Swift_Message();
-
-        $mocks = $this->getMockSetup();
-        $templateProvider = new AzineTemplateProvider($mocks['router'], $mocks['translator'], $mocks['params']);
-
-        $tokenValue = 'testToken';
-        $campaignValue = 'testCampaignValue';
-        $sourceValue = 'testSourceValue';
-
-        $params = array(AzineTemplateProvider::EMAIL_WEB_VIEW_TOKEN => $tokenValue,
-                        AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_NAME => $campaignValue,
-                        AzineEmailExtension::TRACKING_PARAM_CAMPAIGN_SOURCE => $sourceValue, );
-
-        $templateProvider->addCustomHeaders('testTemplate', $message, $params);
-
-        $headerSet = $message->getHeaders();
-        $this->assertTrue($headerSet->has('x-azine-webview-token'));
-        $this->assertSame($headerSet->get('x-azine-webview-token')->getValue(), $tokenValue);
-        $this->assertTrue($headerSet->has('x-utm_campaign'));
-        $this->assertSame($headerSet->get('x-utm_campaign')->getValue(), $campaignValue);
-        $this->assertTrue($headerSet->has('x-utm_source'));
-        $this->assertSame($headerSet->get('x-utm_source')->getValue(), $sourceValue);
+        return $symfonyMailerProvider
+            ? new SymfonyMailerTemplateProvider($router, $translator, $parameters)
+            : new AzineTemplateProvider($router, $translator, $parameters);
     }
 }
