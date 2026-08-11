@@ -9,6 +9,21 @@ use Symfony\Component\Mime\Email;
 
 class SymfonyMailerTemplateProvider extends AzineTemplateProvider implements SymfonyMailerTemplateProviderInterface
 {
+    /**
+     * Keeps the historic method name so the mailer can work with both legacy and
+     * Symfony-Mime-aware application providers during the migration.
+     */
+    public function addCustomHeaders($template, $message, array $params)
+    {
+        if ($message instanceof Email) {
+            $this->addCustomHeadersToEmail((string) $template, $message, $params);
+
+            return;
+        }
+
+        parent::addCustomHeaders($template, $message, $params);
+    }
+
     public function addCustomHeadersToEmail(string $template, Email $message, array $params): void
     {
         $headers = $message->getHeaders();
