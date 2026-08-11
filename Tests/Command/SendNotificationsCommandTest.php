@@ -17,7 +17,12 @@ class SendNotificationsCommandTest extends TestCase
 {
     public function testHelpExplainsSymfonyMailerDelivery(): void
     {
-        $command = $this->createCommand();
+        $notifier = $this->createMock(NotifierServiceInterface::class);
+        $notifier->expects(self::never())->method('sendNotifications');
+        $command = $this->register(new SendNotificationsCommand(
+            $notifier,
+            $this->getMockBuilder(LockFactory::class)->disableOriginalConstructor()->getMock(),
+        ));
 
         self::assertStringContainsString('Symfony Mailer transport', $command->getHelp());
         self::assertStringContainsString('Messenger', $command->getHelp());
