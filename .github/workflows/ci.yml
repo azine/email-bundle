@@ -30,7 +30,7 @@ jobs:
         with:
           php-version: '8.5'
           coverage: none
-          extensions: ctype, dom, fileinfo, filter, gd, iconv, intl, json, mbstring, pdo, pdo_sqlite, simplexml, tokenizer, xml, xmlwriter
+          extensions: ctype, dom, fileinfo, filter, gd, iconv, intl, json, mailparse, mbstring, pdo, pdo_sqlite, simplexml, tokenizer, xml, xmlwriter
           tools: composer:v2
 
       - name: Cache Composer
