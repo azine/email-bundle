@@ -1,35 +1,30 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Azine\EmailBundle\Services;
 
-use Symfony\Component\Mime\Email;
-
+/**
+ * Provides template variables, snippets, tracking parameters and web-view metadata.
+ *
+ * Method signatures intentionally remain source-compatible for application-specific
+ * providers that extend AzineTemplateProvider.
+ */
 interface TemplateProviderInterface
 {
-    public function addTemplateVariablesFor(string $template, array $contentVariables): array;
+    public function addTemplateVariablesFor($template, array $contentVariables);
 
-    public function addTemplateSnippetsWithImagesFor(
-        string $template,
-        array $vars,
-        string $emailLocale,
-        bool $forWebView = false,
-    ): array;
+    public function addTemplateSnippetsWithImagesFor($template, array $vars, $emailLocale, $forWebView = false);
 
-    public function addCustomHeaders(string $template, Email $message, array $params): void;
+    public function getTemplateImageDir();
 
-    public function getTemplateImageDir(): string;
+    public function makeImagePathsWebRelative(array $emailVars, $locale);
 
-    public function makeImagePathsWebRelative(array $emailVars, string $locale): array;
+    public function isFileAllowed($filePath);
 
-    public function isFileAllowed(string $filePath): bool;
+    public function getFolderFrom($key);
 
-    public function getFolderFrom(string $key): string|false;
+    public function saveWebViewFor($template);
 
-    public function saveWebViewFor(string $template): bool;
+    public function getWebViewTokenId();
 
-    public function getWebViewTokenId(): string;
-
-    public function getCampaignParamsFor(string $templateId, ?array $params = null): array;
+    public function getCampaignParamsFor($templateId, array $params = null);
 }
