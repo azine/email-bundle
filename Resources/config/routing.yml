@@ -1,39 +1,35 @@
-##################################################################
-## Web-View routes
-##################################################################
-# route for users to see emails
 azine_email_webview:
-    path:  /email/webview/{token}
-    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:webView" }
+    path: /email/webview/{token}
+    controller: Azine\EmailBundle\Controller\AzineEmailTemplateController::webViewAction
+    methods: [GET]
 
-# route for images that were embeded in emails and now must be shown in web-view
-azine_email_serve_template_image:
-    path:  /email/image/{folderKey}/{filename}
-    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:serveImage"}
-
-# index with all the email-templates you configured in you implementation of WebViewServiceInterface
 azine_email_template_index:
-    path:  /admin/email/
-    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:index" }
+    path: /email/templates
+    controller: Azine\EmailBundle\Controller\AzineEmailTemplateController::indexAction
+    methods: [GET]
 
-# preview of a template filled with dummy-data ... this should probably only be accessible by admins
 azine_email_web_preview:
-    path:  /admin/email/webpreview/{template}/{format}
-    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:webPreView", format : null }
+    path: /email/templates/webview/{template}/{format}
+    controller: Azine\EmailBundle\Controller\AzineEmailTemplateController::webPreViewAction
+    defaults:
+        format: html
+    requirements:
+        format: html|txt
+    methods: [GET]
 
-# route to send test-mails filled with dummy-data ... this should probably only be accessible by admins
-azine_email_send_test_email:
-    path:  /admin/email/send-test-email-for/{template}/to/{email}
-    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:sendTestEmail", email: null}
+azine_email_spam_score:
+    path: /email/spam-score
+    controller: Azine\EmailBundle\Controller\AzineEmailTemplateController::checkSpamScoreOfSentEmailAction
+    methods: [POST]
 
-azine_email_test_sent_email_spam_score:
-    path:  /admin/email/test-sent-email-spam-score
-    defaults: { _controller: "AzineEmailBundle:AzineEmailTemplate:checkSpamScoreOfSentEmail" }
+azine_email_send_test_mail:
+    path: /email/templates/send-test/{template}/{email}
+    controller: Azine\EmailBundle\Controller\AzineEmailTemplateController::sendTestEmailAction
+    methods: [GET, POST]
 
-azine_admin_email_dashboard:
-    path: /admin/email/dashboard
-    defaults: { _controller: "AzineEmailBundle:AzineEmail:emailsDashboard",}
-
-azine_admin_email_details_by_token:
-    path: /admin/email/details/{token}
-    defaults: { _controller: "AzineEmailBundle:AzineEmail:emailDetailsByToken",}
+azine_email_serve_template_image:
+    path: /email/templates/image/{folderKey}/{filename}
+    controller: Azine\EmailBundle\Controller\AzineEmailTemplateController::serveImageAction
+    requirements:
+        filename: .+
+    methods: [GET]
