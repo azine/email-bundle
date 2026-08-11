@@ -56,7 +56,10 @@
     "autoload": {
         "psr-4": {
             "Azine\\EmailBundle\\": ""
-        }
+        },
+        "files": [
+            "compat.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
