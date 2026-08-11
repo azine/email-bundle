@@ -23,6 +23,7 @@
         "ext-fileinfo": "*",
         "ext-filter": "*",
         "ext-json": "*",
+        "ext-mailparse": "*",
         "doctrine/orm": "^3.6",
         "doctrine/persistence": "^3.3 || ^4.0",
         "friendsofsymfony/user-bundle": "^4.1",
