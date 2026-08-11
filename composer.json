@@ -1,15 +1,13 @@
 {
     "name": "azine/email-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony bundle to send HTML/text emails (notifications, newsletters, web-view archives).",
+    "description": "Symfony bundle for multipart notifications, newsletters, email web views and account emails.",
     "keywords": [
         "email",
         "newsletter",
         "notification",
-        "updates",
-        "email web view",
-        "mailgun",
-        "email open tracking"
+        "symfony",
+        "web view"
     ],
     "homepage": "https://github.com/azine/email-bundle",
     "license": "MIT",
@@ -19,43 +17,58 @@
             "email": "github@azine-it.ch"
         }
     ],
-    "config": {
-        "process-timeout": 590,
-        "sort-packages": true,
-        "allow-plugins": {
-            "php-http/discovery": true
-        }
-    },
     "require": {
         "php": "^8.5",
-        "doctrine/orm": "^2.20 || ^3.0",
+        "ext-ctype": "*",
+        "ext-fileinfo": "*",
+        "ext-filter": "*",
+        "ext-json": "*",
+        "doctrine/orm": "^3.6",
+        "doctrine/persistence": "^3.3 || ^4.0",
+        "friendsofsymfony/user-bundle": "^4.1",
         "knplabs/knp-paginator-bundle": "^6.0",
-        "monolog/monolog": "^2.9 || ^3.0",
         "ramsey/uuid": "^4.7",
-        "swiftmailer/swiftmailer": "^6.3",
         "symfony/console": "^7.4",
         "symfony/filesystem": "^7.4",
         "symfony/finder": "^7.4",
         "symfony/framework-bundle": "^7.4",
+        "symfony/http-foundation": "^7.4",
         "symfony/lock": "^7.4",
+        "symfony/mailer": "^7.4",
+        "symfony/mime": "^7.4",
+        "symfony/routing": "^7.4",
+        "symfony/translation": "^7.4",
         "symfony/twig-bundle": "^7.4",
         "symfony/yaml": "^7.4",
-        "twig/extra-bundle": "^3.0"
+        "twig/extra-bundle": "^3.14",
+        "twig/twig": "^3.14"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.59",
-        "phpunit/phpunit": "^9.6",
-        "symfony/phpunit-bridge": "^7.4",
-        "symfony/translation": "^7.4"
+        "doctrine/doctrine-bundle": "^2.15",
+        "friendsofphp/php-cs-fixer": "^3.90",
+        "phpunit/phpunit": "^12.0",
+        "symfony/phpunit-bridge": "^7.4"
     },
     "suggest": {
-        "friendsofsymfony/user-bundle": "Optional: integrate bundle helpers with FOSUser templates and user model.",
-        "azine/emailupdateconfirmation-bundle": "Optional legacy integration; current releases are tied to Symfony <=4 and are not compatible with Symfony 7.4."
+        "azine/emailupdateconfirmation-bundle": "Adds confirmation of user email-address changes.",
+        "ext-gd": "Allows generated GD images to be embedded into outgoing email."
     },
     "autoload": {
         "psr-4": {
             "Azine\\EmailBundle\\": ""
         }
     },
-    "minimum-stability": "stable"
+    "autoload-dev": {
+        "psr-4": {
+            "Azine\\EmailBundle\\Tests\\": "Tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit -c phpunit.xml.dist"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
