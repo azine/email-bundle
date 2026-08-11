@@ -1,85 +1,99 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Tests\Command;
 
 use Azine\EmailBundle\Command\SendNotificationsCommand;
+use Azine\EmailBundle\Services\NotifierServiceInterface;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Process\Process;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\SharedLockInterface;
 
-/**
- * @author dominik
- */
-class SendNotificationsCommandTest extends \PHPUnit\Framework\TestCase
+class SendNotificationsCommandTest extends TestCase
 {
-    public function testHelpInfo()
+    public function testHelpExplainsSymfonyMailerDelivery(): void
     {
-        $command = $this->getCommand();
-        $display = $command->getHelp();
-        $this->assertStringContainsString('Depending on you Swiftmailer-Configuration the email will be send directly or will be written to the spool.', $display);
+        $command = $this->createCommand();
+
+        self::assertStringContainsString('Symfony Mailer transport', $command->getHelp());
+        self::assertStringContainsString('Messenger', $command->getHelp());
     }
 
-    public function testSend()
+    public function testSendsNotifications(): void
     {
-        $command = $this->getCommand();
-        $tester = new CommandTester($command);
-        $tester->execute(array(''));
-        $display = $tester->getDisplay();
-        $this->assertStringContainsString(AzineNotifierServiceMock::EMAIL_COUNT.' emails have been processed.', $display);
+        $tester = new CommandTester($this->createCommand());
+
+        self::assertSame(Command::SUCCESS, $tester->execute([]));
+        self::assertStringContainsString('10 emails have been processed.', $tester->getDisplay());
     }
 
-    public function testSendFail()
+    public function testReportsFailedRecipients(): void
     {
-        $command = $this->getCommand(true);
-        $tester = new CommandTester($command);
-        $tester->execute(array(''));
-        $display = $tester->getDisplay();
-        $this->assertStringContainsString((AzineNotifierServiceMock::EMAIL_COUNT - 1).' emails have been processed.', $display);
-        $this->assertStringContainsString(AzineNotifierServiceMock::FAILED_ADDRESS, $display);
+        $tester = new CommandTester($this->createCommand(true));
+
+        self::assertSame(Command::SUCCESS, $tester->execute([]));
+        self::assertStringContainsString('9 emails have been processed.', $tester->getDisplay());
+        self::assertStringContainsString('a.failed@address.com', $tester->getDisplay());
     }
 
-    /**
-     * @return SendNotificationsCommand
-     */
-    private function getCommand($fail = false)
+    public function testDoesNotRunWhenLockIsUnavailable(): void
+    {
+        $notifier = $this->createMock(NotifierServiceInterface::class);
+        $notifier->expects(self::never())->method('sendNotifications');
+        $tester = new CommandTester($this->register(
+            new SendNotificationsCommand($notifier, $this->createLockFactory(false)),
+        ));
+
+        self::assertSame(Command::SUCCESS, $tester->execute([]));
+        self::assertStringContainsString('already running', $tester->getDisplay());
+    }
+
+    private function createCommand(bool $fail = false): SendNotificationsCommand
+    {
+        $notifier = $this->createMock(NotifierServiceInterface::class);
+        $notifier
+            ->expects(self::once())
+            ->method('sendNotifications')
+            ->willReturnCallback(static function (array &$failedAddresses) use ($fail): int {
+                if ($fail) {
+                    $failedAddresses[] = 'a.failed@address.com';
+
+                    return 9;
+                }
+
+                return 10;
+            });
+
+        return $this->register(new SendNotificationsCommand($notifier, $this->createLockFactory(true)));
+    }
+
+    private function createLockFactory(bool $acquired): LockFactory
+    {
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects(self::once())->method('acquire')->willReturn($acquired);
+        $lock->expects($acquired ? self::once() : self::never())->method('release');
+
+        $factory = $this->getMockBuilder(LockFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['createLock'])
+            ->getMock();
+        $factory->expects(self::once())->method('createLock')->willReturn($lock);
+
+        return $factory;
+    }
+
+    private function register(SendNotificationsCommand $command): SendNotificationsCommand
     {
         $application = new Application();
-        $application->add(new SendNotificationsCommand());
-        $command = $application->find('emails:sendNotifications');
-        $command->setContainer($this->getMockSetup($fail));
+        $application->add($command);
 
-        return $command;
-    }
+        /** @var SendNotificationsCommand $registered */
+        $registered = $application->find('emails:sendNotifications');
 
-    private function getMockSetup($fail = false)
-    {
-        $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
-        $notifierServiceMock = new AzineNotifierServiceMock($fail);
-        $containerMock->expects($this->any())->method('get')->with('azine_email_notifier_service')->will($this->returnValue($notifierServiceMock));
-
-        return $containerMock;
-    }
-
-    public function testLockingFunctionality()
-    {
-        if (!class_exists('AppKernel')) {
-            $this->markTestSkipped('This test does only works if a full application is installed (including AppKernel class');
-        }
-        $commandName = $this->getCommand()->getName();
-        $reflector = new \ReflectionClass(\AppKernel::class);
-        $appDirectory = dirname($reflector->getFileName());
-
-        // start commands in a separate processes
-        $process1 = new Process("php $appDirectory/../bin/console $commandName --env=test");
-        $process2 = new Process("php $appDirectory/../bin/console $commandName --env=test");
-        $process1->start();
-        $process2->start();
-
-        // wait until both processes have terminated
-        while (!$process1->isTerminated() || !$process2->isTerminated()) {
-            usleep(10);
-        }
-
-        $this->assertStringContainsString('The command is already running in another process.', $process2->getOutput().$process1->getOutput());
+        return $registered;
     }
 }
