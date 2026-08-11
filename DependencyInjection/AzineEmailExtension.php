@@ -29,6 +29,7 @@ class AzineEmailExtension extends Extension
     public const NEWSLETTER_SEND_TIME = 'send_time';
     public const WEB_VIEW_SERVICE = 'web_view_service';
     public const WEB_VIEW_RETENTION = 'web_view_retention';
+    public const SPAM_CHECK_ENDPOINT = 'spam_check_endpoint';
     public const TRACKING_PARAM_CAMPAIGN_NAME = 'tracking_params_campaign_name';
     public const TRACKING_PARAM_CAMPAIGN_TERM = 'tracking_params_campaign_term';
     public const TRACKING_PARAM_CAMPAIGN_CONTENT = 'tracking_params_campaign_content';
@@ -89,6 +90,7 @@ class AzineEmailExtension extends Extension
             self::TRACKING_PARAM_CAMPAIGN_TERM,
             self::EMAIL_TRACKING_BASE_URL,
             self::DOMAINS_FOR_TRACKING,
+            self::SPAM_CHECK_ENDPOINT,
         ] as $key) {
             $container->setParameter($prefix.$key, $config[$key]);
         }
