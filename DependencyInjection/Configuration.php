@@ -111,6 +111,14 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode(AzineEmailExtension::WEB_VIEW_SERVICE)
                     ->defaultValue('azine_email.example.web_view_service')
                 ->end()
+                ->scalarNode(AzineEmailExtension::SPAM_CHECK_ENDPOINT)
+                    ->cannotBeEmpty()
+                    ->defaultValue('https://spamcheck.postmarkapp.com/filter')
+                    ->validate()
+                        ->ifTrue(static fn (mixed $value): bool => !str_starts_with((string) $value, 'https://'))
+                        ->thenInvalid('The spam-check endpoint must use HTTPS.')
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;
