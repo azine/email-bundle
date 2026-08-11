@@ -1,37 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Tests;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Result;
 use Doctrine\ORM\AbstractQuery;
 
 /**
- * @author Dominik Businger
+ * Lightweight query result double for service tests.
+ *
+ * The parent constructor is intentionally not invoked because execute() is fully
+ * overridden and no EntityManager state is used.
  */
 class AzineQueryMock extends AbstractQuery
 {
-    private $result;
-
-    public function __construct($result)
+    public function __construct(private readonly mixed $result)
     {
-        $this->result = $result;
     }
 
-    protected function doExecute()
-    {
-        return;
-    }
-
-    protected function _doExecute()
-    {
-        return;
-    }
-
-    public function execute($parameters = null, $hydrationMode = null)
-    {
+    public function execute(
+        ArrayCollection|array|null $parameters = null,
+        string|int|null $hydrationMode = null,
+    ): mixed {
         return $this->result;
     }
 
-    public function getSQL()
+    protected function _doExecute(): Result|int
+    {
+        return is_int($this->result) ? $this->result : 0;
+    }
+
+    public function getSQL(): string
     {
         return 'dummy sql';
     }
