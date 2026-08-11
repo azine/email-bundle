@@ -34,6 +34,9 @@ services:
                 templates_notifications: '%azine_email_templates_notifications%'
                 templates_content_item: '%azine_email_templates_content_item%'
 
+    Azine\EmailBundle\Services\NotifierServiceInterface:
+        alias: azine_email_notifier_service
+
     azine_email.example.web_view_service:
         class: Azine\EmailBundle\Services\AzineWebViewService
         arguments:
@@ -103,13 +106,29 @@ services:
         tags:
             - { name: twig.extension }
 
+    azine_email.command_lock_store:
+        class: Symfony\Component\Lock\Store\FlockStore
+        arguments:
+            - '%kernel.cache_dir%/azine-email-locks'
+
+    azine_email.command_lock_factory:
+        class: Symfony\Component\Lock\LockFactory
+        arguments:
+            - '@azine_email.command_lock_store'
+
     azine.send_notifications_command:
         class: Azine\EmailBundle\Command\SendNotificationsCommand
+        arguments:
+            $notifierService: '@azine_email_notifier_service'
+            $lockFactory: '@azine_email.command_lock_factory'
         tags:
             - { name: console.command }
 
     azine.send_news_letter_command:
         class: Azine\EmailBundle\Command\SendNewsLetterCommand
+        arguments:
+            $notifierService: '@azine_email_notifier_service'
+            $lockFactory: '@azine_email.command_lock_factory'
         tags:
             - { name: console.command }
 
