@@ -45,19 +45,23 @@ class SpamCheckService
 
             $statusCode = $response->getStatusCode();
             $decoded = json_decode($response->getContent(false), true);
-            $result = is_array($decoded) ? $decoded : [];
-            $result['curlHttpCode'] = $statusCode;
-            $result['success'] = true === ($result['success'] ?? false);
-            $result['message'] ??= '-';
-
-            if ([] === $decoded) {
-                $result['success'] = false;
-                $result['message'] = 'The spam-check service returned an invalid JSON response.';
-            } elseif (!$result['success'] && str_contains($messageSource, 'Content-Transfer-Encoding: base64')) {
-                $result['message'] .= "\n\nRemoving base64-encoded MIME parts may help.";
+            if (!is_array($decoded)) {
+                return [
+                    'success' => false,
+                    'curlHttpCode' => $statusCode,
+                    'message' => 'The spam-check service returned an invalid JSON response.',
+                ];
             }
 
-            return $result;
+            $decoded['curlHttpCode'] = $statusCode;
+            $decoded['success'] = true === ($decoded['success'] ?? false);
+            $decoded['message'] ??= '-';
+
+            if (!$decoded['success'] && str_contains($messageSource, 'Content-Transfer-Encoding: base64')) {
+                $decoded['message'] .= "\n\nRemoving base64-encoded MIME parts may help.";
+            }
+
+            return $decoded;
         } catch (TransportExceptionInterface $exception) {
             return [
                 'success' => false,
