@@ -17,6 +17,9 @@ services:
                 tracking_params_campaign_medium: '%azine_email_tracking_params_campaign_medium%'
                 tracking_params_campaign_source: '%azine_email_tracking_params_campaign_source%'
 
+    Azine\EmailBundle\Services\TemplateProviderInterface:
+        alias: azine_email_template_provider
+
     azine_email.example.notifier_service:
         class: Azine\EmailBundle\Services\AzineNotifierService
         arguments:
@@ -41,6 +44,9 @@ services:
         class: Azine\EmailBundle\Services\AzineWebViewService
         arguments:
             $router: '@router'
+
+    Azine\EmailBundle\Services\WebViewServiceInterface:
+        alias: azine_email_web_view_service
 
     azine_email.default.template_twig_mailer:
         class: Azine\EmailBundle\Services\AzineTwigMailer
@@ -96,6 +102,9 @@ services:
                 tracking_params_campaign_medium: '%azine_email_tracking_params_campaign_medium%'
                 tracking_params_campaign_source: '%azine_email_tracking_params_campaign_source%'
 
+    Azine\EmailBundle\Services\EmailOpenTrackingCodeBuilderInterface:
+        alias: azine_email_email_open_tracking_code_builder
+
     azine.email.bundle.twig.filters:
         class: Azine\EmailBundle\Services\AzineEmailTwigExtension
         public: false
@@ -105,6 +114,31 @@ services:
             $domainsToTrack: '%azine_email_domains_for_tracking%'
         tags:
             - { name: twig.extension }
+
+    azine_email.spam_check_service:
+        class: Azine\EmailBundle\Services\SpamCheckService
+        arguments:
+            $httpClient: '@http_client'
+            $endpoint: '%azine_email_spam_check_endpoint%'
+
+    Azine\EmailBundle\Controller\AzineEmailTemplateController:
+        public: true
+        arguments:
+            $webViewService: '@azine_email_web_view_service'
+            $templateProvider: '@azine_email_template_provider'
+            $mailer: '@azine_email_template_twig_mailer'
+            $spamCheckService: '@azine_email.spam_check_service'
+            $twig: '@twig'
+            $emailTwigExtension: '@azine.email.bundle.twig.filters'
+            $managerRegistry: '@doctrine'
+            $tokenStorage: '@security.token_storage'
+            $translator: '@translator'
+            $router: '@router'
+            $emailOpenTrackingCodeBuilder: '@azine_email_email_open_tracking_code_builder'
+            $noReply: '%azine_email_no_reply%'
+            $webViewRetentionDays: '%azine_email_web_view_retention%'
+        tags:
+            - { name: controller.service_arguments }
 
     azine_email.command_lock_store:
         class: Symfony\Component\Lock\Store\FlockStore
