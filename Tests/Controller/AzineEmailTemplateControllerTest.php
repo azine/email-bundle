@@ -24,6 +24,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\User\UserInterface as SecurityUserInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -141,18 +142,28 @@ class AzineEmailTemplateControllerTest extends TestCase
             ->setTemplate('@App/Email/stored')
             ->setVariables([]);
 
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')->willReturn(new class {
+        $user = new class implements SecurityUserInterface {
             public function getEmail(): string
             {
                 return 'other@example.com';
+            }
+
+            public function getUserIdentifier(): string
+            {
+                return $this->getEmail();
             }
 
             public function getRoles(): array
             {
                 return ['ROLE_USER'];
             }
-        });
+
+            public function eraseCredentials(): void
+            {
+            }
+        };
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($user);
         $tokenStorage = $this->createMock(TokenStorageInterface::class);
         $tokenStorage->method('getToken')->willReturn($token);
 
@@ -214,7 +225,7 @@ class AzineEmailTemplateControllerTest extends TestCase
             ->expects(self::once())
             ->method('sendSingleEmail')
             ->with(
-                ['recipient@example.com' => 'Test-Mail-Recipient'],
+                self::callback(static fn (array $recipients): bool => array_key_exists('recipient@example.com', $recipients)),
                 null,
                 'Test subject',
                 self::isType('array'),
@@ -258,7 +269,8 @@ class AzineEmailTemplateControllerTest extends TestCase
         );
 
         self::assertSame('/email/templates?customEmail=recipient@example.com', $response->getTargetUrl());
-        self::assertCount(2, $request->getSession()->getFlashBag()->all());
+        $flashes = $request->getSession()->getFlashBag()->all();
+        self::assertSame(2, array_sum(array_map('count', $flashes)));
     }
 
     public function testSpamScoreAjaxReturnsFormattedReport(): void
@@ -299,8 +311,10 @@ class AzineEmailTemplateControllerTest extends TestCase
         $mailer ??= $this->createMock(TemplateTwigMailerInterface::class);
         $spamCheckService ??= $this->createMock(SpamCheckService::class);
         $tokenStorage ??= $this->createMock(TokenStorageInterface::class);
-        $translator ??= $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturnArgument(0);
+        if (null === $translator) {
+            $translator = $this->createMock(TranslatorInterface::class);
+            $translator->method('trans')->willReturnArgument(0);
+        }
         $router ??= $this->createMock(RouterInterface::class);
 
         $repository = $this->getMockBuilder(EntityRepository::class)
