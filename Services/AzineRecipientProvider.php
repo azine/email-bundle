@@ -1,63 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Services;
 
+use Azine\EmailBundle\Entity\RecipientInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * Default implementation of the RecipientProviderInterface.
- */
 class AzineRecipientProvider implements RecipientProviderInterface
 {
-    /** @var ManagerRegistry */
-    private $managerRegistry;
-
-    /** @var string your recipient class */
-    private $userClass;
-
-    /** @var string the field name of the boolean field that indicate wether or not a newsletter should be sent to the recipient entity. */
-    private $newsletterField;
-
-    /**
-     * @param string $userClass
-     * @param string $newsletterField
-     */
-    public function __construct(ManagerRegistry $managerRegistry, $userClass, $newsletterField)
-    {
-        $this->managerRegistry = $managerRegistry;
-        $this->userClass = $userClass;
-        $this->newsletterField = $newsletterField;
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry,
+        private readonly string $userClass,
+        private readonly string $newsletterField,
+    ) {
     }
 
-    /**
-     * (non-PHPdoc).
-     *
-     * @see Azine\EmailBundle\Services.RecipientProviderInterface::getRecipient()
-     */
-    public function getRecipient($id)
+    public function getRecipient(int|string $id): RecipientInterface
     {
-        return $this->managerRegistry->getManager()->getRepository($this->userClass)->find($id);
-    }
-
-    /**
-     * (non-PHPdoc).
-     *
-     * @see Azine\EmailBundle\Services.RecipientProviderInterface::getNewsletterRecipientIDs()
-     */
-    public function getNewsletterRecipientIDs()
-    {
-        $qb = $this->managerRegistry->getManager()->createQueryBuilder()
-            ->select('n.id')
-            ->from($this->userClass, 'n')
-            ->where('n.'.$this->newsletterField.' = true')
-            ->andWhere('n.enabled = 1') // exclude inactive users
-            ;
-        $results = $qb->getQuery()->execute();
-        $ids = array();
-        foreach ($results as $next) {
-            $ids[] = $next['id'];
+        $recipient = $this->managerRegistry->getManager()->getRepository($this->userClass)->find($id);
+        if (!$recipient instanceof RecipientInterface) {
+            throw new \RuntimeException(sprintf(
+                'No recipient of class "%s" was found for id "%s".',
+                $this->userClass,
+                $id,
+            ));
         }
 
-        return $ids;
+        return $recipient;
+    }
+
+    public function getNewsletterRecipientIDs(): array
+    {
+        $rows = $this->managerRegistry
+            ->getManager()
+            ->createQueryBuilder()
+            ->select('recipient.id')
+            ->from($this->userClass, 'recipient')
+            ->where(sprintf('recipient.%s = true', $this->newsletterField))
+            ->andWhere('recipient.enabled = true')
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_values(array_map(
+            static fn (array $row): int|string => $row['id'],
+            $rows,
+        ));
     }
 }
