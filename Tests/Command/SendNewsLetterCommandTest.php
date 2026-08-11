@@ -17,7 +17,12 @@ class SendNewsLetterCommandTest extends TestCase
 {
     public function testHelpExplainsSymfonyMailerDelivery(): void
     {
-        $command = $this->createCommand();
+        $notifier = $this->createMock(NotifierServiceInterface::class);
+        $notifier->expects(self::never())->method('sendNewsletter');
+        $command = $this->register(new SendNewsLetterCommand(
+            $notifier,
+            $this->getMockBuilder(LockFactory::class)->disableOriginalConstructor()->getMock(),
+        ));
 
         self::assertStringContainsString('Symfony Mailer transport', $command->getHelp());
         self::assertStringContainsString('Messenger', $command->getHelp());
@@ -25,8 +30,7 @@ class SendNewsLetterCommandTest extends TestCase
 
     public function testSendsNewsletter(): void
     {
-        $command = $this->createCommand();
-        $tester = new CommandTester($command);
+        $tester = new CommandTester($this->createCommand());
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
         self::assertStringContainsString('10 newsletter emails have been sent.', $tester->getDisplay());
@@ -34,8 +38,7 @@ class SendNewsLetterCommandTest extends TestCase
 
     public function testReportsFailedRecipients(): void
     {
-        $command = $this->createCommand(true);
-        $tester = new CommandTester($command);
+        $tester = new CommandTester($this->createCommand(true));
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
         self::assertStringContainsString('9 newsletter emails have been sent.', $tester->getDisplay());
