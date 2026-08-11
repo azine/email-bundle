@@ -6,11 +6,11 @@ namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Entity\RecipientInterface;
 use Azine\EmailBundle\Services\AzineRecipientProvider;
-use Azine\EmailBundle\Tests\AzineQueryMock;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\Persistence\ObjectRepository;
 use PHPUnit\Framework\TestCase;
 
 class AzineRecipientProviderTest extends TestCase
@@ -20,7 +20,10 @@ class AzineRecipientProviderTest extends TestCase
         $recipient = $this->createMock(RecipientInterface::class);
         $recipient->method('getId')->willReturn(11);
 
-        $repository = $this->createMock(ObjectRepository::class);
+        $repository = $this->getMockBuilder(EntityRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['find'])
+            ->getMock();
         $repository->expects(self::once())->method('find')->with(11)->willReturn($recipient);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -36,7 +39,10 @@ class AzineRecipientProviderTest extends TestCase
 
     public function testMissingRecipientThrowsUsefulException(): void
     {
-        $repository = $this->createMock(ObjectRepository::class);
+        $repository = $this->getMockBuilder(EntityRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['find'])
+            ->getMock();
         $repository->method('find')->willReturn(null);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -53,6 +59,20 @@ class AzineRecipientProviderTest extends TestCase
 
     public function testGetNewsletterRecipientIds(): void
     {
+        $query = $this->getMockBuilder(Query::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getArrayResult'])
+            ->getMock();
+        $query
+            ->expects(self::once())
+            ->method('getArrayResult')
+            ->willReturn([
+                ['id' => 11],
+                ['id' => 12],
+                ['id' => 13],
+                ['id' => 14],
+            ]);
+
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['select', 'from', 'where', 'andWhere', 'getQuery'])
@@ -69,15 +89,7 @@ class AzineRecipientProviderTest extends TestCase
             ->method('andWhere')
             ->with('recipient.enabled = true')
             ->willReturnSelf();
-        $queryBuilder
-            ->expects(self::once())
-            ->method('getQuery')
-            ->willReturn(new AzineQueryMock([
-                ['id' => 11],
-                ['id' => 12],
-                ['id' => 13],
-                ['id' => 14],
-            ]));
+        $queryBuilder->expects(self::once())->method('getQuery')->willReturn($query);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('createQueryBuilder')->willReturn($queryBuilder);
