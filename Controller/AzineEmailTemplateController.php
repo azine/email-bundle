@@ -1,10 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Controller;
 
 use Azine\EmailBundle\Entity\SentEmail;
+use Azine\EmailBundle\Services\AzineEmailTwigExtension;
+use Azine\EmailBundle\Services\EmailOpenTrackingCodeBuilderInterface;
+use Azine\EmailBundle\Services\SpamCheckService;
 use Azine\EmailBundle\Services\TemplateProviderInterface;
-use Doctrine\ORM\EntityManager;
+use Azine\EmailBundle\Services\TemplateTwigMailerInterface;
+use Azine\EmailBundle\Services\WebViewServiceInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
@@ -13,479 +21,371 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\RawMessage;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
-/**
- * This controller provides the following actions:.
- *
- * index: view a list of all your templates with the option to send a test mail with "dummy"-data to an email-address of your choice (see WebViewServiceInterface::getTemplatesForWebPreView() & WebViewServiceInterface::getTestMailAccounts) .
- * webPreView: shows the selected html- or txt-email-template filled with the dummy-data you defined (in the WebViewServiceInterface::getDummyVarsFor() function).
- * webView: shows an email that has been sent (and stored as SentEmail-entity in the database)
- * sendTestMail: sends an email filled with the dummy-data you defined to the selected email-address.
- * serveImage: serve an image from the template-image-folder
- *
- * @author dominik
- */
 class AzineEmailTemplateController extends AbstractController
 {
-    /**
-     * Show a set of options to view html- and text-versions of email in the browser and send them as emails to test-accounts.
-     */
-    public function indexAction(Request $request)
-    {
-        $customEmail = $request->get('customEmail', 'custom@email.com');
-        $templates = $this->container->get('azine_email_web_view_service')->getTemplatesForWebPreView();
-        $emails = $this->container->get('azine_email_web_view_service')->getTestMailAccounts();
-
-        return $this->container->get('templating')
-                    ->renderResponse('AzineEmailBundle:Webview:index.html.twig',
-                    array(
-                        'customEmail' => $customEmail,
-                        'templates' => $templates,
-                        'emails' => $emails,
-                    ));
+    public function __construct(
+        private readonly WebViewServiceInterface $webViewService,
+        private readonly TemplateProviderInterface $templateProvider,
+        private readonly TemplateTwigMailerInterface $mailer,
+        private readonly SpamCheckService $spamCheckService,
+        private readonly Environment $twig,
+        private readonly AzineEmailTwigExtension $emailTwigExtension,
+        private readonly ManagerRegistry $managerRegistry,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly TranslatorInterface $translator,
+        private readonly RouterInterface $router,
+        private readonly ?EmailOpenTrackingCodeBuilderInterface $emailOpenTrackingCodeBuilder,
+        private readonly array $noReply,
+        private readonly int $webViewRetentionDays,
+    ) {
     }
 
-    /**
-     * Show a web-preview-version of an email-template, filled with dummy-content.
-     *
-     * @param string $format
-     *
-     * @return Response
-     */
-    public function webPreViewAction(Request $request, $template, $format = null)
+    public function indexAction(Request $request): Response
     {
-        if ('txt' !== $format) {
-            $format = 'html';
-        }
+        return $this->renderTemplate('@AzineEmail/Webview/index.html.twig', [
+            'customEmail' => $request->query->getString('customEmail', 'custom@email.com'),
+            'templates' => $this->webViewService->getTemplatesForWebPreView(),
+            'emails' => $this->webViewService->getTestMailAccounts(),
+        ]);
+    }
 
+    public function webPreViewAction(Request $request, string $template, ?string $format = null): Response
+    {
+        $format = 'txt' === $format ? 'txt' : 'html';
         $template = urldecode($template);
-
         $locale = $request->getLocale();
+        $requestVariables = $request->query->all();
 
-        // merge request vars with dummyVars, but make sure request vars remain as they are.
-        $emailVars = array_merge(array(), $request->query->all());
-        $emailVars = $this->container->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale, $emailVars);
-        $emailVars = array_merge($emailVars, $request->query->all());
+        $emailVariables = $this->webViewService->getDummyVarsFor(
+            $template,
+            $locale,
+            $requestVariables,
+        );
+        $emailVariables = array_merge($emailVariables, $requestVariables);
+        $emailVariables = $this->templateProvider->addTemplateVariablesFor($template, $emailVariables);
 
-        // add the styles
-        $emailVars = $this->getTemplateProviderService()->addTemplateVariablesFor($template, $emailVars);
+        $emailVariables['fromEmail'] ??= (string) ($this->noReply['email'] ?? '');
+        $emailVariables['fromName'] ??= (string) ($this->noReply['name'] ?? '');
+        $emailVariables['sendMailAccountAddress'] ??= $emailVariables['fromEmail'];
+        $emailVariables['sendMailAccountName'] ??= $emailVariables['fromName'];
+        $emailVariables['emailLocale'] = $locale;
 
-        // add the from-email for the footer-text
-        if (!array_key_exists('fromEmail', $emailVars)) {
-            $noReply = $this->container->getParameter('azine_email_no_reply');
-            $emailVars['fromEmail'] = $noReply['email'];
-            $emailVars['fromName'] = $noReply['name'];
-        }
+        $emailVariables = $this->templateProvider->makeImagePathsWebRelative($emailVariables, $locale);
+        $emailVariables = $this->templateProvider->addTemplateSnippetsWithImagesFor(
+            $template,
+            $emailVariables,
+            $locale,
+        );
 
-        // set the emailLocale for the templates
-        $emailVars['emailLocale'] = $locale;
+        $content = $this->twig->render($this->templateFile($template, $format), $emailVariables);
+        $campaignParameters = $this->templateProvider->getCampaignParamsFor($template, $emailVariables);
+        if ([] !== $campaignParameters) {
+            $campaignParameters['utm_medium'] = 'webPreview';
+            $content = $this->emailTwigExtension->addCampaignParamsToAllUrls($content, $campaignParameters);
 
-        // replace absolute image-paths with relative ones.
-        $emailVars = $this->getTemplateProviderService()->makeImagePathsWebRelative($emailVars, $locale);
-
-        // add code-snippets
-        $emailVars = $this->getTemplateProviderService()->addTemplateSnippetsWithImagesFor($template, $emailVars, $locale);
-
-        // render & return email
-        $response = $this->renderResponse("$template.$format.twig", $emailVars);
-
-        // add campaign tracking params
-        $campaignParams = $this->getTemplateProviderService()->getCampaignParamsFor($template, $emailVars);
-        $campaignParams['utm_medium'] = 'webPreview';
-        if (sizeof($campaignParams) > 0) {
-            $content = $response->getContent();
-            $content = $this->container->get('azine.email.bundle.twig.filters')->addCampaignParamsToAllUrls($content, $campaignParams);
-
-            $emailOpenTrackingCodeBuilder = $this->container->get('azine_email_email_open_tracking_code_builder');
-            if ($emailOpenTrackingCodeBuilder) {
-                // add an image at the end of the html tag with the tracking-params to track email-opens
-                $imgTrackingCode = $emailOpenTrackingCodeBuilder->getTrackingImgCode($template, $campaignParams, $emailVars, 'dummy', 'dummy@from.email.com', null, null);
-                if ($imgTrackingCode && strlen($imgTrackingCode) > 0) {
-                    // replace the tracking url, so no request is made to the real tracking system.
-                    $imgTrackingCode = str_replace('://', '://webview-dummy-domain.', $imgTrackingCode);
-                    $htmlCloseTagPosition = strpos($content, '</html>');
-                    $content = substr_replace($content, $imgTrackingCode, $htmlCloseTagPosition, 0);
+            if ('html' === $format && null !== $this->emailOpenTrackingCodeBuilder) {
+                $trackingCode = $this->emailOpenTrackingCodeBuilder->getTrackingImgCode(
+                    $template,
+                    $campaignParameters,
+                    $emailVariables,
+                    'dummy',
+                    'dummy@from.email.com',
+                    null,
+                    null,
+                );
+                if (is_string($trackingCode) && '' !== $trackingCode) {
+                    $trackingCode = str_replace('://', '://webview-dummy-domain.', $trackingCode);
+                    $content = $this->appendBeforeClosingTag($content, $trackingCode, '</html>');
                 }
             }
-            $response->setContent($content);
         }
 
-        // if the requested format is txt, remove the html-part
-        if ('txt' == $format) {
-            // set the correct content-type
-            $response->headers->set('Content-Type', 'text/plain');
-
-            // cut away the html-part
-            $content = $response->getContent();
+        if ('txt' === $format) {
             $textEnd = stripos($content, '<!doctype');
-            if($textEnd > 0) {
-                $response->setContent(substr($content, 0, $textEnd));
+            if (false !== $textEnd) {
+                $content = substr($content, 0, $textEnd);
             }
+
+            return new Response($content, Response::HTTP_OK, ['Content-Type' => 'text/plain; charset=UTF-8']);
         }
 
-        return $response;
+        return new Response($content);
     }
 
-    /**
-     * Show a web-version of an email that has been sent to recipients and has been stored in the database.
-     *
-     * @param string $token
-     *
-     * @return Response
-     */
-    public function webViewAction(Request $request, $token)
+    public function webViewAction(Request $request, string $token): Response
     {
-        // find email recipients, template & params
         $sentEmail = $this->getSentEmailForToken($token);
-
-        // check if the sent email is available
-        if (null !== $sentEmail) {
-            // check if the current user is allowed to see the email
-            if ($this->userIsAllowedToSeeThisMail($sentEmail)) {
-                $template = $sentEmail->getTemplate();
-                $emailVars = $sentEmail->getVariables();
-
-                // re-attach all entities to the EntityManager.
-                $this->reAttachAllEntities($emailVars);
-
-                // remove the web-view-token from the param-array
-                $templateProvider = $this->getTemplateProviderService();
-                unset($emailVars[$templateProvider->getWebViewTokenId()]);
-
-                // render & return email
-                $response = $this->renderResponse("$template.html.twig", $emailVars);
-
-                $campaignParams = $templateProvider->getCampaignParamsFor($template, $emailVars);
-
-                if (null != $campaignParams && sizeof($campaignParams) > 0) {
-                    $response->setContent($this->container->get('azine.email.bundle.twig.filters')->addCampaignParamsToAllUrls($response->getContent(), $campaignParams));
-                }
-
-                return $response;
-
-                // if the user is not allowed to see this mail
-            }
-            $msg = $this->container->get('translator')->trans('web.pre.view.test.mail.access.denied');
-            throw new AccessDeniedException($msg);
+        if (!$sentEmail instanceof SentEmail) {
+            return $this->renderTemplate(
+                '@AzineEmail/Webview/mail.not.available.html.twig',
+                ['days' => $this->webViewRetentionDays],
+                Response::HTTP_NOT_FOUND,
+            );
         }
 
-        // the parameters-array is null => the email is not available in webView
-        $days = $this->container->getParameter('azine_email_web_view_retention');
-        $response = $this->renderResponse('AzineEmailBundle:Webview:mail.not.available.html.twig', array('days' => $days));
-        $response->setStatusCode(404);
+        if (!$this->userIsAllowedToSeeThisMail($sentEmail)) {
+            throw new AccessDeniedException(
+                $this->translator->trans('web.pre.view.test.mail.access.denied'),
+            );
+        }
+
+        $template = (string) $sentEmail->getTemplate();
+        $emailVariables = $sentEmail->getVariables();
+        $this->reAttachAllEntities($emailVariables);
+        unset($emailVariables[$this->templateProvider->getWebViewTokenId()]);
+
+        $content = $this->twig->render($this->templateFile($template, 'html'), $emailVariables);
+        $campaignParameters = $this->templateProvider->getCampaignParamsFor($template, $emailVariables);
+        if ([] !== $campaignParameters) {
+            $content = $this->emailTwigExtension->addCampaignParamsToAllUrls($content, $campaignParameters);
+        }
+
+        return new Response($content);
+    }
+
+    public function serveImageAction(Request $request, string $folderKey, string $filename): BinaryFileResponse
+    {
+        $folder = $this->templateProvider->getFolderFrom($folderKey);
+        if (false === $folder) {
+            throw new FileNotFoundException($filename);
+        }
+
+        $baseFolder = realpath((string) $folder);
+        $fullPath = realpath(rtrim((string) $folder, '/').'/'.urldecode($filename));
+        if (
+            false === $baseFolder
+            || false === $fullPath
+            || !str_starts_with($fullPath, rtrim($baseFolder, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR)
+            || !is_file($fullPath)
+        ) {
+            throw new FileNotFoundException($filename);
+        }
+
+        $response = new BinaryFileResponse($fullPath);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
+        $mimeType = mime_content_type($fullPath);
+        if (is_string($mimeType)) {
+            $response->headers->set('Content-Type', $mimeType);
+        }
 
         return $response;
     }
 
+    public function sendTestEmailAction(Request $request, string $template, string $email): RedirectResponse
+    {
+        $locale = $request->getLocale();
+        $template = urldecode($template);
+        $emailVariables = $this->webViewService->getDummyVarsFor($template, $locale);
+        $recipients = $this->parseAddresses($email);
+        $message = new Email();
+
+        $sent = $this->mailer->sendSingleEmail(
+            $recipients,
+            null,
+            (string) ($emailVariables['subject'] ?? 'Test email'),
+            $emailVariables,
+            $this->templateFile($template, 'txt'),
+            $locale,
+            (string) ($emailVariables['sendMailAccountAddress'] ?? $this->noReply['email'] ?? ''),
+            (string) ($emailVariables['sendMailAccountName'] ?? $this->noReply['name'] ?? '').' (Test)',
+            $message,
+        );
+
+        $flashBag = $request->getSession()->getFlashBag();
+        $spamReport = $this->getSpamIndexReportForSwiftMessage($message);
+        $spamInfo = $this->formatSpamReport($spamReport);
+        if (null !== $spamInfo) {
+            [$level, $messageText] = $spamInfo;
+            $flashBag->add($level, $messageText);
+        }
+
+        $translationKey = $sent
+            ? 'web.pre.view.test.mail.sent.for.%template%.to.%email%'
+            : 'web.pre.view.test.mail.failed.for.%template%.to.%email%';
+        $flashBag->add($sent ? 'info' : 'warn', $this->translator->trans($translationKey, [
+            '%template%' => $template,
+            '%email%' => $email,
+        ]));
+
+        return new RedirectResponse($this->router->generate('azine_email_template_index', [
+            'customEmail' => $email,
+        ]));
+    }
+
     /**
-     * Check if the user is allowed to see the email.
-     * => the mail is public or the user is among the recipients or the user is an admin.
-     *
-     * @return bool
+     * The historical method name is retained for application compatibility;
+     * the message is now a Symfony Mime RawMessage rather than Swift_Message.
      */
-    private function userIsAllowedToSeeThisMail(SentEmail $mail)
+    public function getSpamIndexReportForSwiftMessage(RawMessage $message, string $report = 'long'): array
+    {
+        return $this->spamCheckService->checkMessage($message, $report);
+    }
+
+    public function checkSpamScoreOfSentEmailAction(Request $request): JsonResponse
+    {
+        $messageSource = $request->request->getString(
+            'emailSource',
+            $request->query->getString('emailSource'),
+        );
+        $spamReport = $this->spamCheckService->checkRawMessage($messageSource);
+        $formatted = $this->formatSpamReport($spamReport);
+
+        return new JsonResponse([
+            'result' => null === $formatted ? '' : $formatted[1],
+        ]);
+    }
+
+    private function getSentEmailForToken(string $token): ?SentEmail
+    {
+        $sentEmail = $this->managerRegistry
+            ->getManager()
+            ->getRepository(SentEmail::class)
+            ->findOneBy(['token' => $token]);
+
+        return $sentEmail instanceof SentEmail ? $sentEmail : null;
+    }
+
+    private function userIsAllowedToSeeThisMail(SentEmail $mail): bool
     {
         $recipients = $mail->getRecipients();
-
-        // it is a public email
         if (null === $recipients) {
             return true;
         }
 
-        // get the current user
-        $currentUser = null;
-        if (!$this->container->has('security.token_storage')) {
-            // @codeCoverageIgnoreStart
-            throw new \LogicException('The SecurityBundle is not registered in your application.');
-            // @codeCoverageIgnoreEnd
-        }
-        $token = $this->container->get('security.token_storage')->getToken();
-
-        // check if the token is not null and the user in the token an object
-        if ($token instanceof TokenInterface && is_object($token->getUser())) {
-            $currentUser = $token->getUser();
+        $user = $this->tokenStorage->getToken()?->getUser();
+        if (!is_object($user)) {
+            return false;
         }
 
-        // it is not a public email, and a user is logged in
-        if (null !== $currentUser) {
-            // the user is among the recipients
-            if (false !== array_search($currentUser->getEmail(), $recipients)) {
-                return true;
-            }
-
-            // the user is admin
-            if ($currentUser->hasRole('ROLE_ADMIN')) {
-                return true;
-            }
+        if (method_exists($user, 'getEmail') && in_array($user->getEmail(), $recipients, true)) {
+            return true;
         }
 
-        // not public email, but
-        // 		- there is no user, or
-        //		- the user is not among the recipients and
-        //		- the user not an admin-user either
-        return false;
+        if (method_exists($user, 'hasRole') && $user->hasRole('ROLE_ADMIN')) {
+            return true;
+        }
+
+        return method_exists($user, 'getRoles') && in_array('ROLE_ADMIN', $user->getRoles(), true);
     }
 
-    /**
-     * Replace all unmanaged Objects in the array (recursively)
-     * by managed Entities fetched via Doctrine EntityManager.
-     *
-     *  It is assumed that managed objects can be identified
-     *  by their id and implement the function getId() to get that id.
-     *
-     * @param array $vars passed by reference & manipulated but not returned
-     *
-     * @return null
-     */
-    private function reAttachAllEntities(array &$vars)
+    private function reAttachAllEntities(array &$variables): void
     {
-        /** @var EntityManager $em */
-        $em = $this->container->get('doctrine')->getManager();
-        foreach ($vars as $key => $next) {
-            if (is_object($next) && method_exists($next, 'getId')) {
-                $className = get_class($next);
-                $managedEntity = $em->find($className, $next->getId());
-                $em->refresh($managedEntity);
-                if ($managedEntity) {
-                    $vars[$key] = $managedEntity;
-                }
-                continue;
-            } elseif (is_array($next)) {
-                $this->reAttachAllEntities($next);
-                $vars[$key] = $next;
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = $this->managerRegistry->getManager();
+
+        foreach ($variables as $key => &$value) {
+            if (is_array($value)) {
+                $this->reAttachAllEntities($value);
                 continue;
             }
-        }
-    }
 
-    /**
-     * Serve the image from the templates-folder.
-     *
-     * @param string $folderKey
-     * @param string $filename
-     *
-     * @return BinaryFileResponse
-     */
-    public function serveImageAction(Request $request, $folderKey, $filename)
-    {
-        $folder = $this->getTemplateProviderService()->getFolderFrom($folderKey);
-        if (false !== $folder) {
-            $fullPath = $folder.urldecode($filename);
-            if (!is_file($fullPath)) {
-                throw new FileNotFoundException($filename);
-            }
-            $response = new BinaryFileResponse($fullPath);
-            $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
-            $response->headers->set('Content-Type', 'image');
-
-            return $response;
-        }
-
-        throw new FileNotFoundException($filename);
-    }
-
-    /**
-     * @return TemplateProviderInterface
-     */
-    protected function getTemplateProviderService()
-    {
-        return $this->container->get('azine_email_template_provider');
-    }
-
-    /**
-     * @param string   $view
-     * @param Response $response
-     *
-     * @return Response
-     */
-    protected function renderResponse($view, array $parameters = array(), ?Response $response = null)
-    {
-        return $this->container->get('templating')->renderResponse($view, $parameters, $response);
-    }
-
-    /**
-     * Get the sent email from the database.
-     *
-     * @param string $token the token identifying the sent email
-     *
-     * @return SentEmail
-     */
-    protected function getSentEmailForToken($token)
-    {
-        $sentEmail = $this->container->get('doctrine')->getRepository('AzineEmailBundle:SentEmail')->findOneByToken($token);
-
-        return $sentEmail;
-    }
-
-    /**
-     * Send a test-mail for the template to the given email-address.
-     *
-     * @param string $template templateId without ending => AzineEmailBundle::baseEmailLayout (without .txt.twig)
-     * @param string $email
-     *
-     * @return RedirectResponse
-     */
-    public function sendTestEmailAction(Request $request, $template, $email)
-    {
-        $locale = $request->getLocale();
-
-        $template = urldecode($template);
-
-        // get the email-vars for email-sending => absolute fs-paths to images
-        $emailVars = $this->container->get('azine_email_web_view_service')->getDummyVarsFor($template, $locale);
-
-        // send the mail
-        $message = new \Swift_Message();
-        $mailer = $this->container->get('azine_email_template_twig_swift_mailer');
-        $emailArray = array();
-        foreach (mailparse_rfc822_parse_addresses($email) as $next){
-            $emailArray[$next['address']] = "Test-Mail-Recipient";
-        }
-        $sent = $mailer->sendSingleEmail($emailArray, null, $emailVars['subject'], $emailVars, $template.'.txt.twig', $locale, $emailVars['sendMailAccountAddress'], $emailVars['sendMailAccountName'].' (Test)', $message);
-
-        $flashBag = $request->getSession()->getFlashBag();
-
-        $spamReport = $this->getSpamIndexReportForSwiftMessage($message);
-        if (is_array($spamReport)) {
-            if (200 == $spamReport['curlHttpCode'] && $spamReport['success']) {
-                $spamScore = $spamReport['score'];
-                $spamInfo = "SpamScore: $spamScore! \n".$spamReport['report'];
-            } else {
-                //@codeCoverageIgnoreStart
-                // this only happens if the spam-check-server has a problem / is not responding
-                $spamScore = 10;
-                $spamInfo = 'Getting the spam-info failed.
-                             HttpCode: '.$spamReport['curlHttpCode'].'
-                             SpamReportMsg: '.$spamReport['message'];
-                if (array_key_exists('curlError', $spamReport)) {
-                    $spamInfo .= '
-                             cURL-Error: '.$spamReport['curlError'];
-                }
-                //@codeCoverageIgnoreEnd
+            if (!is_object($value) || !method_exists($value, 'getId')) {
+                continue;
             }
 
-            if ($spamScore <= 2) {
-                $flashBag->add('info', $spamInfo);
-            } elseif ($spamScore > 2 && $spamScore < 5) {
-                $flashBag->add('warn', $spamInfo);
-            } else {
-                $flashBag->add('error', $spamInfo);
+            $identifier = $value->getId();
+            if (null === $identifier) {
+                continue;
+            }
+
+            $managedEntity = $entityManager->find($value::class, $identifier);
+            if (null !== $managedEntity) {
+                $variables[$key] = $managedEntity;
             }
         }
-
-        // inform about sent/failed emails
-        if ($sent) {
-            $msg = $this->container->get('translator')->trans('web.pre.view.test.mail.sent.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
-            $flashBag->add('info', $msg);
-
-        //@codeCoverageIgnoreStart
-        } else {
-            // this only happens if the mail-server has a problem
-            $msg = $this->container->get('translator')->trans('web.pre.view.test.mail.failed.for.%template%.to.%email%', array('%template%' => $template, '%email%' => $email));
-            $flashBag->add('warn', $msg);
-            //@codeCoverageIgnoreStart
-        }
-
-        // show the index page again.
-        return new RedirectResponse($this->container->get('router')->generate('azine_email_template_index', array('customEmail' => $email)));
+        unset($value);
     }
 
     /**
-     * Make an RESTful call to http://spamcheck.postmarkapp.com/filter to test the emails-spam-index.
-     * See http://spamcheck.postmarkapp.com/doc.
-     *
-     * @return array TestResult array('success', 'message', 'curlHttpCode', 'curlError', ['score', 'report'])
+     * @return array<string, string>
      */
-    public function getSpamIndexReportForSwiftMessage(\Swift_Message $message, $report = 'long')
+    private function parseAddresses(string $email): array
     {
-        return $this->getSpamIndexReport($message->toString(), $report);
-    }
-
-    /**
-     * @param $msgString
-     * @param string $report
-     *
-     * @return mixed
-     */
-    private function getSpamIndexReport($msgString, $report = 'long')
-    {
-        // check if cURL is loaded/available
-        if (!function_exists('curl_init')) {
-            // @codeCoverageIgnoreStart
-            return array('success' => false,
-                            'curlHttpCode' => '-',
-                            'curlError' => '-',
-                            'message' => 'No Spam-Check done. cURL module is not available.',
-                    );
-            // @codeCoverageIgnoreEnd
-        }
-
-        $ch = curl_init('http://spamcheck.postmarkapp.com/filter');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        $data = array('email' => $msgString, 'options' => $report);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Accept: application/json'));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5); // max wait for 5sec for reply
-
-        $responseBody = curl_exec($ch);
-        $result = json_decode($responseBody ?: '', true);
-        if (!is_array($result)) {
-            $result = array();
-        }
-        $error = curl_error($ch);
-        $result['curlHttpCode'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if (strlen($error) > 0) {
-            $result['curlError'] = $error;
-        }
-
-        if (!array_key_exists('message', $result)) {
-            $result['message'] = '-';
-        }
-
-        if (!array_key_exists('success', $result)) {
-            $result['message'] = "Something went wrong! Here's the content of the curl-reply:\n\n".nl2br(print_r($result, true));
-        } elseif (!$result['success'] && false !== strpos($msgString, 'Content-Transfer-Encoding: base64')) {
-            $result['message'] = $result['message']."\n\nRemoving the base64-Encoded Mime-Parts might help.";
-        }
-
-        return $result;
-    }
-
-    /**
-     * Ajax action to check the spam-score for the pasted email-source.
-     */
-    public function checkSpamScoreOfSentEmailAction(Request $request)
-    {
-        $msgString = $request->get('emailSource');
-        $spamReport = $this->getSpamIndexReport($msgString);
-        $spamInfo = '';
-        if (is_array($spamReport)) {
-            if (array_key_exists('curlHttpCode', $spamReport) && 200 == $spamReport['curlHttpCode'] && $spamReport['success'] && array_key_exists('score', $spamReport)) {
-                $spamScore = $spamReport['score'];
-                $spamInfo = "SpamScore: $spamScore! \n".$spamReport['report'];
-            //@codeCoverageIgnoreStart
-                // this only happens if the spam-check-server has a problem / is not responding
-            } else {
-                if (array_key_exists('curlHttpCode', $spamReport) && array_key_exists('curlError', $spamReport) && array_key_exists('message', $spamReport)) {
-                    $spamInfo = 'Getting the spam-info failed.
-                    HttpCode: '.$spamReport['curlHttpCode'].'
-                    cURL-Error: '.$spamReport['curlError'].'
-                    SpamReportMsg: '.$spamReport['message'];
-                } elseif (null !== $spamReport && is_array($spamReport)) {
-                    $spamInfo = 'Getting the spam-info failed. This was returned:
----Start----------------------------------------------
-'.implode(";\n", $spamReport).'
----End------------------------------------------------';
-                }
-                //@codeCoverageIgnoreEnd
+        $recipients = [];
+        foreach (mailparse_rfc822_parse_addresses($email) as $parsedAddress) {
+            $address = (string) ($parsedAddress['address'] ?? '');
+            if ('' === $address || false === filter_var($address, FILTER_VALIDATE_EMAIL)) {
+                continue;
             }
+
+            $recipients[$address] = (string) ($parsedAddress['display'] ?? 'Test-Mail-Recipient');
         }
 
-        return new JsonResponse(array('result' => $spamInfo));
+        if ([] === $recipients) {
+            throw new \InvalidArgumentException(sprintf('No valid email address was found in "%s".', $email));
+        }
+
+        return $recipients;
+    }
+
+    /**
+     * @return array{0: string, 1: string}|null
+     */
+    private function formatSpamReport(array $spamReport): ?array
+    {
+        if (Response::HTTP_OK === ($spamReport['curlHttpCode'] ?? null) && true === ($spamReport['success'] ?? false)) {
+            $score = (float) ($spamReport['score'] ?? 10);
+            $info = sprintf("SpamScore: %s! \n%s", $score, (string) ($spamReport['report'] ?? ''));
+
+            return [
+                $score <= 2 ? 'info' : ($score < 5 ? 'warn' : 'error'),
+                $info,
+            ];
+        }
+
+        $info = sprintf(
+            "Getting the spam-info failed.\nHttpCode: %s\nSpamReportMsg: %s",
+            (string) ($spamReport['curlHttpCode'] ?? '-'),
+            (string) ($spamReport['message'] ?? '-'),
+        );
+        if (isset($spamReport['curlError'])) {
+            $info .= "\ncURL-Error: ".(string) $spamReport['curlError'];
+        }
+
+        return ['error', $info];
+    }
+
+    private function renderTemplate(string $template, array $parameters, int $status = Response::HTTP_OK): Response
+    {
+        return new Response($this->twig->render($template, $parameters), $status);
+    }
+
+    private function templateFile(string $templateBase, string $format): string
+    {
+        return $this->normalizeTemplateBase($templateBase).'.'.$format.'.twig';
+    }
+
+    private function normalizeTemplateBase(string $template): string
+    {
+        if (str_starts_with($template, '@')) {
+            return $template;
+        }
+
+        if (!str_contains($template, ':')) {
+            return $template;
+        }
+
+        $parts = explode(':', $template);
+        $bundle = preg_replace('/Bundle$/', '', array_shift($parts) ?? '') ?: '';
+        $path = implode('/', array_values(array_filter($parts, static fn (string $part): bool => '' !== $part)));
+
+        return '@'.$bundle.('/' === substr($bundle, -1) || '' === $path ? '' : '/').$path;
+    }
+
+    private function appendBeforeClosingTag(string $content, string $addition, string $closingTag): string
+    {
+        $position = stripos($content, $closingTag);
+
+        return false === $position
+            ? $content.$addition
+            : substr_replace($content, $addition, $position, 0);
     }
 }
