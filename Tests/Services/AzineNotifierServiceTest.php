@@ -1,257 +1,369 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\Notification;
 use Azine\EmailBundle\Entity\RecipientInterface;
+use Azine\EmailBundle\Entity\Repositories\NotificationRepository;
 use Azine\EmailBundle\Services\AzineNotifierService;
-use Azine\EmailBundle\Services\AzineTemplateProvider;
-use Azine\EmailBundle\Services\ExampleNotifierService;
+use Azine\EmailBundle\Services\RecipientProviderInterface;
+use Azine\EmailBundle\Services\TemplateProviderInterface;
+use Azine\EmailBundle\Services\TemplateTwigMailerInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
-class AzineNotifierServiceTest extends \PHPUnit\Framework\TestCase
+class AzineNotifierServiceTest extends TestCase
 {
-    private function getMockSetup()
+    public function testAddNotificationPersistsAllValues(): void
     {
-        $mocks = array();
-        $mocks['mailer'] = $this->getMockBuilder("Azine\EmailBundle\Services\TemplateTwigSwiftMailerInterface")->disableOriginalConstructor()->getMock();
-        $mocks['twig'] = $this->getMockBuilder("\Twig_Environment")->disableOriginalConstructor()->getMock();
-        $mocks['router'] = $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
-        $mocks['entityManager'] = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
-        $mocks['notificationRepository'] = $this->getMockBuilder("Azine\EmailBundle\Entity\Repositories\NotificationRepository")->disableOriginalConstructor()->getMock();
-        $mocks['managerRegistry'] = $this->getMockBuilder("Doctrine\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
-        $mocks['managerRegistry']->expects($this->any())->method('getManager')->will($this->returnValue($mocks['entityManager']));
-        $mocks['managerRegistry']->expects($this->any())->method('getRepository')->will($this->returnValue($mocks['notificationRepository']));
-        $mocks['templateProvider'] = $this->getMockBuilder("Azine\EmailBundle\Services\TemplateProviderInterface")->disableOriginalConstructor()->getMock();
-        $mocks['recipientProvider'] = $this->getMockBuilder("Azine\EmailBundle\Services\RecipientProviderInterface")->disableOriginalConstructor()->getMock();
-        $mocks['translator'] = $this->getMockBuilder("Symfony\Bundle\FrameworkBundle\Translation\Translator")->disableOriginalConstructor()->getMock();
-        $mocks['parameters'] = array(
-                                AzineEmailExtension::NEWSLETTER.'_'.AzineEmailExtension::NEWSLETTER_INTERVAL => '7',
-                                AzineEmailExtension::NEWSLETTER.'_'.AzineEmailExtension::NEWSLETTER_SEND_TIME => '09:00',
-                                AzineEmailExtension::TEMPLATES.'_'.AzineEmailExtension::NEWSLETTER_TEMPLATE => AzineTemplateProvider::NEWSLETTER_TEMPLATE,
-                                AzineEmailExtension::TEMPLATES.'_'.AzineEmailExtension::NOTIFICATIONS_TEMPLATE => AzineTemplateProvider::NOTIFICATIONS_TEMPLATE,
-                                AzineEmailExtension::TEMPLATES.'_'.AzineEmailExtension::CONTENT_ITEM_TEMPLATE => AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE,
-                                    );
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager
+            ->expects(self::once())
+            ->method('persist')
+            ->with(self::isInstanceOf(Notification::class));
+        $entityManager->expects(self::once())->method('flush');
 
-        return $mocks;
+        $notifier = $this->createNotifier(entityManager: $entityManager);
+        $notification = $notifier->addNotification(
+            12,
+            'A title',
+            'Some content',
+            '@App/Email/item',
+            ['foo' => 'bar'],
+            1,
+            true,
+        );
+
+        self::assertSame('12', (string) $notification->getRecipientId());
+        self::assertSame('A title', $notification->getTitle());
+        self::assertSame('Some content', $notification->getContent());
+        self::assertSame('@App/Email/item', $notification->getTemplate());
+        self::assertSame(['foo' => 'bar'], $notification->getVariables());
+        self::assertTrue($notification->getSendImmediately());
     }
 
-    public function testAddNotification()
+    public function testAddNotificationMessageUsesConfiguredContentTemplate(): void
     {
-        $mocks = $this->getMockSetup();
-        $mocks['entityManager']->expects($this->once())->method('persist');
-        $notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager
+            ->expects(self::once())
+            ->method('persist')
+            ->with(self::callback(static function (Notification $notification): bool {
+                return '@App/Email/message' === $notification->getTemplate()
+                    && ['goToUrl' => 'https://azine.me/messages', 'base' => 'value'] === $notification->getVariables();
+            }));
+        $entityManager->expects(self::once())->method('flush');
 
-        $n = $notifier->addNotification('12', 'title', 'content', 'template', array('templateVars'), 1, false);
+        $templateProvider = $this->createMock(TemplateProviderInterface::class);
+        $templateProvider
+            ->expects(self::once())
+            ->method('addTemplateVariablesFor')
+            ->with('@App/Email/message', ['goToUrl' => 'https://azine.me/messages'])
+            ->willReturn(['goToUrl' => 'https://azine.me/messages', 'base' => 'value']);
 
-        $this->assertSame('12', $n->getRecipientId());
-        $this->assertSame('title', $n->getTitle());
-        $this->assertSame('template', $n->getTemplate());
-        $this->assertSame(array('templateVars'), $n->getVariables());
+        $this->createNotifier(
+            entityManager: $entityManager,
+            templateProvider: $templateProvider,
+        )->addNotificationMessage(
+            12,
+            'Message title',
+            'Message body',
+            'https://azine.me/messages',
+        );
     }
 
-    public function testAddNotificationMessage()
+    public function testNewsletterSendsPerRecipientAndCollectsFailures(): void
     {
-        $goToUrl = 'http://azine.email/this/is/a/url';
-        $templateVars = array('logo_png' => '/some/directory/logo.png', 'mainColor' => 'green');
-        $mocks = $this->getMockSetup();
-        $mocks['entityManager']->expects($this->once())->method('persist');
-        $mocks['templateProvider']->expects($this->once())->method('addTemplateVariablesFor')->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE, array('goToUrl' => $goToUrl))->will($this->returnValue(array_merge(array('goToUrl' => $goToUrl), $templateVars)));
-        $notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
+        $first = $this->createRecipient(11, 'first@example.com');
+        $second = $this->createRecipient(12, 'failed@example.com');
 
-        $notifier->addNotificationMessage('12', 'some title', "some content with \nline breaks.", $goToUrl);
+        $recipientProvider = $this->createMock(RecipientProviderInterface::class);
+        $recipientProvider->method('getNewsletterRecipientIDs')->willReturn([11, 12]);
+        $recipientProvider
+            ->method('getRecipient')
+            ->willReturnMap([[11, $first], [12, $second]]);
 
-        $mocks = $this->getMockSetup();
-        $mocks['entityManager']->expects($this->once())->method('persist');
-        $mocks['templateProvider']->expects($this->once())->method('addTemplateVariablesFor')->with(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE, array())->will($this->returnValue($templateVars));
-        $notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
+        $mailer = $this->createMock(TemplateTwigMailerInterface::class);
+        $mailer
+            ->expects(self::exactly(2))
+            ->method('sendSingleEmail')
+            ->willReturnCallback(static fn (string $email): bool => 'failed@example.com' !== $email);
 
-        $notifier->addNotificationMessage('12', 'some title', "some content with \nline breaks.");
+        $failedAddresses = [];
+        $sent = $this->createNotifier(
+            mailer: $mailer,
+            recipientProvider: $recipientProvider,
+            withNewsletterContent: true,
+        )->sendNewsletter($failedAddresses);
+
+        self::assertSame(1, $sent);
+        self::assertSame(['failed@example.com'], $failedAddresses);
     }
 
-    public function testSendNewsletter()
+    public function testNewsletterWithoutContentIsReportedAsFailedAndNotSent(): void
     {
-        $failedAddresses = array();
-        $recipientIds = array(11, 12, 13, 14);
-        $mocks = $this->getMockSetup();
-        $this->mockRecipients($mocks['recipientProvider'], $recipientIds);
-        $mocks['recipientProvider']->expects($this->once())->method('getNewsletterRecipientIDs')->will($this->returnValue($recipientIds));
-        $mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method('sendSingleEmail')->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
+        $recipient = $this->createRecipient(11, 'recipient@example.com');
+        $recipientProvider = $this->createMock(RecipientProviderInterface::class);
+        $recipientProvider->method('getNewsletterRecipientIDs')->willReturn([11]);
+        $recipientProvider->method('getRecipient')->willReturn($recipient);
 
-        $mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method('sendSingleEmail');
+        $mailer = $this->createMock(TemplateTwigMailerInterface::class);
+        $mailer->expects(self::never())->method('sendSingleEmail');
 
-        $notifier = new ExampleNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
-        $sentMails = $notifier->sendNewsletter($failedAddresses);
-        $this->assertSame(1, sizeof($failedAddresses));
-        $this->assertSame(sizeof($recipientIds) - 1, $sentMails);
+        $failedAddresses = [];
+        $sent = $this->createNotifier(
+            mailer: $mailer,
+            recipientProvider: $recipientProvider,
+        )->sendNewsletter($failedAddresses);
+
+        self::assertSame(0, $sent);
+        self::assertSame(['recipient@example.com'], $failedAddresses);
     }
 
-    public function sendSingleEmailCallBack($email, $displayName, $params, $wrapperTemplate, $locale)
+    public function testNotificationDeliveryMarksItemsAsSent(): void
     {
-        if ('11mail@email.com' == $email) {
-            return false;
+        $recipient = $this->createRecipient(
+            11,
+            'recipient@example.com',
+            RecipientInterface::NOTIFICATION_MODE_IMMEDIATELY,
+        );
+        $notification = (new Notification())
+            ->setTitle('A title')
+            ->setContent('A body')
+            ->setTemplate('@App/Email/item')
+            ->setVariables(['foo' => 'bar']);
+
+        $repository = $this->createNotificationRepository();
+        $repository->method('getNotificationRecipientIds')->willReturn([11]);
+        $repository->method('getLastNotificationDate')->with(11)->willReturn(new \DateTime('@0'));
+        $repository->method('getNotificationsToSend')->with(11)->willReturn([$notification]);
+
+        $recipientProvider = $this->createMock(RecipientProviderInterface::class);
+        $recipientProvider->method('getRecipient')->with(11)->willReturn($recipient);
+
+        $mailer = $this->createMock(TemplateTwigMailerInterface::class);
+        $mailer
+            ->expects(self::once())
+            ->method('sendSingleEmail')
+            ->with(
+                'recipient@example.com',
+                'Recipient 11',
+                'A title',
+                self::callback(static fn (array $params): bool => isset($params[AzineNotifierService::CONTENT_ITEMS])),
+                '@App/Email/notifications.txt.twig',
+                'en',
+            )
+            ->willReturn(true);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist')->with($notification);
+        $entityManager->expects(self::once())->method('flush');
+
+        $failedAddresses = [];
+        $sent = $this->createNotifier(
+            mailer: $mailer,
+            recipientProvider: $recipientProvider,
+            notificationRepository: $repository,
+            entityManager: $entityManager,
+        )->sendNotifications($failedAddresses);
+
+        self::assertSame(1, $sent);
+        self::assertSame([], $failedAddresses);
+        self::assertInstanceOf(\DateTime::class, $notification->getSent());
+    }
+
+    public function testNeverModeMarksPendingNotificationsAsHandledWithoutSending(): void
+    {
+        $recipient = $this->createRecipient(
+            11,
+            'recipient@example.com',
+            RecipientInterface::NOTIFICATION_MODE_NEVER,
+        );
+        $repository = $this->createNotificationRepository();
+        $repository->method('getNotificationRecipientIds')->willReturn([11]);
+        $repository->method('getLastNotificationDate')->willReturn(new \DateTime('@0'));
+        $repository
+            ->expects(self::once())
+            ->method('markAllNotificationsAsSentFarInThePast')
+            ->with(11);
+
+        $recipientProvider = $this->createMock(RecipientProviderInterface::class);
+        $recipientProvider->method('getRecipient')->willReturn($recipient);
+
+        $mailer = $this->createMock(TemplateTwigMailerInterface::class);
+        $mailer->expects(self::never())->method('sendSingleEmail');
+
+        $failedAddresses = [];
+        $sent = $this->createNotifier(
+            mailer: $mailer,
+            recipientProvider: $recipientProvider,
+            notificationRepository: $repository,
+        )->sendNotifications($failedAddresses);
+
+        self::assertSame(1, $sent);
+        self::assertSame([], $failedAddresses);
+    }
+
+    public function testPluralNotificationSubjectUsesModernTranslatorApi(): void
+    {
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator
+            ->expects(self::once())
+            ->method('trans')
+            ->with('_az.email.notifications.subject.%count%', ['%count%' => 2])
+            ->willReturn('2 notifications');
+
+        $subject = $this->createNotifier(translator: $translator)
+            ->getRecipientSpecificNotificationsSubject(
+                [['item' => []], ['item' => []]],
+                $this->createRecipient(11, 'recipient@example.com'),
+            );
+
+        self::assertSame('2 notifications', $subject);
+    }
+
+    public function testNewsletterScheduleRetainsConfiguredIntervalAndTime(): void
+    {
+        $notifier = $this->createNotifier();
+
+        self::assertSame('09:00', $notifier->newsletterSendTime());
+        self::assertSame(7, $notifier->newsletterInterval());
+        self::assertSame(9, (int) $notifier->lastNewsletterDate()->format('H'));
+        self::assertSame(9, (int) $notifier->nextNewsletterDate()->format('H'));
+    }
+
+    private function createNotifier(
+        ?TemplateTwigMailerInterface $mailer = null,
+        ?RecipientProviderInterface $recipientProvider = null,
+        ?TemplateProviderInterface $templateProvider = null,
+        ?NotificationRepository $notificationRepository = null,
+        ?EntityManagerInterface $entityManager = null,
+        ?TranslatorInterface $translator = null,
+        bool $withNewsletterContent = false,
+    ): TestNotifierService {
+        $mailer ??= $this->createMock(TemplateTwigMailerInterface::class);
+        $recipientProvider ??= $this->createMock(RecipientProviderInterface::class);
+        $templateProvider ??= $this->createMock(TemplateProviderInterface::class);
+        $notificationRepository ??= $this->createNotificationRepository();
+        $entityManager ??= $this->createMock(EntityManagerInterface::class);
+        if (null === $translator) {
+            $translator = $this->createMock(TranslatorInterface::class);
+            $translator->method('trans')->willReturnArgument(0);
         }
 
-        return true;
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->method('getManager')->willReturn($entityManager);
+        $registry
+            ->method('getRepository')
+            ->with(Notification::class)
+            ->willReturn($notificationRepository);
+
+        return new TestNotifierService(
+            $mailer,
+            $this->createMock(Environment::class),
+            $this->createMock(UrlGeneratorInterface::class),
+            $registry,
+            $templateProvider,
+            $recipientProvider,
+            $translator,
+            [
+                AzineEmailExtension::NEWSLETTER.'_'.AzineEmailExtension::NEWSLETTER_INTERVAL => 7,
+                AzineEmailExtension::NEWSLETTER.'_'.AzineEmailExtension::NEWSLETTER_SEND_TIME => '09:00',
+                AzineEmailExtension::TEMPLATES.'_'.AzineEmailExtension::NEWSLETTER_TEMPLATE => '@App/Email/newsletter',
+                AzineEmailExtension::TEMPLATES.'_'.AzineEmailExtension::NOTIFICATIONS_TEMPLATE => '@App/Email/notifications',
+                AzineEmailExtension::TEMPLATES.'_'.AzineEmailExtension::CONTENT_ITEM_TEMPLATE => '@App/Email/message',
+            ],
+            $withNewsletterContent,
+        );
     }
 
-    public function testSendNewsletter_NoContent()
+    private function createNotificationRepository(): NotificationRepository
     {
-        $failedAddresses = array();
-        $recipientIds = array(11, 12, 13, 14);
-        $mocks = $this->getMockSetup();
-        $this->mockRecipients($mocks['recipientProvider'], $recipientIds);
-        $mocks['recipientProvider']->expects($this->once())->method('getNewsletterRecipientIDs')->will($this->returnValue($recipientIds));
-
-        $mocks['mailer']->expects($this->never())->method('sendSingleEmail');
-
-        $notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
-        $sentMails = $notifier->sendNewsletter($failedAddresses);
-        $this->assertSame(4, sizeof($failedAddresses), 'Email-addresses failed unexpectedly:'.print_r($failedAddresses, true));
-        $this->assertSame(0, $sentMails, 'Not the expected number of sent emails.');
+        return $this->getMockBuilder(NotificationRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([
+                'getNotificationRecipientIds',
+                'getLastNotificationDate',
+                'getNotificationsToSend',
+                'getNotificationsToSendImmediately',
+                'markAllNotificationsAsSentFarInThePast',
+            ])
+            ->getMock();
     }
 
-    public function testSendNotificationsAzineNotifierService()
-    {
-        $failedAddresses = array();
-        $recipientIds = array(11, 12, 13, 14);
-        $mocks = $this->getMockSetup();
-        $this->mockRecipients($mocks['recipientProvider'], $recipientIds);
-        $mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method('sendSingleEmail')->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
+    private function createRecipient(
+        int $id,
+        string $email,
+        int $notificationMode = RecipientInterface::NOTIFICATION_MODE_IMMEDIATELY,
+    ): RecipientInterface {
+        $recipient = $this->createMock(RecipientInterface::class);
+        $recipient->method('getId')->willReturn($id);
+        $recipient->method('getEmail')->willReturn($email);
+        $recipient->method('getDisplayName')->willReturn('Recipient '.$id);
+        $recipient->method('getPreferredLocale')->willReturn('en');
+        $recipient->method('getNotificationMode')->willReturn($notificationMode);
+        $recipient->method('getNewsletter')->willReturn(true);
 
-        $notification = new Notification();
-        $notification->setContent('bla bla');
-        $notification->setCreated(new \DateTime());
-        $notification->setImportance(0);
-        $notification->setTemplate(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE);
-        $notification->setVariables(array('blabla' => 'blablaValue'));
-        $notification->setTitle('a title');
+        return $recipient;
+    }
+}
 
-        $mocks['notificationRepository']->expects($this->once())->method('getNotificationRecipientIds')->will($this->returnValue($recipientIds));
-        $mocks['notificationRepository']->expects($this->exactly(4))->method('getNotificationsToSend')->will($this->returnValue(array($notification)));
-        $mocks['notificationRepository']->expects($this->never())->method('getNotificationsToSendImmediately');
-        $mocks['notificationRepository']->expects($this->never())->method('markAllNotificationsAsSentFarInThePast');
-        $mocks['notificationRepository']->expects($this->exactly(4))->method('getLastNotificationDate')->will($this->returnValue(new \DateTime('@0')));
-
-        $notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
-        $sentMails = $notifier->sendNotifications($failedAddresses);
-        $this->assertSame(1, sizeof($failedAddresses), 'One failed address was expected.');
-        $sentMailCount = count($recipientIds) - count($failedAddresses);
-        $this->assertSame($sentMailCount, $sentMails, "Not the right number of emails has been sent successfully. Expected $sentMailCount");
+final class TestNotifierService extends AzineNotifierService
+{
+    public function __construct(
+        TemplateTwigMailerInterface $mailer,
+        Environment $twig,
+        UrlGeneratorInterface $router,
+        ManagerRegistry $managerRegistry,
+        TemplateProviderInterface $templateProvider,
+        RecipientProviderInterface $recipientProvider,
+        TranslatorInterface $translatorService,
+        array $parameters,
+        private readonly bool $withNewsletterContent,
+    ) {
+        parent::__construct(
+            $mailer,
+            $twig,
+            $router,
+            $managerRegistry,
+            $templateProvider,
+            $recipientProvider,
+            $translatorService,
+            $parameters,
+        );
     }
 
-    public function testSendNotificationsAzineNotifierService_NoNotifications()
+    protected function getNonRecipientSpecificNewsletterContentItems()
     {
-        $failedAddresses = array();
-        $recipientIds = array(11, 12, 13, 14);
-        $mocks = $this->getMockSetup();
-        $this->mockRecipients($mocks['recipientProvider'], $recipientIds);
-        $mocks['mailer']->expects($this->never())->method('sendSingleEmail')->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
-
-        $mocks['notificationRepository']->expects($this->once())->method('getNotificationRecipientIds')->will($this->returnValue($recipientIds));
-        $mocks['notificationRepository']->expects($this->exactly(4))->method('getNotificationsToSend')->will($this->returnValue(array()));
-        $mocks['notificationRepository']->expects($this->never())->method('getNotificationsToSendImmediately');
-        $mocks['notificationRepository']->expects($this->never())->method('markAllNotificationsAsSentFarInThePast');
-        $mocks['notificationRepository']->expects($this->exactly(4))->method('getLastNotificationDate')->will($this->returnValue(new \DateTime('@0')));
-
-        $notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
-        $sentMails = $notifier->sendNotifications($failedAddresses);
-        $this->assertSame(0, sizeof($failedAddresses), 'Email-addresses failed unexpectedly:'.print_r($failedAddresses, true));
-        $this->assertSame(4, $sentMails, 'Not the expected number of sent emails.');
+        return $this->withNewsletterContent
+            ? [['@App/Email/item' => ['title' => 'General item']]]
+            : [];
     }
 
-    public function testSendNotificationsExampleNotifier()
+    public function newsletterSendTime(): string
     {
-        $failedAddresses = array();
-        $recipientIds = array(11, 12, 13, 14);
-        $mocks = $this->getMockSetup();
-        $this->mockRecipients($mocks['recipientProvider'], $recipientIds);
-        $mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method('sendSingleEmail')->will($this->returnCallback(array($this, 'sendSingleEmailCallBack')));
-
-        $notification = new Notification();
-        $notification->setContent('bla bla');
-        $notification->setCreated(new \DateTime());
-        $notification->setImportance(0);
-        $notification->setTemplate(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE);
-        $notification->setVariables(array('blabla' => 'blablaValue'));
-        $notification->setTitle('a title');
-
-        $mocks['notificationRepository']->expects($this->once())->method('getNotificationRecipientIds')->will($this->returnValue($recipientIds));
-        $mocks['notificationRepository']->expects($this->exactly(4))->method('getNotificationsToSend')->will($this->returnValue(array($notification)));
-        $mocks['notificationRepository']->expects($this->never())->method('getNotificationsToSendImmediately');
-        $mocks['notificationRepository']->expects($this->never())->method('markAllNotificationsAsSentFarInThePast');
-        $mocks['notificationRepository']->expects($this->exactly(4))->method('getLastNotificationDate')->will($this->returnValue(new \DateTime('@0')));
-
-        $mocks['mailer']->expects($this->exactly(sizeof($recipientIds)))->method('sendSingleEmail');
-
-        $notifier = new ExampleNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
-        $sentMails = $notifier->sendNotifications($failedAddresses);
-        $this->assertSame(1, sizeof($failedAddresses));
-        $this->assertSame(sizeof($recipientIds) - 1, $sentMails);
+        return (string) $this->getNewsletterSendTime();
     }
 
-    private function mockRecipients($mock, array $ids)
+    public function newsletterInterval(): int
     {
-        $notificationType = 0;
-        $notificationTypes = array(RecipientInterface::NOTIFICATION_MODE_IMMEDIATELY, RecipientInterface::NOTIFICATION_MODE_HOURLY, RecipientInterface::NOTIFICATION_MODE_DAYLY);
-        $valueMap = array();
-        foreach ($ids as $id) {
-            $recipientMock = $this->getMockBuilder("Azine\EmailBundle\Entity\RecipientInterface")->disableOriginalConstructor()->getMock();
-            $recipientMock->expects($this->any())->method('getEmail')->will($this->returnValue($id.'mail@email.com'));
-            $recipientMock->expects($this->any())->method('getDisplayName')->will($this->returnValue("DisplayName of $id"));
-            $recipientMock->expects($this->any())->method('getPreferredLocale')->will($this->returnValue('en'));
-            $recipientMock->expects($this->any())->method('getNotificationMode')->will($this->returnValue($notificationTypes[$notificationType % sizeof($notificationTypes)]));
-            ++$notificationType;
-            $valueMap[] = array($id, $recipientMock);
-        }
-
-        $mock->expects($this->exactly(sizeof($ids)))->method('getRecipient')->will($this->returnValueMap($valueMap));
+        return (int) $this->getNewsletterInterval();
     }
 
-    public function testProtectedMethods()
+    public function lastNewsletterDate(): \DateTime
     {
-        // create service-instance
-        $mocks = $this->getMockSetup();
-
-        $recipientIds = array(11, 12, 13, 14);
-        $mocks['recipientProvider']->expects($this->once())->method('getNewsletterRecipientIDs')->will($this->returnValue($recipientIds));
-
-        $notifier = new AzineNotifierService($mocks['mailer'], $mocks['twig'], $mocks['router'], $mocks['managerRegistry'], $mocks['templateProvider'], $mocks['recipientProvider'], $mocks['translator'], $mocks['parameters']);
-
-        // access the protected method and execute it
-        $returnValue = self::getMethod('getDateTimeOfLastNewsletter')->invokeArgs($notifier, array());
-        $this->assertInstanceOf('DateTime', $returnValue);
-        $lastDate = new \DateTime('7 days ago');
-        $lastDate->setTime(9, 0);
-        $this->assertSame($lastDate->getTimestamp(), $returnValue->getTimestamp());
-
-        $returnValue = self::getMethod('getDateTimeOfNextNewsletter')->invokeArgs($notifier, array());
-        $this->assertInstanceOf('DateTime', $returnValue);
-        $nextDate = new \DateTime('7 days');
-        $nextDate->setTime(9, 0);
-        $this->assertSame($nextDate->getTimestamp(), $returnValue->getTimestamp());
-
-        $returnValue = self::getMethod('getHourInterval')->invokeArgs($notifier, array());
-        $this->assertSame((60 * 60 - 3 * 60), $returnValue);
-
-        $returnValue = self::getMethod('getGeneralVarsForNewsletter')->invokeArgs($notifier, array());
-        $this->assertSame(sizeof($recipientIds), $returnValue['recipientCount']);
-
-        $recipientMock = $this->getMockBuilder("Azine\EmailBundle\Entity\RecipientInterface")->disableOriginalConstructor()->getMock();
-        $recipientMock->expects($this->any())->method('getId')->will($this->returnValue(11));
-
-        $returnValue = self::getMethod('markAllNotificationsAsSentFarInThePast')->invokeArgs($notifier, array($recipientMock));
+        return $this->getDateTimeOfLastNewsletter();
     }
 
-    /**
-     * @param string $name
-     */
-    private static function getMethod($name)
+    public function nextNewsletterDate(): \DateTime
     {
-        $class = new \ReflectionClass("Azine\EmailBundle\Services\AzineNotifierService");
-        $method = $class->getMethod($name);
-        $method->setAccessible(true);
-
-        return $method;
+        return $this->getDateTimeOfNextNewsletter();
     }
 }
