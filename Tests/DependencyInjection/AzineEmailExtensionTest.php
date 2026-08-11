@@ -15,8 +15,8 @@ class AzineEmailExtensionTest extends TestCase
         $container = $this->load([]);
 
         self::assertSame(
-            'Azine\\SomeBundle\\Entity\\User',
-            str_replace('Acme\\', 'Azine\\', (string) $container->getParameter('azine_email_recipient_class')),
+            'Acme\\SomeBundle\\Entity\\User',
+            $container->getParameter('azine_email_recipient_class'),
         );
         self::assertSame(
             'azine_email.example.template_provider',
@@ -123,7 +123,7 @@ class AzineEmailExtensionTest extends TestCase
         self::assertSame('TestRecipientClass', $container->getParameter('azine_email_recipient_class'));
         self::assertSame('some_field', $container->getParameter('azine_email_recipient_newsletter_field'));
         self::assertSame('/tmp', $container->getParameter('azine_email_image_dir'));
-        self::assertSame(['/tmp/'], $container->getParameter('azine_email_allowed_images_folders'));
+        self::assertSame(['/tmp'], $container->getParameter('azine_email_allowed_images_folders'));
         self::assertSame(7, $container->getParameter('azine_email_newsletter_interval'));
         self::assertSame('09:30', $container->getParameter('azine_email_newsletter_send_time'));
         self::assertSame(45, $container->getParameter('azine_email_web_view_retention'));
