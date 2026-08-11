@@ -117,8 +117,3 @@ services:
         class: Azine\EmailBundle\Command\RemoveOldWebViewEmailsCommand
         tags:
             - { name: console.command }
-
-    azine.clear_and_log_failed_mails_command:
-        class: Azine\EmailBundle\Command\ClearAndLogFailedMailsCommand
-        tags:
-            - { name: console.command }
