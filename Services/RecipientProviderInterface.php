@@ -1,29 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Services;
 
 use Azine\EmailBundle\Entity\RecipientInterface;
 
-/**
- * Interface with methods required by the AzineEmailBundle to send Notification/Newsletters via email.
- *
- * @author dominik
- */
 interface RecipientProviderInterface
 {
-    /**
-     * Get the recipient entity with the given id.
-     *
-     * @param int $id
-     *
-     * @return RecipientInterface
-     */
-    public function getRecipient($id);
+    public function getRecipient(int|string $id): RecipientInterface;
 
-    /**
-     * Get all recipient entities that like to recieve the newsletter.
-     *
-     * @return array of notibiable entity IDs
-     */
-    public function getNewsletterRecipientIDs();
+    /** @return list<int|string> */
+    public function getNewsletterRecipientIDs(): array;
 }
