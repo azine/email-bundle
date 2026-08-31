@@ -26,5 +26,5 @@ interface TemplateProviderInterface
 
     public function getWebViewTokenId();
 
-    public function getCampaignParamsFor($templateId, array $params = null);
+    public function getCampaignParamsFor($templateId, ?array $params = null);
 }

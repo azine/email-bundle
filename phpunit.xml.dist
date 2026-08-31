@@ -26,6 +26,5 @@
             <directory suffix=".php">Form</directory>
             <directory suffix=".php">Services</directory>
         </include>
-        <file>AzineEmailBundle.php</file>
     </source>
 </phpunit>

@@ -193,7 +193,7 @@ class AzineTemplateProvider implements TemplateProviderInterface
      *
      * @see Azine\EmailBundle\Services\TemplateProviderInterface::getCampaignParamsFor()
      */
-    public function getCampaignParamsFor($templateId, array $params = null)
+    public function getCampaignParamsFor($templateId, ?array $params = null)
     {
         $campaignParams = array(
             $this->tracking_params_campaign_medium => 'email',

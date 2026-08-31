@@ -228,7 +228,7 @@ class AzineEmailTemplateControllerTest extends TestCase
                 self::callback(static fn (array $recipients): bool => array_key_exists('recipient@example.com', $recipients)),
                 null,
                 'Test subject',
-                self::isType('array'),
+                self::isArray(),
                 '@App/Email/test.txt.twig',
                 'en',
                 'sender@example.com',

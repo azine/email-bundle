@@ -175,7 +175,7 @@ final class ImageWebViewTemplateProvider implements TemplateProviderInterface
         return 'azineEmailWebViewToken';
     }
 
-    public function getCampaignParamsFor($templateId, array $params = null)
+    public function getCampaignParamsFor($templateId, ?array $params = null)
     {
         return [];
     }
