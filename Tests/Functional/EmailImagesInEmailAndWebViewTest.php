@@ -1,303 +1,184 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Tests\Functional;
 
-use Azine\EmailBundle\Entity\Notification;
+use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Entity\SentEmail;
-use Azine\EmailBundle\Services\AzineNotifierService;
-use Azine\EmailBundle\Services\AzineTemplateProvider;
-use Azine\EmailBundle\Tests\FindInFileUtil;
-use Azine\EmailBundle\Tests\TestHelper;
-use Doctrine\ORM\EntityManager;
-use FOS\UserBundle\Model\User;
-use FOS\UserBundle\Model\UserManager;
-use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DomCrawler\Crawler;
+use Azine\EmailBundle\Services\AzineEmailTwigExtension;
+use Azine\EmailBundle\Services\AzineTwigMailer;
+use Azine\EmailBundle\Services\TemplateProviderInterface;
+use Azine\EmailBundle\Tests\LocaleAwareTranslatorStub;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
-class EmailImagesInEmailAndWebViewTest extends WebTestCase
+#[AllowMockObjectsWithoutExpectations]
+class EmailImagesInEmailAndWebViewTest extends TestCase
 {
-    /** @var User */
-    private $testRecipient;
-
-    /** @var string */
-    private $originalUserPassword;
-
-    /** @var string */
-    private $originalUserSalt;
-
-    /** @var ContainerInterface */
-    private $appContainer;
-
-    /** @var string */
-    private $uniqueId;
-
-    /** @var array */
-    private $testImages = array();
-
-    public function setUp()
+    public function testAllowedImageIsEmbeddedAndPersistedAsWebRelativeVariable(): void
     {
-        $this->uniqueId = md5(microtime().'_'.random_int(0, 1000));
+        $imagePath = tempnam(sys_get_temp_dir(), 'azine-email-image-');
+        self::assertIsString($imagePath);
+        file_put_contents($imagePath, file_get_contents(__DIR__.'/../../Resources/htmlTemplateImages/logo.png'));
 
-        // make sure there is an application
-        $this->checkApplication();
+        try {
+            $sentMessage = null;
+            $transport = $this->createMock(MailerInterface::class);
+            $transport
+                ->expects(self::once())
+                ->method('send')
+                ->willReturnCallback(static function (Email $message) use (&$sentMessage): void {
+                    $sentMessage = $message;
+                });
 
-        $this->appContainer = $this->getKernel()->getContainer();
+            $storedWebView = null;
+            $entityManager = $this->createMock(EntityManagerInterface::class);
+            $entityManager
+                ->expects(self::once())
+                ->method('persist')
+                ->with(self::callback(static function (SentEmail $email) use (&$storedWebView): bool {
+                    $storedWebView = $email;
 
-        // empty the spool directory
-        $this->cleanMailSpoolDirectory();
+                    return true;
+                }));
+            $entityManager->expects(self::once())->method('flush');
+            $entityManager->expects(self::once())->method('clear');
 
-        // create the test-recipient/user for this test
-        $this->testRecipient = $this->getTestRecipient();
+            $registry = $this->createMock(ManagerRegistry::class);
+            $registry->method('getManager')->willReturn($entityManager);
 
-        // copy sample-image to all allowed image folders
-        $allowedImageFolders = $this->appContainer->getParameter('azine_email_allowed_images_folders');
-        $allowedImageFolders[] = $this->appContainer->getParameter('azine_email_image_dir');
-        $allowedImageFolders = array_unique($allowedImageFolders);
-        $testImage = $this->uniqueId.'-test_image.jpg';
-        foreach ($allowedImageFolders as $nextAllowedImageFolder) {
-            $targetFile = realpath($nextAllowedImageFolder).'/'.$testImage;
-            copy(__DIR__.'/../../Resources/htmlTemplateImages/logo.png', $targetFile);
-            $this->testImages[] = $targetFile;
+            $router = $this->createMock(RouterInterface::class);
+            $router->method('getContext')->willReturn(new RequestContext());
+
+            $translator = new LocaleAwareTranslatorStub('en');
+
+            $provider = new ImageWebViewTemplateProvider($imagePath);
+            $twig = new Environment(new ArrayLoader([
+                'test.txt.twig' => <<<'TWIG'
+{% block body_text %}Image email for {{ name }}{% endblock %}
+{% block body_html %}<html><body><img src="{{ image }}" alt="logo">{{ name }}</body></html>{% endblock %}
+TWIG,
+            ]));
+
+            $mailer = new AzineTwigMailer(
+                $transport,
+                $router,
+                $twig,
+                $translator,
+                $provider,
+                $registry,
+                null,
+                new AzineEmailTwigExtension($provider, $translator),
+                [
+                    AzineEmailExtension::NO_REPLY => [
+                        AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS => 'no-reply@azine.me',
+                        AzineEmailExtension::NO_REPLY_EMAIL_NAME => 'Azine Mailer',
+                    ],
+                    'template' => [
+                        'confirmation' => 'test.txt.twig',
+                        'resetting' => 'test.txt.twig',
+                        'email_updating' => 'test.txt.twig',
+                    ],
+                    'from_email' => [
+                        'confirmation' => ['address' => 'no-reply@azine.me', 'sender_name' => 'Azine Mailer'],
+                        'resetting' => ['address' => 'no-reply@azine.me', 'sender_name' => 'Azine Mailer'],
+                    ],
+                ],
+            );
+
+            $message = null;
+            self::assertTrue($mailer->sendSingleEmail(
+                'recipient@example.com',
+                'Recipient',
+                'Embedded image test',
+                ['name' => 'Dominik', 'image' => $imagePath],
+                'test.txt.twig',
+                'en',
+                message: $message,
+            ));
+
+            self::assertSame($sentMessage, $message);
+            self::assertInstanceOf(Email::class, $sentMessage);
+            self::assertStringContainsString('src="cid:azine-', (string) $sentMessage->getHtmlBody());
+            self::assertCount(1, $sentMessage->getAttachments());
+
+            self::assertInstanceOf(SentEmail::class, $storedWebView);
+            self::assertSame(['recipient@example.com'], $storedWebView->getRecipients());
+            self::assertSame('/email/web-images/logo.png', $storedWebView->getVariables()['image']);
+            self::assertNotEmpty($storedWebView->getToken());
+        } finally {
+            @unlink($imagePath);
         }
     }
+}
 
-    public function testImagesEmbededAndReferencedInEmailAndImagesReferencedInWebView()
+final class ImageWebViewTemplateProvider implements TemplateProviderInterface
+{
+    public function __construct(private readonly string $imagePath)
     {
-        $uniqueSubject = 'email-subject-for-test-case-'.$this->uniqueId;
-        $notification = new Notification();
-        $notification->setCreatedValue();
-        $notification->setContent('content for'.$uniqueSubject);
-        $notification->setTitle('title for '.$uniqueSubject);
-        $notification->setTemplate(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE);
-        $notification->setRecipientId($this->testRecipient->getId());
-        $notification->setSendImmediately(false);
-        $notification->setImportance(Notification::IMPORTANCE_NORMAL);
-        $em = $this->getEntityManager();
-        $em->persist($notification);
-        $em->flush($notification);
-        $em->refresh($notification);
-
-        $contentItems = array(array(AzineTemplateProvider::CONTENT_ITEM_MESSAGE_TEMPLATE => array('notification' => $notification)));
-
-        $this->sendEmail($contentItems, $uniqueSubject);
-        $this->verifyEmbedding();
-        $this->verifyWebView();
     }
 
-    public function testImagesFromAllConfiguredAllowedFolders()
+    public function addTemplateVariablesFor($template, array $contentVariables)
     {
-        // create template/content-item to show all images
-        $contentItems = array();
-        foreach ($this->testImages as $testImage) {
-            $contentItems[] = array('AzineEmailBundle:contentItem:image-test-message' => array('title' => "message for $testImage", 'test_image' => $testImage, 'original_location' => "file: $testImage"));
-        }
-
-        $this->sendEmail($contentItems, 'email-subject-for-test-case-'.$this->uniqueId);
-        $this->verifyEmbedding();
-        $this->verifyWebView();
+        return $contentVariables;
     }
 
-    public function tearDown()
+    public function addTemplateSnippetsWithImagesFor($template, array $vars, $emailLocale, $forWebView = false)
     {
-        // revert the test-User password & salt
-        $this->testRecipient->setPassword($this->originalUserPassword);
-        $this->testRecipient->setSalt($this->originalUserSalt);
-        $this->getEntityManager()->flush();
-
-        // remove sample-image from all folders
-        foreach ($this->testImages as $testImage) {
-            unlink($testImage);
-        }
+        return $vars;
     }
 
-    private function sendEmail(array $contentItems, string $subjectLine)
+    public function addCustomHeaders($template, $message, array $params): void
     {
-        $notifierService = $this->appContainer->get('azine_email_notifier_service');
-
-        $params = array('subject' => $subjectLine);
-        $params = array_merge($params, $notifierService->getRecipientSpecificNewsletterParams($this->testRecipient));
-        $params[AzineNotifierService::CONTENT_ITEMS] = $contentItems;
-
-        $newsletterTemplate = 'AzineEmailBundle::newsletterEmailLayout';
-        $notifierService->sendNewsletterFor($this->testRecipient, $params, $newsletterTemplate);
     }
 
-    private function verifyWebView()
+    public function getTemplateImageDir()
     {
-        // find the webViewToken for the sent email & check the images in the webView
-        /** @var SentEmail $sentEmail */
-        $sentEmails = $this->getEntityManager()->getRepository(SentEmail::class)->createQueryBuilder('e')
-            ->where('e.recipients like :recipientEmail and e.variables like :uniqueId')
-            ->setParameter('recipientEmail', '%'.$this->testRecipient->getEmail().'%')
-            ->setParameter('uniqueId', '%'.$this->uniqueId.'%')
-            ->getQuery()
-            ->execute();
-        $this->assertSame(1, sizeof($sentEmails));
-        $sentEmail = $sentEmails[0];
+        return dirname($this->imagePath).DIRECTORY_SEPARATOR;
+    }
 
-        /** @var RouterInterface $router */
-        $router = $this->appContainer->get('router');
-        $router->getContext()->setParameter('_locale', $this->testRecipient->getPreferredLocale());
-        $router->getContext()->setPathInfo('/');
-        $webViewUrl = TestHelper::makeAbsolutPath($router->generate('azine_email_webview', array('token' => $sentEmail->getToken()), RouterInterface::ABSOLUTE_PATH),$this->testRecipient->getPreferredLocale());
-
-        $client = static::createClient();
-        $client->followRedirects();
-
-        // browse to webView
-        $this->loginTestUserIfRequired($client, $webViewUrl);
-        $crawler = $client->getCrawler();
-        $this->assertSame(200, $client->getResponse()->getStatusCode());
-
-        // check that the page loaded correctly and the referenced image urls load as well
-        $urls = array();
-        $crawler->filter('img')->each(function (Crawler $nextImage) use (&$urls) {
-            $urls[] = substr($nextImage->image()->getUri(), strpos($nextImage->image()->getUri(), '/en/'));
+    public function makeImagePathsWebRelative(array $emailVars, $locale)
+    {
+        array_walk_recursive($emailVars, function (&$value): void {
+            if ($value === $this->imagePath) {
+                $value = '/email/web-images/logo.png';
+            }
         });
 
-        foreach ($urls as $nextUrl) {
-            $nextUrl = TestHelper::makeAbsolutPath($nextUrl, $this->testRecipient->getPreferredLocale());
-            if(strpos($nextUrl, '/bundle/') == 0){
-                $this->assertFileExists($this->getKernel()->getProjectDir()."/web".$nextUrl);
-                continue;
-            }
-            $imageCrawler = $client->request('GET', $nextUrl);
-            $statusCode = $client->getResponse()->getStatusCode();
-            ($client->getRequest()->getUri());
-            $this->assertSame(200, $statusCode, 'Image failed to load correctly');
-        }
+        return $emailVars;
     }
 
-    private function verifyEmbedding()
+    public function isFileAllowed($filePath)
     {
-        // find the source of the sent email & check images
-        $messageFiles = $this->findTextInSpooledTestEmail($this->uniqueId);
-        $this->assertSame(1, sizeof($messageFiles));
-        $messageContent = file_get_contents($messageFiles[0]);
-
-        /** @var \Swift_Message $sentSwiftMessage */
-        $sentSwiftMessage = unserialize($messageContent);
-        $matches = array();
-        preg_match_all('/cid:(.*?generated)/', $sentSwiftMessage->getBody(), $matches);
-        $children = $sentSwiftMessage->getChildren();
-        foreach ($matches[1] as $match) {
-            $found = false;
-            foreach ($children as $child) {
-                if ($child instanceof \Swift_Image && $child->getId() == $match) {
-                    $found = true;
-                    break;
-                }
-            }
-            $this->assertTrue($found, 'image not found as embedded.');
-        }
+        return realpath((string) $filePath) === realpath($this->imagePath);
     }
 
-    private function loginTestUserIfRequired(Client $client, $url)
+    public function getFolderFrom($key)
     {
-        $crawler = $client->request('GET', $url);
-        // login if required
-        if (false !== stripos($crawler->filter('title')->text(), 'login')) {
-            $form = $crawler->filter('form')->form(array('_username' => $this->testRecipient->getUsername(), '_password' => $this->uniqueId));
-            $crawler = $client->submit($form);
-            $crawler = $client->request('GET', $url);
-        }
+        return false;
     }
 
-    /**
-     * @return EntityManager
-     */
-    private function getEntityManager()
+    public function saveWebViewFor($template)
     {
-        return $this->getKernel()->getContainer()->get('doctrine')->getManager();
+        return true;
     }
 
-    /**
-     * Check if the current setup is a full application.
-     * If not, mark the test as skipped else continue.
-     */
-    private function checkApplication()
+    public function getWebViewTokenId()
     {
-        try {
-            $this->getKernel();
-        } catch (\RuntimeException $ex) {
-            $this->markTestSkipped('There does not seem to be a full application available (e.g. running tests on travis.org). So this test is skipped.');
-
-            return;
-        }
+        return 'azineEmailWebViewToken';
     }
 
-    /**
-     * Delete all files in the spool directory.
-     */
-    private function cleanMailSpoolDirectory()
+    public function getCampaignParamsFor($templateId, ?array $params = null)
     {
-        $files = glob($this->getSpoolDirectory().'/*');
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
-        }
-    }
-
-    /**
-     * @return \AppKernel
-     */
-    private function getKernel()
-    {
-        if (null == static::$kernel) {
-            static::$kernel = static::createKernel();
-            static::$kernel->boot();
-        }
-
-        return static::$kernel;
-    }
-
-    /**
-     * Search for a spooled email with the given string in its content.
-     *
-     * @param string $searchString
-     *
-     * @return array of files with the searchString
-     */
-    private function findTextInSpooledTestEmail($searchString)
-    {
-        $findInFile = new FindInFileUtil();
-        $findInFile->excludeMode = false;
-        $findInFile->formats = array('.message');
-        $result = $findInFile->find($this->getSpoolDirectory(), $searchString);
-
-        return $result;
-    }
-
-    /**
-     * Get the configured spool directory.
-     *
-     * @return string
-     */
-    private function getSpoolDirectory()
-    {
-        return $this->getKernel()->getContainer()->getParameter('swiftmailer.spool.defaultMailer.file.path');
-    }
-
-    /**
-     * @return User
-     *
-     * @throws \Exception
-     */
-    private function getTestRecipient()
-    {
-        /** @var UserManager $userManager */
-        $userManager = $this->appContainer->get('fos_user.user_manager');
-        /** @var User $testUser */
-        $testUser = $userManager->findUsers()[0];
-        $this->originalUserPassword = $testUser->getPassword();
-        $this->originalUserSalt = $testUser->getSalt();
-        $testUser->setPlainPassword($this->uniqueId);
-        $userManager->updateUser($testUser, true);
-
-        return $testUser;
+        return [];
     }
 }

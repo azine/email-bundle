@@ -1,56 +1,106 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Tests\Services;
 
+use Azine\EmailBundle\Entity\RecipientInterface;
 use Azine\EmailBundle\Services\AzineRecipientProvider;
-use Azine\EmailBundle\Tests\AzineQueryMock;
-use Doctrine\DBAL\LockMode;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\TestCase;
 
-class AzineRecipientProviderTest extends \PHPUnit\Framework\TestCase
+#[AllowMockObjectsWithoutExpectations]
+class AzineRecipientProviderTest extends TestCase
 {
-    public function testGetRecipient()
+    public function testGetRecipient(): void
     {
-        $id = 11;
+        $recipient = $this->createMock(RecipientInterface::class);
+        $recipient->method('getId')->willReturn(11);
 
-        $recipientMock = $this->getMockBuilder("Azine\EmailBundle\Entity\RecipientInterface")->disableOriginalConstructor()->getMock();
-        $recipientMock->expects($this->once())->method('getId')->will($this->returnValue($id));
+        $repository = $this->getMockBuilder(EntityRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['find'])
+            ->getMock();
+        $repository->expects(self::once())->method('find')->with(11)->willReturn($recipient);
 
-        $repositoryMock = $this->getMockBuilder("Doctrine\ORM\EntityRepository")->disableOriginalConstructor()->getMock();
-        $repositoryMock->expects($this->once())->method('find')->with($id, LockMode::NONE, null)->will($this->returnValue($recipientMock));
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('getRepository')->with('a-user-class')->willReturn($repository);
 
-        $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
-        $entityManagerMock->expects($this->once())->method('getRepository')->will($this->returnValue($repositoryMock));
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->method('getManager')->willReturn($entityManager);
 
-        $managerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
-        $managerRegistryMock->expects($this->any())->method('getManager')->will($this->returnValue($entityManagerMock));
+        $provider = new AzineRecipientProvider($registry, 'a-user-class', 'newsletterField');
 
-        $recipientProvider = new AzineRecipientProvider($managerRegistryMock, 'a-user-class', 'newsletterField');
-
-        $recipient = $recipientProvider->getRecipient($id);
-        $this->assertSame($id, $recipient->getId());
+        self::assertSame($recipient, $provider->getRecipient(11));
     }
 
-    public function testGetNewsletterRecipientIDs()
+    public function testMissingRecipientThrowsUsefulException(): void
     {
-        $queryResult = array(array('id' => 11), array('id' => 12), array('id' => 13), array('id' => 14));
-        $recipientsArray = array(11, 12, 13, 14);
+        $repository = $this->getMockBuilder(EntityRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['find'])
+            ->getMock();
+        $repository->method('find')->willReturn(null);
 
-        $queryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $queryBuilderMock->expects($this->once())->method('select')->will($this->returnSelf());
-        $queryBuilderMock->expects($this->once())->method('from')->will($this->returnSelf());
-        $queryBuilderMock->expects($this->once())->method('where')->will($this->returnSelf());
-        $queryBuilderMock->expects($this->once())->method('andWhere')->will($this->returnSelf());
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getRepository')->willReturn($repository);
 
-        $queryBuilderMock->expects($this->once())->method('getQuery')->will($this->returnValue(new AzineQueryMock($queryResult)));
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->method('getManager')->willReturn($entityManager);
 
-        $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
-        $entityManagerMock->expects($this->once())->method('createQueryBuilder')->will($this->returnValue($queryBuilderMock));
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('No recipient');
 
-        $managerRegistryMock = $this->getMockBuilder("Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
-        $managerRegistryMock->expects($this->any())->method('getManager')->will($this->returnValue($entityManagerMock));
+        (new AzineRecipientProvider($registry, 'a-user-class', 'newsletterField'))->getRecipient(11);
+    }
 
-        $recipientProvider = new AzineRecipientProvider($managerRegistryMock, 'a-user-class', 'newsletterField');
-        $recipients = $recipientProvider->getNewsletterRecipientIDs();
-        $this->assertSame($recipientsArray, $recipients);
+    public function testGetNewsletterRecipientIds(): void
+    {
+        $query = $this->getMockBuilder(Query::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getArrayResult'])
+            ->getMock();
+        $query
+            ->expects(self::once())
+            ->method('getArrayResult')
+            ->willReturn([
+                ['id' => 11],
+                ['id' => 12],
+                ['id' => 13],
+                ['id' => 14],
+            ]);
+
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['select', 'from', 'where', 'andWhere', 'getQuery'])
+            ->getMock();
+        $queryBuilder->expects(self::once())->method('select')->with('recipient.id')->willReturnSelf();
+        $queryBuilder->expects(self::once())->method('from')->with('a-user-class', 'recipient')->willReturnSelf();
+        $queryBuilder
+            ->expects(self::once())
+            ->method('where')
+            ->with('recipient.newsletterField = true')
+            ->willReturnSelf();
+        $queryBuilder
+            ->expects(self::once())
+            ->method('andWhere')
+            ->with('recipient.enabled = true')
+            ->willReturnSelf();
+        $queryBuilder->expects(self::once())->method('getQuery')->willReturn($query);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->method('getManager')->willReturn($entityManager);
+
+        $provider = new AzineRecipientProvider($registry, 'a-user-class', 'newsletterField');
+
+        self::assertSame([11, 12, 13, 14], $provider->getNewsletterRecipientIDs());
     }
 }

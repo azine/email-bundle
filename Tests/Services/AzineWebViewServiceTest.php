@@ -1,88 +1,67 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Services\AzineWebViewService;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class AzineWebViewServiceTest extends \PHPUnit\Framework\TestCase
+#[AllowMockObjectsWithoutExpectations]
+class AzineWebViewServiceTest extends TestCase
 {
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject mock of the UrlGeneratorInterface
-     */
-    private function getMockRouter()
+    public function testDefaultCollectionsAreArrays(): void
     {
-        return $this->getMockBuilder("Symfony\Component\Routing\Generator\UrlGeneratorInterface")->disableOriginalConstructor()->getMock();
+        $service = new AzineWebViewService($this->createMock(UrlGeneratorInterface::class));
+
+        self::assertIsArray($service->getTemplatesForWebPreView());
+        self::assertIsArray($service->getTestMailAccounts());
+        self::assertIsArray($service->getDummyVarsFor('some template', 'de'));
     }
 
-    public function testGetTemplatesForWebView()
+    public function testAddTestMailAccount(): void
     {
-        $routerMock = $this->getMockRouter();
-        $webViewService = new AzineWebViewService($routerMock);
+        $service = new AzineWebViewService($this->createMock(UrlGeneratorInterface::class));
+        $method = new \ReflectionMethod($service, 'addTestMailAccount');
 
-        $this->assertTrue(is_array($webViewService->getTemplatesForWebPreView()));
+        $accounts = $method->invoke($service, [], 'Some description', 'account@example.com');
+
+        self::assertSame([
+            [
+                'accountDescription' => 'Some description',
+                'accountEmail' => 'account@example.com',
+            ],
+        ], $accounts);
     }
 
-    public function testGetTestMailAccounts()
+    public function testAddTemplate(): void
     {
-        $routerMock = $this->getMockRouter();
-        $webViewService = new AzineWebViewService($routerMock);
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router
+            ->expects(self::once())
+            ->method('generate')
+            ->with('azine_email_web_preview', ['template' => 'someId'])
+            ->willReturn('/some/url/to/the/preview');
 
-        $this->assertTrue(is_array($webViewService->getTestMailAccounts()));
-    }
+        $service = new AzineWebViewService($router);
+        $method = new \ReflectionMethod($service, 'addTemplate');
+        $templates = $method->invoke(
+            $service,
+            [],
+            'some new template',
+            'someId',
+            ['txt', 'html', 'xml'],
+        );
 
-    public function testGetDummyVarsFor()
-    {
-        $routerMock = $this->getMockRouter();
-        $webViewService = new AzineWebViewService($routerMock);
-
-        $this->assertTrue(is_array($webViewService->getDummyVarsFor('some template', 'de')));
-    }
-
-    public function testAddTestMailAccount()
-    {
-        $routerMock = $this->getMockRouter();
-        $webViewService = new AzineWebViewService($routerMock);
-
-        $description = 'Some description';
-        $emailAddress = 'sfsdf@mail.com';
-        $args = array(array(), $description, $emailAddress);
-        $returnValue = self::getMethod('addTestMailAccount')->invokeArgs($webViewService, $args);
-
-        $this->assertSame(array('accountDescription' => $description, 'accountEmail' => $emailAddress), $returnValue[0]);
-    }
-
-    public function testAddTemplate()
-    {
-        $templateId = 'someId';
-        $description = 'some new template';
-        $formats = array('txt', 'html', 'xml');
-        $someUrl = '/some/url/to/the/preview';
-
-        $routerMock = $this->getMockRouter();
-        $routerMock->expects($this->once())->method('generate')->with('azine_email_web_preview', array('template' => $templateId))->will($this->returnValue($someUrl));
-
-        $webViewService = new AzineWebViewService($routerMock);
-
-        $args = array(array(), $description, $templateId, $formats);
-        $templates = self::getMethod('addTemplate')->invokeArgs($webViewService, $args);
-
-        $this->assertSame(1, sizeof($templates));
-        $this->assertSame(array('url' => $someUrl,
-                                    'description' => $description,
-                                    'formats' => $formats,
-                                    'templateId' => $templateId,
-                                    ), $templates[0]);
-    }
-
-    /**
-     * @param string $name
-     */
-    private static function getMethod($name)
-    {
-        $class = new \ReflectionClass("Azine\EmailBundle\Services\AzineWebViewService");
-        $method = $class->getMethod($name);
-        $method->setAccessible(true);
-
-        return $method;
+        self::assertSame([
+            [
+                'url' => '/some/url/to/the/preview',
+                'description' => 'some new template',
+                'formats' => ['txt', 'html', 'xml'],
+                'templateId' => 'someId',
+            ],
+        ], $templates);
     }
 }

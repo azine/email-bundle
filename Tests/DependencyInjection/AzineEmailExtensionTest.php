@@ -1,231 +1,153 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Tests\DependencyInjection;
 
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Yaml\Yaml;
 
-class AzineEmailExtensionTest extends \PHPUnit\Framework\TestCase
+class AzineEmailExtensionTest extends TestCase
 {
-    /** @var ContainerBuilder */
-    protected $configuration;
-
-    /**
-     * This should not throw an exception.
-     */
-    public function testMinimalConfig()
+    public function testDefaultConfigurationLoadsUsableServiceAliases(): void
     {
-        $loader = new AzineEmailExtension();
-        $config = $this->getMinimalConfig();
-        $loader->load(array($config), new ContainerBuilder());
-        $this->assertTrue(true, 'Without this stupid assertion, PHPUnit classifies this test as risky');
+        $container = $this->load([]);
+
+        self::assertSame(
+            'Acme\\SomeBundle\\Entity\\User',
+            $container->getParameter('azine_email_recipient_class'),
+        );
+        self::assertSame(
+            'azine_email.example.template_provider',
+            (string) $container->getAlias('azine_email_template_provider'),
+        );
+        self::assertSame(
+            'azine_email.default.template_twig_mailer',
+            (string) $container->getAlias('azine_email_template_twig_mailer'),
+        );
+        self::assertSame(
+            'azine_email_template_twig_mailer',
+            (string) $container->getAlias('azine_email_template_twig_swift_mailer'),
+        );
+        self::assertTrue($container->hasDefinition('azine_email.default.template_twig_mailer'));
+        self::assertTrue($container->hasDefinition('azine_email.command_lock_factory'));
     }
 
-    /**
-     * This should not throw an exception.
-     */
-    public function testFullConfig()
+    public function testMinimalConfigurationOverridesRequiredApplicationValues(): void
     {
-        $loader = new AzineEmailExtension();
-        $config = $this->getFullConfig();
-        $loader->load(array($config), new ContainerBuilder());
-        $this->assertTrue(true, 'Without this stupid assertion, PHPUnit classifies this test as risky');
+        $container = $this->load([
+            'recipient_class' => 'Azine\\PlatformBundle\\Entity\\User',
+            'template_provider' => 'azine_platform.emailtemplateprovider',
+            'no_reply' => [
+                'email' => 'no-reply@azine.me',
+                'name' => 'azine.me notification daemon',
+            ],
+        ]);
+
+        self::assertSame(
+            'Azine\\PlatformBundle\\Entity\\User',
+            $container->getParameter('azine_email_recipient_class'),
+        );
+        self::assertSame(
+            'azine_platform.emailtemplateprovider',
+            (string) $container->getAlias('azine_email_template_provider'),
+        );
+        self::assertSame([
+            'email' => 'no-reply@azine.me',
+            'name' => 'azine.me notification daemon',
+        ], $container->getParameter('azine_email_no_reply'));
     }
 
-    /**
-     * This should throw an exception.
-     *
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     */
-    public function testConfigWithMissingRecipientClass()
+    public function testCanonicalMailerOptionAndImmediateMailerAreWired(): void
     {
-        $loader = new AzineEmailExtension();
-        $config = $this->getFullConfig();
-        unset($config['recipient_class']);
-        $loader->load(array($config), new ContainerBuilder());
+        $container = $this->load([
+            'template_twig_mailer' => 'app.custom_mailer',
+            'immediate_mailer_service' => 'app.immediate_mailer',
+        ]);
+
+        self::assertSame(
+            'app.custom_mailer',
+            (string) $container->getAlias('azine_email_template_twig_mailer'),
+        );
+        self::assertSame(
+            'azine_email_template_twig_mailer',
+            (string) $container->getAlias('azine_email_template_twig_swift_mailer'),
+        );
+        self::assertSame(
+            'app.immediate_mailer',
+            (string) $container->getAlias('azine_email_immediate_mailer_service'),
+        );
     }
 
-    /**
-     * This should throw an exception.
-     *
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     */
-    public function testConfigWithMissingTemplateProvider()
+    public function testDeprecatedSwiftmailerOptionStillFeedsCanonicalAlias(): void
     {
-        $loader = new AzineEmailExtension();
-        $config = $this->getFullConfig();
-        unset($config['template_provider']);
-        $loader->load(array($config), new ContainerBuilder());
+        $container = $this->load([
+            'template_twig_mailer' => 'azine_email.default.template_twig_mailer',
+            'template_twig_swift_mailer' => 'app.legacy_named_mailer',
+        ]);
+
+        self::assertSame(
+            'app.legacy_named_mailer',
+            (string) $container->getAlias('azine_email_template_twig_mailer'),
+        );
+        self::assertSame(
+            'azine_email_template_twig_mailer',
+            (string) $container->getAlias('azine_email_template_twig_swift_mailer'),
+        );
     }
 
-    /**
-     * This should throw an exception.
-     *
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     */
-    public function testConfigWithMissingEmailAddress()
+    public function testFullCustomConfigurationIsRetained(): void
     {
-        $loader = new AzineEmailExtension();
-        $config = $this->getFullConfig();
-        unset($config['no_reply']['email']);
-        $loader->load(array($config), new ContainerBuilder());
+        $container = $this->load([
+            'recipient_class' => 'TestRecipientClass',
+            'recipient_newsletter_field' => 'some_field',
+            'template_provider' => 'TestTemplateProvider',
+            'notifier_service' => 'TestNotifierService',
+            'recipient_provider' => 'TestRecipientService',
+            'template_twig_mailer' => 'TestTwigMailer',
+            'immediate_mailer_service' => 'TestImmediateMailer',
+            'no_reply' => [
+                'email' => 'test@email.com',
+                'name' => 'test name',
+            ],
+            'image_dir' => '/tmp',
+            'allowed_images_folders' => ['/tmp'],
+            'newsletter' => [
+                'interval' => 7,
+                'send_time' => '09:30',
+            ],
+            'web_view_retention' => 45,
+        ]);
+
+        self::assertSame('TestRecipientClass', $container->getParameter('azine_email_recipient_class'));
+        self::assertSame('some_field', $container->getParameter('azine_email_recipient_newsletter_field'));
+        self::assertSame('/tmp', $container->getParameter('azine_email_image_dir'));
+        self::assertSame(['/tmp'], $container->getParameter('azine_email_allowed_images_folders'));
+        self::assertSame(7, $container->getParameter('azine_email_newsletter_interval'));
+        self::assertSame('09:30', $container->getParameter('azine_email_newsletter_send_time'));
+        self::assertSame(45, $container->getParameter('azine_email_web_view_retention'));
+        self::assertSame('testtemplateprovider', strtolower((string) $container->getAlias('azine_email_template_provider')));
+        self::assertSame('testnotifierservice', strtolower((string) $container->getAlias('azine_email_notifier_service')));
+        self::assertSame('testrecipientservice', strtolower((string) $container->getAlias('azine_email_recipient_provider')));
+        self::assertSame('testtwigmailer', strtolower((string) $container->getAlias('azine_email_template_twig_mailer')));
+        self::assertSame('testimmediatemailer', strtolower((string) $container->getAlias('azine_email_immediate_mailer_service')));
     }
 
-    /**
-     * This should throw an exception.
-     *
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     */
-    public function testConfigWithMissingEmailName()
+    public function testRejectsInvalidNewsletterTime(): void
     {
-        $loader = new AzineEmailExtension();
-        $config = $this->getFullConfig();
-        unset($config['no_reply']['name']);
-        $loader->load(array($config), new ContainerBuilder());
+        $this->expectException(\Symfony\Component\Config\Definition\Exception\InvalidConfigurationException::class);
+
+        $this->load([
+            'newsletter' => ['send_time' => '25:99'],
+        ]);
     }
 
-    /**
-     * This should throw an exception.
-     *
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     */
-    public function testConfigWithMissingEmail()
+    private function load(array $config): ContainerBuilder
     {
-        $loader = new AzineEmailExtension();
-        $config = $this->getFullConfig();
-        unset($config['no_reply']);
-        $loader->load(array($config), new ContainerBuilder());
-    }
+        $container = new ContainerBuilder();
+        (new AzineEmailExtension())->load([$config], $container);
 
-    public function testCustomConfiguration()
-    {
-        $this->configuration = new ContainerBuilder();
-        $loader = new AzineEmailExtension();
-        $config = $this->getFullConfig();
-        $config['recipient_class'] = 'TestRecipientClass';
-        $config['recipient_newsletter_field'] = 'some_field';
-        $config['template_provider'] = 'TestTemplateProvider';
-        $config['notifier_service'] = 'TestNotifierService';
-        $config['recipient_provider'] = 'TestRecipientService';
-        $config['template_twig_swift_mailer'] = 'TestTwigSwiftMailer';
-        $config['no_reply']['email'] = 'test@email.com';
-        $config['no_reply']['name'] = 'test name';
-        $config['image_dir'] = '/tmp';
-
-        $loader->load(array($config), $this->configuration);
-
-        $this->assertParameter('TestRecipientClass', 'azine_email_recipient_class');
-        $this->assertParameter('some_field', 'azine_email_recipient_newsletter_field');
-
-        $mailArray = $this->configuration->getParameter('azine_email_no_reply');
-        $this->assertSame('test name', $mailArray['name'], 'The no-reply-name is not correct.');
-        $this->assertSame('test@email.com', $mailArray['email'], 'The no-reply-email is not correct.');
-
-        $this->assertParameter('/tmp', 'azine_email_image_dir');
-
-        $this->assertAlias('testtemplateprovider', 'azine_email_template_provider');
-        $this->assertAlias('testnotifierservice', 'azine_email_notifier_service');
-        $this->assertAlias('testrecipientservice', 'azine_email_recipient_provider');
-        $this->assertAlias('testtwigswiftmailer', 'azine_email_template_twig_swift_mailer');
-    }
-
-    protected function createEmptyConfiguration()
-    {
-        $this->configuration = new ContainerBuilder();
-        $loader = new AzineEmailExtension();
-        $config = $this->getEmptyConfig();
-        $loader->load(array($config), $this->configuration);
-        $this->assertTrue($this->configuration instanceof ContainerBuilder);
-    }
-
-    protected function createFullConfiguration()
-    {
-        $this->configuration = new ContainerBuilder();
-        $loader = new AzineEmailExtension();
-        $config = $this->getFullConfig();
-        $loader->load(array($config), $this->configuration);
-        $this->assertTrue($this->configuration instanceof ContainerBuilder);
-    }
-
-    /**
-     * Get the minimal config.
-     *
-     * @return array
-     */
-    protected function getMinimalConfig()
-    {
-        $yaml = <<<YAML
-recipient_class: 'Azine\\PlatformBundle\\Entity\\User'
-template_provider: 'azine_platform.emailtemplateprovider'
-no_reply:
-  email: 'no-reply@azine.me'
-  name: 'azine.me notification daemon'
-YAML;
-
-        return Yaml::parse($yaml);
-    }
-
-    /**
-     * Get a full config for this bundle.
-     */
-    protected function getFullConfig()
-    {
-        $yaml = <<<YAML
-recipient_class: 'Acme\\SomeBundle\\Entity\\User'
-recipient_newsletter_field: 'newsletter'
-notifier_service: 'azine_email.example.notifier_service'
-template_provider: 'azine_email.example.template_provider'
-recipient_provider: 'azine_email.default.recipient_provider'
-template_twig_swift_mailer: 'azine_email.default.template_twig_swift_mailer'
-no_reply:
-  email: 'no-reply@example.com'
-  name: 'notification daemon'
-image_dir: '%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/'
-allowed_images_folders:
-  - '%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/htmlTemplateImages/'
-  - '%kernel.root_dir%/../vendor/azine/email-bundle/Azine/EmailBundle/Resources/'
-YAML;
-
-        return Yaml::parse($yaml);
-    }
-
-    /**
-     * @param string $value
-     * @param string $key
-     */
-    private function assertAlias($value, $key)
-    {
-        $this->assertSame(strtolower($value), strtolower((string) $this->configuration->getAlias($key)), sprintf('%s alias is correct', $key));
-    }
-
-    /**
-     * @param string $value
-     * @param string $key
-     */
-    private function assertParameter($value, $key)
-    {
-        $this->assertSame($value, $this->configuration->getParameter($key), sprintf('%s parameter is correct', $key));
-    }
-
-    /**
-     * @param string $id
-     */
-    private function assertHasDefinition($id)
-    {
-        $this->assertTrue(($this->configuration->hasDefinition($id) ?: $this->configuration->hasAlias($id)));
-    }
-
-    /**
-     * @param string $id
-     */
-    private function assertNotHasDefinition($id)
-    {
-        $this->assertFalse(($this->configuration->hasDefinition($id) ?: $this->configuration->hasAlias($id)));
-    }
-
-    protected function tearDown()
-    {
-        unset($this->configuration);
+        return $container;
     }
 }

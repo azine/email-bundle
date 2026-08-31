@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: "PHPUnit (PHP 8.5, deps: ${{ matrix.dependency-mode }})"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        dependency-mode: ['stable', 'lowest']
+
+    env:
+      MAILER_DSN: 'null://null'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          extensions: ctype, dom, fileinfo, filter, gd, iconv, intl, json, mailparse, mbstring, pdo, pdo_sqlite, simplexml, tokenizer, xml, xmlwriter
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.composer/cache/files
+            ~/.cache/composer/files
+          key: composer-${{ runner.os }}-php85-${{ matrix.dependency-mode }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php85-${{ matrix.dependency-mode }}-
+
+      - name: Validate composer.json
+        run: composer validate --strict --no-check-publish
+
+      - name: Install dependencies (stable)
+        if: matrix.dependency-mode == 'stable'
+        run: composer update --prefer-dist --no-interaction
+
+      - name: Install dependencies (lowest)
+        if: matrix.dependency-mode == 'lowest'
+        run: composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction
+
+      - name: Lint PHP sources and tests
+        run: |
+          php -l AzineEmailBundle.php
+          php -l compat.php
+          find Command Controller DependencyInjection Entity Form Services Tests -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Run test suite with diagnostics
+        run: >-
+          vendor/bin/phpunit -c phpunit.xml.dist
+          --display-deprecations
+          --display-phpunit-deprecations
+          --display-phpunit-notices
+          --fail-on-phpunit-notice
+          --display-notices
+          --display-skipped

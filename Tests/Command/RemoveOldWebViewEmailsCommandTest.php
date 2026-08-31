@@ -1,106 +1,110 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Azine\EmailBundle\Tests\Command;
 
 use Azine\EmailBundle\Command\RemoveOldWebViewEmailsCommand;
-use Azine\EmailBundle\Tests\AzineQueryMock;
+use Azine\EmailBundle\Entity\SentEmail;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/**
- * @author dominik
- */
-class RemoveOldWebViewEmailsCommandTest extends \PHPUnit\Framework\TestCase
+#[AllowMockObjectsWithoutExpectations]
+class RemoveOldWebViewEmailsCommandTest extends TestCase
 {
-    public function testHelpInfo()
+    public function testHelpInfo(): void
     {
-        $application = new Application();
-        $application->add(new RemoveOldWebViewEmailsCommand());
+        $command = $this->createUnexecutedCommand(90);
 
-        $command = $application->find('emails:remove-old-web-view-emails');
-        $this->assertContains('command deletes all SentEmail entities from the database', $command->getHelp());
-        $this->assertContains('Remove all "SentEmail" from the database that are older than the configured time.', $command->getDescription());
+        self::assertStringContainsString('deletes SentEmail entities', $command->getHelp());
+        self::assertStringContainsString('Remove stored email web views', $command->getDescription());
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testDeleteSentEmailsFromWebViewNoConfig()
+    public function testDeletesUsingConfiguredRetention(): void
     {
-        $application = new Application();
-        $application->add(new RemoveOldWebViewEmailsCommand());
+        $tester = new CommandTester($this->createCommand(66, 9));
 
-        $command = $application->find('emails:remove-old-web-view-emails');
-        $days = null;
-        $command->setContainer($this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock());
-
-        $tester = new CommandTester($command);
-        $tester->execute(array(''));
-        $display = $tester->getDisplay();
-        $this->assertContains('either the commandline parameter "keep" or the "azine_email_web_view_retention" in your config.yml or the default-config has to be defined.', $display);
+        self::assertSame(Command::SUCCESS, $tester->execute([]));
+        self::assertStringContainsString('Using the configured retention period: 66 days.', $tester->getDisplay());
+        self::assertStringContainsString('9 SentEmails older than', $tester->getDisplay());
     }
 
-    public function testDeleteSentEmailsFromWebView()
+    public function testCommandArgumentOverridesConfiguredRetention(): void
     {
-        $application = new Application();
-        $application->add(new RemoveOldWebViewEmailsCommand());
+        $tester = new CommandTester($this->createCommand(66, 900));
 
-        $command = $application->find('emails:remove-old-web-view-emails');
-        $days = 66;
-        $deletedWebMails = 9;
-        $command->setContainer($this->getMockSetup($days, $deletedWebMails));
-
-        $tester = new CommandTester($command);
-        $tester->execute(array(''));
-        $display = $tester->getDisplay();
-        $this->assertContains("using the parameter from the configuration => '$days' days.", $display);
-        $this->assertContains("$deletedWebMails SentEmails have been deleted that were older than", $display);
+        self::assertSame(Command::SUCCESS, $tester->execute(['keep' => 121]));
+        self::assertStringContainsString('900 SentEmails older than', $tester->getDisplay());
+        self::assertStringNotContainsString('configured retention period', $tester->getDisplay());
     }
 
-    public function testDeleteSentEmailsFromWebViewWithDayParam()
+    public function testRejectsInvalidRetention(): void
     {
-        $application = new Application();
-        $application->add(new RemoveOldWebViewEmailsCommand());
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->expects(self::never())->method('getManager');
+        $tester = new CommandTester($this->register(new RemoveOldWebViewEmailsCommand($registry, 0)));
 
-        $command = $application->find('emails:remove-old-web-view-emails');
-        $days = null;
-        $deletedWebMails = 900;
-        $command->setContainer($this->getMockSetup($days, $deletedWebMails, true));
-
-        $tester = new CommandTester($command);
-        $tester->execute(array('keep' => 121));
-        $display = $tester->getDisplay();
-        $this->assertContains("$deletedWebMails SentEmails have been deleted that were older than", $display);
-        $this->assertTrue(false === strpos($display, 'using the parameter from the configuration'), "display is:\n\n$display");
+        self::assertSame(Command::INVALID, $tester->execute([]));
+        self::assertStringContainsString('must be at least one day', $tester->getDisplay());
     }
 
-    /**
-     * @param int|null $days
-     * @param int      $deletedWebMails
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    private function getMockSetup($days, $deletedWebMails, $useKeep = false)
+    private function createUnexecutedCommand(int $retentionDays): RemoveOldWebViewEmailsCommand
     {
-        $containerMock = $this->getMockBuilder("Symfony\Component\DependencyInjection\ContainerInterface")->disableOriginalConstructor()->getMock();
+        return $this->register(new RemoveOldWebViewEmailsCommand(
+            $this->createMock(ManagerRegistry::class),
+            $retentionDays,
+        ));
+    }
 
-        $queryBuilderMock = $this->getMockBuilder("Doctrine\ORM\QueryBuilder")->disableOriginalConstructor()->getMock();
-        $queryBuilderMock->expects($this->once())->method('delete')->will($this->returnSelf());
-        $queryBuilderMock->expects($this->once())->method('where')->will($this->returnSelf());
-        $queryBuilderMock->expects($this->once())->method('setParameter')->will($this->returnSelf());
-        $queryBuilderMock->expects($this->once())->method('getQuery')->will($this->returnValue(new AzineQueryMock($deletedWebMails)));
+    private function createCommand(int $retentionDays, int $deletedWebMails): RemoveOldWebViewEmailsCommand
+    {
+        $query = $this->getMockBuilder(Query::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['execute'])
+            ->getMock();
+        $query->expects(self::once())->method('execute')->willReturn($deletedWebMails);
 
-        $entityManagerMock = $this->getMockBuilder("Doctrine\ORM\EntityManager")->disableOriginalConstructor()->getMock();
-        $entityManagerMock->expects($this->once())->method('createQueryBuilder')->will($this->returnValue($queryBuilderMock));
+        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['delete', 'where', 'setParameter', 'getQuery'])
+            ->getMock();
+        $queryBuilder
+            ->expects(self::once())
+            ->method('delete')
+            ->with(SentEmail::class, 's')
+            ->willReturnSelf();
+        $queryBuilder->expects(self::once())->method('where')->with('s.sent < :sent')->willReturnSelf();
+        $queryBuilder
+            ->expects(self::once())
+            ->method('setParameter')
+            ->with('sent', self::isInstanceOf(\DateTimeImmutable::class))
+            ->willReturnSelf();
+        $queryBuilder->expects(self::once())->method('getQuery')->willReturn($query);
 
-        $doctrineMock = $this->getMockBuilder("\Doctrine\Common\Persistence\ManagerRegistry")->disableOriginalConstructor()->getMock();
-        $doctrineMock->expects($this->once())->method('getManager')->will($this->returnValue($entityManagerMock));
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('createQueryBuilder')->willReturn($queryBuilder);
 
-        if (!$useKeep) {
-            $containerMock->expects($this->once())->method('getParameter')->with('azine_email_web_view_retention')->will($this->returnValue($days));
-        }
-        $containerMock->expects($this->once())->method('get')->with('doctrine')->will($this->returnValue($doctrineMock));
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->expects(self::once())->method('getManager')->willReturn($entityManager);
 
-        return $containerMock;
+        return $this->register(new RemoveOldWebViewEmailsCommand($registry, $retentionDays));
+    }
+
+    private function register(RemoveOldWebViewEmailsCommand $command): RemoveOldWebViewEmailsCommand
+    {
+        $application = new Application();
+        $application->add($command);
+
+        /** @var RemoveOldWebViewEmailsCommand $registered */
+        $registered = $application->find('emails:remove-old-web-view-emails');
+
+        return $registered;
     }
 }

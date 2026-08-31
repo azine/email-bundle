@@ -1,124 +1,175 @@
-parameters:
-
 services:
-###################################################################
-## Services you should override/extend in your bundle
-###################################################################
+    _defaults:
+        autowire: false
+        autoconfigure: false
+
     azine_email.example.template_provider:
-        class: Azine\EmailBundle\Services\AzineTemplateProvider
+        class: Azine\EmailBundle\Services\SymfonyMailerTemplateProvider
         arguments:
-          $router:       "@router"
-          $translator:   "@translator"
-          $parameters:
-            image_dir:  "%azine_email_image_dir%"
-            allowed_images_folders: "%azine_email_allowed_images_folders%"
-            tracking_params_campaign_name:    "%azine_email_tracking_params_campaign_name%"
-            tracking_params_campaign_term:    "%azine_email_tracking_params_campaign_term%"
-            tracking_params_campaign_content: "%azine_email_tracking_params_campaign_content%"
-            tracking_params_campaign_medium:  "%azine_email_tracking_params_campaign_medium%"
-            tracking_params_campaign_source:  "%azine_email_tracking_params_campaign_source%"
+            $router: '@router'
+            $translator: '@translator'
+            $parameters:
+                image_dir: '%azine_email_image_dir%'
+                allowed_images_folders: '%azine_email_allowed_images_folders%'
+                tracking_params_campaign_name: '%azine_email_tracking_params_campaign_name%'
+                tracking_params_campaign_term: '%azine_email_tracking_params_campaign_term%'
+                tracking_params_campaign_content: '%azine_email_tracking_params_campaign_content%'
+                tracking_params_campaign_medium: '%azine_email_tracking_params_campaign_medium%'
+                tracking_params_campaign_source: '%azine_email_tracking_params_campaign_source%'
+
+    Azine\EmailBundle\Services\TemplateProviderInterface:
+        alias: azine_email_template_provider
 
     azine_email.example.notifier_service:
         class: Azine\EmailBundle\Services\AzineNotifierService
         arguments:
-          $mailer:             "@azine_email_template_twig_swift_mailer"
-          $twig:               "@twig"
-          $router:             "@router"
-          $managerRegistry:    "@doctrine"
-          $templateProvider:   "@azine_email_template_provider"
-          $recipientProvider:  "@azine_email_recipient_provider"
-          $translatorService:  "@translator"
-          $parameters:
-            newsletter_interval :     "%azine_email_newsletter_interval%"
-            newsletter_send_time:     "%azine_email_newsletter_send_time%"
-            templates_newsletter:     "%azine_email_templates_newsletter%"
-            templates_notifications:  "%azine_email_templates_notifications%"
-            templates_content_item:   "%azine_email_templates_content_item%"
+            $mailer: '@azine_email_template_twig_mailer'
+            $twig: '@twig'
+            $router: '@router'
+            $managerRegistry: '@doctrine'
+            $templateProvider: '@azine_email_template_provider'
+            $recipientProvider: '@azine_email_recipient_provider'
+            $translatorService: '@translator'
+            $parameters:
+                newsletter_interval: '%azine_email_newsletter_interval%'
+                newsletter_send_time: '%azine_email_newsletter_send_time%'
+                templates_newsletter: '%azine_email_templates_newsletter%'
+                templates_notifications: '%azine_email_templates_notifications%'
+                templates_content_item: '%azine_email_templates_content_item%'
+
+    Azine\EmailBundle\Services\NotifierServiceInterface:
+        alias: azine_email_notifier_service
 
     azine_email.example.web_view_service:
         class: Azine\EmailBundle\Services\AzineWebViewService
         arguments:
-          $router:       "@router"
+            $router: '@router'
 
+    Azine\EmailBundle\Services\WebViewServiceInterface:
+        alias: azine_email_web_view_service
 
-###################################################################
-## Services you can use as default if you work with the FOSUserBundle
-###################################################################
-    azine_email.default.template_twig_swift_mailer:
-        class: Azine\EmailBundle\Services\AzineTwigSwiftMailer
+    azine_email.default.template_twig_mailer:
+        class: Azine\EmailBundle\Services\AzineTwigMailer
+        public: true
         arguments:
-          $mailer:             "@mailer"
-          $router:             "@router"
-          $twig:               "@twig"
-          $translator:         "@translator"
-          $templateProvider:   "@azine_email_template_provider"
-          $managerRegistry:    "@doctrine"
-          $emailOpenTrackingCodeBuilder: "@azine_email_email_open_tracking_code_builder"
-          $emailTwigExtension: "@azine.email.bundle.twig.filters"
-          $parameters:
-            template:
-              confirmation :  "%fos_user.registration.confirmation.template%"
-              resetting:      "%fos_user.resetting.email.template%"
-              email_updating: "%azine_email_update_confirmation.template%"
-            from_email:
-              confirmation:   "%fos_user.registration.confirmation.from_email%"
-              resetting:      "%fos_user.resetting.email.from_email%"
-            no_reply:         "%azine_email_no_reply%"
-          $immediateMailer:    "@swiftmailer.mailer.immediateMailer"
+            $mailer: '@mailer'
+            $router: '@router'
+            $twig: '@twig'
+            $translator: '@translator'
+            $templateProvider: '@azine_email_template_provider'
+            $managerRegistry: '@doctrine'
+            $emailOpenTrackingCodeBuilder: '@azine_email_email_open_tracking_code_builder'
+            $emailTwigExtension: '@azine.email.bundle.twig.filters'
+            $parameters:
+                template:
+                    confirmation: '%fos_user.registration.confirmation.template%'
+                    resetting: '%fos_user.resetting.email.template%'
+                    email_updating: '%azine_email_update_confirmation.template%'
+                from_email:
+                    confirmation: '%fos_user.registration.confirmation.from_email%'
+                    resetting: '%fos_user.resetting.email.from_email%'
+                no_reply: '%azine_email_no_reply%'
+            $immediateMailer: '@azine_email_immediate_mailer_service'
+
+    azine_email.default.template_twig_swift_mailer:
+        alias: azine_email.default.template_twig_mailer
+        public: true
+
+    Azine\EmailBundle\Services\TemplateTwigMailerInterface:
+        alias: azine_email_template_twig_mailer
+
+    Azine\EmailBundle\Services\TemplateTwigSwiftMailerInterface:
+        alias: azine_email_template_twig_mailer
+
+    FOS\UserBundle\Mailer\MailerInterface:
+        alias: azine_email_template_twig_mailer
 
     azine_email.default.recipient_provider:
         class: Azine\EmailBundle\Services\AzineRecipientProvider
         arguments:
-          $managerRegistry:    "@doctrine"
-          $userClass:    "%azine_email_recipient_class%"
-          $newsletterField:    "%azine_email_recipient_newsletter_field%"
+            $managerRegistry: '@doctrine'
+            $userClass: '%azine_email_recipient_class%'
+            $newsletterField: '%azine_email_recipient_newsletter_field%'
 
-###################################################################
-## Email open tracking code builder
-###################################################################
     azine.email.open.tracking.code.builder.ga.or.piwik:
         class: Azine\EmailBundle\Services\AzineEmailOpenTrackingCodeBuilder
         arguments:
-          $trackingUrlTemplate: "%azine_email_email_open_tracking_url%"
-          $parameters:
-            tracking_params_campaign_name:    "%azine_email_tracking_params_campaign_name%"
-            tracking_params_campaign_term:    "%azine_email_tracking_params_campaign_term%"
-            tracking_params_campaign_content: "%azine_email_tracking_params_campaign_content%"
-            tracking_params_campaign_medium:  "%azine_email_tracking_params_campaign_medium%"
-            tracking_params_campaign_source:  "%azine_email_tracking_params_campaign_source%"
+            $trackingUrlTemplate: '%azine_email_email_open_tracking_url%'
+            $parameters:
+                tracking_params_campaign_name: '%azine_email_tracking_params_campaign_name%'
+                tracking_params_campaign_term: '%azine_email_tracking_params_campaign_term%'
+                tracking_params_campaign_content: '%azine_email_tracking_params_campaign_content%'
+                tracking_params_campaign_medium: '%azine_email_tracking_params_campaign_medium%'
+                tracking_params_campaign_source: '%azine_email_tracking_params_campaign_source%'
 
-###################################################################
-## Twig-Filter
-###################################################################
+    Azine\EmailBundle\Services\EmailOpenTrackingCodeBuilderInterface:
+        alias: azine_email_email_open_tracking_code_builder
+
     azine.email.bundle.twig.filters:
         class: Azine\EmailBundle\Services\AzineEmailTwigExtension
         public: false
         arguments:
-          $templateProvider:   "@azine_email_template_provider"
-          $translator:         "@translator"
-          $domainsToTrack:     "%azine_email_domains_for_tracking%"
+            $templateProvider: '@azine_email_template_provider'
+            $translator: '@translator'
+            $domainsToTrack: '%azine_email_domains_for_tracking%'
         tags:
             - { name: twig.extension }
 
-###################################################################
-## Commands
-###################################################################
+    azine_email.spam_check_service:
+        class: Azine\EmailBundle\Services\SpamCheckService
+        arguments:
+            $httpClient: '@http_client'
+            $endpoint: '%azine_email_spam_check_endpoint%'
+
+    Azine\EmailBundle\Controller\AzineEmailTemplateController:
+        public: true
+        arguments:
+            $webViewService: '@azine_email_web_view_service'
+            $templateProvider: '@azine_email_template_provider'
+            $mailer: '@azine_email_template_twig_mailer'
+            $spamCheckService: '@azine_email.spam_check_service'
+            $twig: '@twig'
+            $emailTwigExtension: '@azine.email.bundle.twig.filters'
+            $managerRegistry: '@doctrine'
+            $tokenStorage: '@security.token_storage'
+            $translator: '@translator'
+            $router: '@router'
+            $emailOpenTrackingCodeBuilder: '@azine_email_email_open_tracking_code_builder'
+            $noReply: '%azine_email_no_reply%'
+            $webViewRetentionDays: '%azine_email_web_view_retention%'
+        tags:
+            - { name: controller.service_arguments }
+
+    azine_email.command_lock_store:
+        class: Symfony\Component\Lock\Store\FlockStore
+        arguments:
+            - '%kernel.cache_dir%/azine-email-locks'
+
+    azine_email.command_lock_factory:
+        class: Symfony\Component\Lock\LockFactory
+        arguments:
+            - '@azine_email.command_lock_store'
+
     azine.send_notifications_command:
         class: Azine\EmailBundle\Command\SendNotificationsCommand
+        arguments:
+            $notifierService: '@azine_email_notifier_service'
+            $lockFactory: '@azine_email.command_lock_factory'
         tags:
             - { name: console.command }
 
     azine.send_news_letter_command:
         class: Azine\EmailBundle\Command\SendNewsLetterCommand
+        arguments:
+            $notifierService: '@azine_email_notifier_service'
+            $lockFactory: '@azine_email.command_lock_factory'
         tags:
             - { name: console.command }
 
     azine.remove_old_web_view_emails_command:
         class: Azine\EmailBundle\Command\RemoveOldWebViewEmailsCommand
-        tags:
-            - { name: console.command }
-
-    azine.clear_and_log_failed_mails_command:
-        class: Azine\EmailBundle\Command\ClearAndLogFailedMailsCommand
+        arguments:
+            $managerRegistry: '@doctrine'
+            $retentionDays: '%azine_email_web_view_retention%'
         tags:
             - { name: console.command }

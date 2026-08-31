@@ -2,9 +2,9 @@
 
 namespace Azine\EmailBundle\Services;
 
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AzineEmailTwigExtension extends \Twig_Extension
+class AzineEmailTwigExtension extends \Twig\Extension\AbstractExtension
 {
     /**
      * @var TemplateProviderInterface
@@ -36,11 +36,11 @@ class AzineEmailTwigExtension extends \Twig_Extension
      */
     public function getFilters()
     {
-        $filters[] = new \Twig_SimpleFilter('textWrap', array($this, 'textWrap'));
-        $filters[] = new \Twig_SimpleFilter('urlEncodeText', array($this, 'urlEncodeText'), array('is_safe' => array('html')));
-        $filters[] = new \Twig_SimpleFilter('addCampaignParamsForTemplate', array($this, 'addCampaignParamsForTemplate'), array('is_safe' => array('html')));
-        $filters[] = new \Twig_SimpleFilter('stripAndConvertTags', array($this, 'stripAndConvertTags'), array('is_safe' => array('html')));
-        $filters[] = new \Twig_SimpleFilter('printVars', array($this, 'printVars'));
+        $filters[] = new \Twig\TwigFilter('textWrap', array($this, 'textWrap'));
+        $filters[] = new \Twig\TwigFilter('urlEncodeText', array($this, 'urlEncodeText'), array('is_safe' => array('html')));
+        $filters[] = new \Twig\TwigFilter('addCampaignParamsForTemplate', array($this, 'addCampaignParamsForTemplate'), array('is_safe' => array('html')));
+        $filters[] = new \Twig\TwigFilter('stripAndConvertTags', array($this, 'stripAndConvertTags'), array('is_safe' => array('html')));
+        $filters[] = new \Twig\TwigFilter('printVars', array($this, 'printVars'));
 
         return $filters;
     }

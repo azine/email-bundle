@@ -1,8 +1,14 @@
 {
     "name": "azine/email-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony3 Bundle to send html- & txt-emails (notification about events on your web-app or newsletters etc. scheduled/aggregated) to your users.",
-    "keywords": ["email", "newsletter", "notification", "updates", "email web view", "mailgun", "email open tracking"],
+    "description": "Symfony bundle for multipart notifications, newsletters, email web views and account emails.",
+    "keywords": [
+        "email",
+        "newsletter",
+        "notification",
+        "symfony",
+        "web view"
+    ],
     "homepage": "https://github.com/azine/email-bundle",
     "license": "MIT",
     "authors": [
@@ -11,36 +17,64 @@
             "email": "github@azine-it.ch"
         }
     ],
-    "config": {
-        "process-timeout": 590,
-        "github-protocols": ["https", "git", "ssh"],
-        "github-domains": ["github.com"]
-    },
     "require": {
-        "php": ">=5.6.0",
-        "symfony/framework-bundle": "~2.7|^3.0|^4.0",
-        "symfony/console": "~2.7|^3.0|^4.0",
-        "symfony/finder": "~2.7|^3.0|^4.0",
-        "symfony/twig-bundle": "~2.7|^3.0|^4.0",
-        "symfony/filesystem": "~2.7|^3.0|^4.0",
-        "symfony/yaml": "~2.7|^3.0|^4.0",
-        "swiftmailer/swiftmailer": ">=5.4.5,~5.0|^6.0",
-        "doctrine/orm": "~2.0,>=2.2",
-        "monolog/monolog": "~1.6,>=1.6.0",
-        "friendsofsymfony/user-bundle": "~2.0",
-        "twig/extensions": "~1.0",
-        "ramsey/uuid": "~3.2",
-        "knplabs/knp-paginator-bundle": "^2.6",
-        "azine/emailupdateconfirmation-bundle": "~1.0",
-        "symfony/lock": ">=3.4"
+        "php": "^8.5",
+        "ext-ctype": "*",
+        "ext-fileinfo": "*",
+        "ext-filter": "*",
+        "ext-json": "*",
+        "ext-mailparse": "*",
+        "doctrine/orm": "^3.6",
+        "doctrine/persistence": "^3.3 || ^4.0",
+        "friendsofsymfony/user-bundle": "^4.1",
+        "knplabs/knp-paginator-bundle": "^6.0",
+        "ramsey/uuid": "^4.7",
+        "symfony/console": "^7.4",
+        "symfony/filesystem": "^7.4",
+        "symfony/finder": "^7.4",
+        "symfony/framework-bundle": "^7.4",
+        "symfony/http-client": "^7.4",
+        "symfony/http-client-contracts": "^3.6",
+        "symfony/http-foundation": "^7.4",
+        "symfony/lock": "^7.4",
+        "symfony/mailer": "^7.4",
+        "symfony/mime": "^7.4",
+        "symfony/routing": "^7.4",
+        "symfony/translation": "^7.4",
+        "symfony/twig-bundle": "^7.4",
+        "symfony/yaml": "^7.4",
+        "twig/extra-bundle": "^3.14",
+        "twig/twig": "^3.14"
     },
     "require-dev": {
-        "symfony/translation": "~2.7|^3.0|^4.0",
-        "phpunit/phpunit":  "~5.7.27|^6.0|^7.0",
-        "friendsofphp/php-cs-fixer": "^2.2"
+        "doctrine/doctrine-bundle": "^2.15",
+        "friendsofphp/php-cs-fixer": "^3.90",
+        "phpunit/phpunit": "^12.0",
+        "symfony/phpunit-bridge": "^7.4"
+    },
+    "suggest": {
+        "azine/emailupdateconfirmation-bundle": "Adds confirmation of user email-address changes.",
+        "ext-gd": "Allows generated GD images to be embedded into outgoing email."
     },
     "autoload": {
-        "psr-4": { "Azine\\EmailBundle\\": "" }
+        "psr-4": {
+            "Azine\\EmailBundle\\": ""
+        },
+        "files": [
+            "compat.php"
+        ]
     },
-    "minimum-stability": "stable"
+    "autoload-dev": {
+        "psr-4": {
+            "Azine\\EmailBundle\\Tests\\": "Tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit -c phpunit.xml.dist"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

@@ -2,8 +2,11 @@
 
 namespace Azine\EmailBundle\Tests\Services;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+
 use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 
+#[AllowMockObjectsWithoutExpectations]
 class AzineEmailTwigExtensionTest extends \PHPUnit\Framework\TestCase
 {
     private $longText = 'Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.';
@@ -16,8 +19,8 @@ class AzineEmailTwigExtensionTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(5, sizeof($filters), 'Unexpected number of Twig filters');
 
         foreach ($filters as $filter) {
-            /* @var $filter \Twig_SimpleFilter */
-            $this->assertTrue($filter instanceof \Twig_SimpleFilter, 'Twig_SimpleFilter expected as filter');
+            /* @var $filter \Twig\TwigFilter */
+            $this->assertTrue($filter instanceof \Twig\TwigFilter, 'Twig_SimpleFilter expected as filter');
             $filterNames[] = $filter->getName();
         }
         $this->assertContains('textWrap', $filterNames, 'The filter textWrap should exist.');
@@ -98,11 +101,11 @@ Some more text
         $twigExtension = $this->getAzineEmailTwigExtensionWithMocks();
         $txt = $twigExtension->stripAndConvertTags($html);
 
-        $this->assertContains('link text1: http://acme.com/link1', $txt, "Link with html as link-text didn't work as expected.");
-        $this->assertContains('link text2: http://acme.com/link2', $txt, "Link with html and linebreaks as link-text didn't work as expected.");
-        $this->assertContains('http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
-        $this->assertNotContains('link text3: http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
-        $this->assertContains('here: http://acme.com/link4', $txt, "Link with url as link-text didn't work as expected.");
+        $this->assertStringContainsString('link text1: http://acme.com/link1', $txt, "Link with html as link-text didn't work as expected.");
+        $this->assertStringContainsString('link text2: http://acme.com/link2', $txt, "Link with html and linebreaks as link-text didn't work as expected.");
+        $this->assertStringContainsString('http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
+        $this->assertStringNotContainsString('link text3: http://acme.com/link3', $txt, "Link with url as link-text didn't work as expected.");
+        $this->assertStringContainsString('here: http://acme.com/link4', $txt, "Link with url as link-text didn't work as expected.");
     }
 
     /**
