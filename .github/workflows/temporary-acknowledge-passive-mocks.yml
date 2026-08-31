@@ -68,23 +68,17 @@ jobs:
                       raise SystemExit(f'Unable to locate test class in {path}')
 
               path.write_text(content)
-
-          ci = Path('.github/workflows/ci.yml')
-          content = ci.read_text()
-          old = '          --display-phpunit-notices\n          --display-notices\n'
-          new = '          --display-phpunit-notices\n          --fail-on-phpunit-notice\n          --display-notices\n'
-          if old not in content:
-              raise SystemExit('Unable to add the PHPUnit notice failure gate')
-          ci.write_text(content.replace(old, new, 1))
           PY
-
-          rm .github/workflows/temporary-acknowledge-passive-mocks.yml
 
       - name: Commit explicit PHPUnit 12 test-double policy
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
+          git add Tests
           git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'Passive mock attributes are already present.'
+            exit 0
+          fi
           git commit -m 'Make passive PHPUnit test doubles explicit'
           git push origin HEAD:codex/fix-all-phpunit-test-errors
