@@ -65,5 +65,6 @@ jobs:
           vendor/bin/phpunit -c phpunit.xml.dist
           --display-deprecations
           --display-phpunit-deprecations
+          --display-phpunit-notices
           --display-notices
           --display-skipped
