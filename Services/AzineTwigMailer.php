@@ -16,6 +16,7 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\TemplateWrapper;
@@ -85,14 +86,16 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
         $params = $this->templateProvider->addTemplateVariablesFor($templateBaseId, $params);
         $embeddedItems = $this->prepareEmbeddedItems($params);
 
-        $previousLocale = $this->translator->getLocale();
-        $emailLocale = $emailLocale ?: $previousLocale;
+        $localeAwareTranslator = $this->translator instanceof LocaleAwareInterface ? $this->translator : null;
+        $previousLocale = null !== $localeAwareTranslator
+            ? (string) $localeAwareTranslator->getLocale()
+            : ($emailLocale ?? 'en');
+        $emailLocale ??= $previousLocale;
+
         $routerContext = $this->router->getContext();
         $previousRouteLocale = $routerContext->getParameter('_locale');
 
-        if (method_exists($this->translator, 'setLocale')) {
-            $this->translator->setLocale($emailLocale);
-        }
+        $localeAwareTranslator?->setLocale($emailLocale);
         $routerContext->setParameter('_locale', $emailLocale);
 
         try {
@@ -180,9 +183,7 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
 
             return 1;
         } finally {
-            if (method_exists($this->translator, 'setLocale')) {
-                $this->translator->setLocale($previousLocale);
-            }
+            $localeAwareTranslator?->setLocale($previousLocale);
             $routerContext->setParameter('_locale', $previousRouteLocale);
         }
     }
@@ -259,53 +260,44 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
     /**
      * Backwards-compatible entry point used by the email-update confirmation bundle.
      */
-    public function sendUpdateEmailConfirmation(
-        UserInterface $user,
-        string $confirmationUrl,
-        string $toEmail,
-    ): void {
-        $template = (string) $this->parameters['template']['email_updating'];
+    public function sendEmailUpdateConfirmationMessage(UserInterface $user, string $confirmationUrl): void
+    {
+        $template = (string) ($this->parameters['template']['email_updating'] ?? '');
+        if ('' === $template) {
+            throw new \LogicException('No email update confirmation template is configured.');
+        }
+
+        $from = $this->parameters['from_email']['email_updating']
+            ?? $this->parameters['from_email']['confirmation'];
+
         $this->sendAccountMessage(
             $template,
             ['user' => $user, 'confirmationUrl' => $confirmationUrl],
-            $this->parameters['from_email']['confirmation'],
-            $toEmail,
+            $from,
+            (string) $user->getEmail(),
         );
     }
 
     /**
-     * @param array{address?: string, sender_name?: string}|string $fromEmail
+     * @param array{address?: string, sender_name?: string} $from
      */
-    private function sendAccountMessage(string $template, array $context, array|string $fromEmail, string $toEmail): void
+    private function sendAccountMessage(string $template, array $parameters, array $from, string $to): void
     {
         $twigTemplate = $this->loadTemplate($template);
-        $subject = trim($twigTemplate->renderBlock('subject', $context));
-        [$fromAddress, $fromName] = $this->normalizeFromConfiguration($fromEmail);
+        $subject = trim($twigTemplate->renderBlock('subject', $parameters));
         $message = null;
 
-        if (!$this->sendSingleEmail(
-            $toEmail,
+        $this->sendSingleEmail(
+            $to,
             null,
             $subject,
-            $context,
+            $parameters,
             $template,
-            $this->translator->getLocale(),
-            $fromAddress,
-            $fromName,
+            null,
+            isset($from['address']) ? (string) $from['address'] : null,
+            isset($from['sender_name']) ? (string) $from['sender_name'] : null,
             $message,
-        )) {
-            throw new \RuntimeException(sprintf('Unable to send account email to "%s".', $toEmail));
-        }
-    }
-
-    private function loadTemplate(string $template): TemplateWrapper
-    {
-        return $this->templateCache[$template] ??= $this->twig->load($template);
-    }
-
-    private function getTemplateBaseId(string $template): string
-    {
-        return preg_replace('/\.(?:txt|html)\.twig$/', '', $template) ?? $template;
+        );
     }
 
     /**
@@ -313,173 +305,19 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
      */
     private function getNoReplyAddress(): array
     {
-        $config = $this->parameters[AzineEmailExtension::NO_REPLY] ?? $this->parameters['no_reply'] ?? [];
+        $noReply = $this->parameters[AzineEmailExtension::NO_REPLY] ?? [];
 
         return [
-            (string) ($config[AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS] ?? $config['email'] ?? 'no-reply@example.com'),
-            (string) ($config[AzineEmailExtension::NO_REPLY_EMAIL_NAME] ?? $config['name'] ?? 'Notification service'),
+            (string) ($noReply[AzineEmailExtension::NO_REPLY_EMAIL_ADDRESS] ?? 'no-reply@example.com'),
+            (string) ($noReply[AzineEmailExtension::NO_REPLY_EMAIL_NAME] ?? 'Azine Mailer'),
         ];
-    }
-
-    /**
-     * @param array{address?: string, sender_name?: string}|string $fromEmail
-     *
-     * @return array{0: string, 1: string}
-     */
-    private function normalizeFromConfiguration(array|string $fromEmail): array
-    {
-        if (is_string($fromEmail)) {
-            return [$fromEmail, ''];
-        }
-
-        return [
-            (string) ($fromEmail['address'] ?? array_key_first($fromEmail) ?? ''),
-            (string) ($fromEmail['sender_name'] ?? (is_string(reset($fromEmail)) ? reset($fromEmail) : '')),
-        ];
-    }
-
-    /**
-     * @return list<Address>
-     */
-    private function normalizeAddresses(string|array|null $addresses, ?string $name = null): array
-    {
-        if (null === $addresses || '' === $addresses || [] === $addresses) {
-            return [];
-        }
-
-        if (is_string($addresses)) {
-            return [new Address($addresses, $name ?? '')];
-        }
-
-        $normalized = [];
-        foreach ($addresses as $email => $displayName) {
-            if (is_int($email)) {
-                $normalized[] = new Address((string) $displayName);
-            } else {
-                $normalized[] = new Address((string) $email, (string) $displayName);
-            }
-        }
-
-        return $normalized;
-    }
-
-    private function createMessageId(): string
-    {
-        $host = preg_replace('/[^a-z0-9.-]/i', '', gethostname() ?: 'localhost') ?: 'localhost';
-
-        return bin2hex(random_bytes(16)).'@'.$host;
-    }
-
-    private function appendBeforeBodyClose(string $html, string $addition): string
-    {
-        $position = stripos($html, '</body>');
-
-        return false === $position
-            ? $html.$addition
-            : substr_replace($html, $addition, $position, 0);
-    }
-
-    /**
-     * Replaces allowed image file paths and generated GD images with stable cid: references.
-     *
-     * @return array<string, array{cid: string, path?: string, data?: string, contentType?: string}>
-     */
-    private function prepareEmbeddedItems(array &$params): array
-    {
-        $embeddedItems = [];
-        $this->walkEmbeddedItems($params, $embeddedItems);
-
-        return $embeddedItems;
-    }
-
-    /**
-     * @param array<string, array{cid: string, path?: string, data?: string, contentType?: string}> $embeddedItems
-     */
-    private function walkEmbeddedItems(array &$params, array &$embeddedItems): void
-    {
-        foreach ($params as $key => &$value) {
-            if (is_array($value)) {
-                $this->walkEmbeddedItems($value, $embeddedItems);
-                continue;
-            }
-
-            if (is_string($value) && is_file($value) && $this->templateProvider->isFileAllowed($value)) {
-                $path = realpath($value);
-                if (false === $path) {
-                    continue;
-                }
-
-                $cid = 'azine-'.sha1($path);
-                $embeddedItems[$cid] = ['cid' => $cid, 'path' => $path];
-                $value = 'cid:'.$cid;
-                continue;
-            }
-
-            $isGdImage = class_exists(\GdImage::class) && $value instanceof \GdImage;
-            $isLegacyGdResource = is_resource($value) && str_starts_with(strtolower(get_resource_type($value)), 'gd');
-            if (!$isGdImage && !$isLegacyGdResource) {
-                continue;
-            }
-
-            ob_start();
-            imagepng($value);
-            $data = (string) ob_get_clean();
-            $cid = 'azine-generated-'.sha1($data);
-            $embeddedItems[$cid] = [
-                'cid' => $cid,
-                'data' => $data,
-                'contentType' => 'image/png',
-            ];
-            $value = 'cid:'.$cid;
-        }
-        unset($value);
-    }
-
-    /**
-     * @param array<string, array{cid: string, path?: string, data?: string, contentType?: string}> $embeddedItems
-     */
-    private function attachReferencedEmbeddedItems(Email $message, array $embeddedItems, string $htmlBody): void
-    {
-        foreach ($embeddedItems as $item) {
-            if (!str_contains($htmlBody, 'cid:'.$item['cid'])) {
-                continue;
-            }
-
-            if (isset($item['path'])) {
-                $message->embedFromPath($item['path'], $item['cid']);
-                continue;
-            }
-
-            if (isset($item['data'])) {
-                $message->embed($item['data'], $item['cid'], $item['contentType'] ?? null);
-            }
-        }
-    }
-
-    private function attachFiles(Email $message, array $attachments): void
-    {
-        foreach ($attachments as $fileName => $file) {
-            if (is_string($file)) {
-                if (!is_file($file)) {
-                    throw new FileException('File not found: '.$file);
-                }
-
-                $message->attachFromPath(
-                    $file,
-                    strlen((string) $fileName) >= 5 ? (string) $fileName : null,
-                );
-                continue;
-            }
-
-            $message->attach((string) $file, (string) $fileName);
-        }
     }
 
     private function getMailer(array $params): MailerInterface
     {
         if (
             null !== $this->immediateMailer
-            && !empty($params[AzineTemplateProvider::SEND_IMMEDIATELY_FLAG])
+            && true === ($params[AzineTemplateProvider::SEND_IMMEDIATELY_FLAG] ?? false)
         ) {
             return $this->immediateMailer;
         }
@@ -487,43 +325,139 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
         return $this->mailer;
     }
 
+    /**
+     * @return Address[]
+     */
+    private function normalizeAddresses(string|array|null $addresses, ?string $singleName): array
+    {
+        if (null === $addresses || '' === $addresses || [] === $addresses) {
+            return [];
+        }
+
+        if (is_string($addresses)) {
+            return [new Address($addresses, $singleName ?? '')];
+        }
+
+        $normalized = [];
+        foreach ($addresses as $key => $value) {
+            if (is_string($key) && !is_int($key)) {
+                $normalized[] = new Address($key, is_string($value) ? $value : '');
+            } elseif ($value instanceof Address) {
+                $normalized[] = $value;
+            } elseif (is_string($value)) {
+                $normalized[] = new Address($value);
+            }
+        }
+
+        return $normalized;
+    }
+
+    private function getTemplateBaseId(string $template): string
+    {
+        $template = str_replace('.txt.twig', '', $template);
+        $template = str_replace('.html.twig', '', $template);
+        $template = str_replace('.twig', '', $template);
+
+        return $template;
+    }
+
+    private function loadTemplate(string $template): TemplateWrapper
+    {
+        return $this->templateCache[$template] ??= $this->twig->load($template);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return array<string, string>
+     */
+    private function prepareEmbeddedItems(array $params): array
+    {
+        $embeddedItems = [];
+
+        array_walk_recursive($params, function (mixed $value) use (&$embeddedItems): void {
+            if (!is_string($value) || !is_file($value) || !$this->templateProvider->isFileAllowed($value)) {
+                return;
+            }
+
+            $cid = 'azine-'.hash('sha256', $value);
+            $embeddedItems[$value] = $cid;
+        });
+
+        return $embeddedItems;
+    }
+
+    /**
+     * @param array<string, string> $embeddedItems
+     */
+    private function attachReferencedEmbeddedItems(Email $message, array $embeddedItems, string &$htmlBody): void
+    {
+        foreach ($embeddedItems as $filePath => $cid) {
+            $message->embedFromPath($filePath, $cid);
+            $htmlBody = str_replace($filePath, 'cid:'.$cid, $htmlBody);
+        }
+
+        $message->html($htmlBody);
+    }
+
+    /**
+     * @param array<int|string, mixed> $attachments
+     */
+    private function attachFiles(Email $message, array $attachments): void
+    {
+        foreach ($attachments as $key => $attachment) {
+            $filePath = is_array($attachment) ? ($attachment['path'] ?? null) : $attachment;
+            $name = is_array($attachment) ? ($attachment['name'] ?? null) : (is_string($key) ? $key : null);
+
+            if (!is_string($filePath) || !is_file($filePath)) {
+                throw new FileException(sprintf('Unable to attach missing file "%s".', (string) $filePath));
+            }
+
+            $message->attachFromPath($filePath, is_string($name) ? $name : null);
+        }
+    }
+
+    private function appendBeforeBodyClose(string $htmlBody, string $trackingCode): string
+    {
+        if (false !== stripos($htmlBody, '</body>')) {
+            return preg_replace('/<\/body>/i', $trackingCode.'</body>', $htmlBody, 1) ?? $htmlBody.$trackingCode;
+        }
+
+        return $htmlBody.$trackingCode;
+    }
+
+    private function createMessageId(): string
+    {
+        return sprintf('%s@azine-mailer.local', bin2hex(random_bytes(16)));
+    }
+
+    /**
+     * @param array<string, mixed> $originalParams
+     * @param array<string, mixed> $renderedParams
+     * @param string[]             $failedRecipients
+     */
     private function storeWebView(
         string $templateBaseId,
-        array $webViewParams,
+        array $originalParams,
         array $renderedParams,
         string $emailLocale,
         Email $message,
         array $failedRecipients,
     ): void {
-        $tokenId = $this->templateProvider->getWebViewTokenId();
-        if (!array_key_exists($tokenId, $renderedParams)) {
-            return;
-        }
-
-        $webViewParams = $this->templateProvider->addTemplateVariablesFor($templateBaseId, $webViewParams);
-        $webViewParams = $this->templateProvider->makeImagePathsWebRelative($webViewParams, $emailLocale);
-        $webViewParams = $this->templateProvider->addTemplateSnippetsWithImagesFor(
-            $templateBaseId,
-            $webViewParams,
-            $emailLocale,
-            true,
-        );
-
-        $recipients = array_map(
+        $webVariables = $this->templateProvider->makeImagePathsWebRelative($originalParams, $emailLocale);
+        $sentEmail = new SentEmail();
+        $sentEmail->setTemplate($templateBaseId);
+        $sentEmail->setVariables($webVariables);
+        $sentEmail->setToken((string) ($renderedParams[$this->templateProvider->getWebViewTokenId()] ?? SentEmail::getNewToken()));
+        $sentEmail->setRecipients(array_map(
             static fn (Address $address): string => $address->getAddress(),
             $message->getTo(),
-        );
+        ));
+        $sentEmail->setFailedRecipients($failedRecipients);
 
-        $sentEmail = new SentEmail();
-        $sentEmail->setToken((string) $renderedParams[$tokenId]);
-        $sentEmail->setTemplate($templateBaseId);
-        $sentEmail->setSent(new \DateTime());
-        $sentEmail->setVariables($webViewParams);
-        $sentEmail->setRecipients(array_values(array_diff($recipients, $failedRecipients)));
-
-        $entityManager = $this->managerRegistry->getManager();
-        $entityManager->persist($sentEmail);
-        $entityManager->flush();
-        $entityManager->clear();
+        $manager = $this->managerRegistry->getManager();
+        $manager->persist($sentEmail);
+        $manager->flush();
+        $manager->clear();
     }
 }
