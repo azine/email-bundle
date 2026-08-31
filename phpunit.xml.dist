@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.5/phpunit.xsd"
          bootstrap="Tests/bootstrap.php"
->
+         cacheDirectory=".phpunit.cache"
+         colors="true"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="true"
+         failOnWarning="true">
     <php>
-        <env name="KERNEL_CLASS" value="AppKernel" />
+        <env name="KERNEL_CLASS" value="AppKernel"/>
     </php>
 
     <testsuites>
-        <testsuite name="Azine/EmailBundle Test Suite">
-            <directory>./Tests</directory>
+        <testsuite name="Azine EmailBundle PHP 8.5 Test Suite">
+            <directory suffix="Test.php">Tests</directory>
         </testsuite>
     </testsuites>
+
+    <source>
+        <include>
+            <directory suffix=".php">Command</directory>
+            <directory suffix=".php">Controller</directory>
+            <directory suffix=".php">DependencyInjection</directory>
+            <directory suffix=".php">Entity</directory>
+            <directory suffix=".php">Form</directory>
+            <directory suffix=".php">Services</directory>
+        </include>
+        <file>AzineEmailBundle.php</file>
+    </source>
 </phpunit>
