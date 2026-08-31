@@ -25,66 +25,40 @@ jobs:
 
           mailer = Path('Services/AzineTwigMailer.php')
           content = mailer.read_text()
-          old = '''    public function sendEmailUpdateConfirmationMessage(UserInterface $user, string $confirmationUrl): void
-    {
-'''
-          new = '''    public function sendEmailUpdateConfirmationMessage(
-        UserInterface $user,
-        string $confirmationUrl,
-        ?string $toEmail = null,
-    ): void {
-'''
+          old = "    public function sendEmailUpdateConfirmationMessage(UserInterface $user, string $confirmationUrl): void\n    {\n"
+          new = "    public function sendEmailUpdateConfirmationMessage(\n        UserInterface $user,\n        string $confirmationUrl,\n        ?string $toEmail = null,\n    ): void {\n"
           if old not in content:
               raise SystemExit('Email update method signature was not found')
           content = content.replace(old, new, 1)
 
-          old_recipient = '''            $from,
-            (string) $user->getEmail(),
-        );
-    }
-
-    /**
-     * @param array{address?: string, sender_name?: string} $from
-     */
-'''
-          new_recipient = '''            $from,
-            $toEmail ?? (string) $user->getEmail(),
-        );
-    }
-
-    /**
-     * @param array{address?: string, sender_name?: string} $from
-     */
-'''
+          old_recipient = "            $from,\n            (string) $user->getEmail(),\n        );\n    }\n\n    /**\n     * @param array{address?: string, sender_name?: string} $from\n     */\n"
+          new_recipient = "            $from,\n            $toEmail ?? (string) $user->getEmail(),\n        );\n    }\n\n    /**\n     * @param array{address?: string, sender_name?: string} $from\n     */\n"
           if old_recipient not in content:
               raise SystemExit('Email update recipient call was not found')
           mailer.write_text(content.replace(old_recipient, new_recipient, 1))
 
           test = Path('Tests/Services/AzineTwigSwiftMailerTest.php')
           content = test.read_text()
-          marker = '''    public function testImmediateFlagUsesImmediateMailer(): void
-'''
-          addition = '''    public function testEmailUpdateConfirmationCanTargetThePendingNewAddress(): void
-    {
-        $mailer = $this->createMock(MailerInterface::class);
-        $mailer
-            ->expects(self::once())
-            ->method('send')
-            ->with(self::callback(static function (Email $email): bool {
-                return 'new-address@example.com' === $email->getTo()[0]->getAddress();
-            }));
-
-        $user = $this->createMock(\\FOS\\UserBundle\\Model\\UserInterface::class);
-        $user->method('getEmail')->willReturn('old-address@example.com');
-
-        $this->createService($mailer)->sendEmailUpdateConfirmationMessage(
-            $user,
-            'https://example.test/confirm-email-update',
-            'new-address@example.com',
-        );
-    }
-
-'''
+          marker = "    public function testImmediateFlagUsesImmediateMailer(): void\n"
+          addition = (
+              "    public function testEmailUpdateConfirmationCanTargetThePendingNewAddress(): void\n"
+              "    {\n"
+              "        $mailer = $this->createMock(MailerInterface::class);\n"
+              "        $mailer\n"
+              "            ->expects(self::once())\n"
+              "            ->method('send')\n"
+              "            ->with(self::callback(static function (Email $email): bool {\n"
+              "                return 'new-address@example.com' === $email->getTo()[0]->getAddress();\n"
+              "            }));\n\n"
+              "        $user = $this->createMock(\\FOS\\UserBundle\\Model\\UserInterface::class);\n"
+              "        $user->method('getEmail')->willReturn('old-address@example.com');\n\n"
+              "        $this->createService($mailer)->sendEmailUpdateConfirmationMessage(\n"
+              "            $user,\n"
+              "            'https://example.test/confirm-email-update',\n"
+              "            'new-address@example.com',\n"
+              "        );\n"
+              "    }\n\n"
+          )
           if marker not in content:
               raise SystemExit('Test insertion marker was not found')
           test.write_text(content.replace(marker, addition + marker, 1))
