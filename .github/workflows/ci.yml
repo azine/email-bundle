@@ -66,5 +66,6 @@ jobs:
           --display-deprecations
           --display-phpunit-deprecations
           --display-phpunit-notices
+          --fail-on-phpunit-notice
           --display-notices
           --display-skipped
