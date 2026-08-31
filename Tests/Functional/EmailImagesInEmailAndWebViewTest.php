@@ -16,6 +16,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -57,7 +58,10 @@ class EmailImagesInEmailAndWebViewTest extends TestCase
             $router = $this->createMock(RouterInterface::class);
             $router->method('getContext')->willReturn(new RequestContext());
 
-            $translator = $this->createMock(TranslatorInterface::class);
+            $translator = $this->createMockForIntersectionOfInterfaces([
+                TranslatorInterface::class,
+                LocaleAwareInterface::class,
+            ]);
             $translator->method('getLocale')->willReturn('en');
 
             $provider = new ImageWebViewTemplateProvider($imagePath);
