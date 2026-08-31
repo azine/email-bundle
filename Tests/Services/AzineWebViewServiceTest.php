@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Services\AzineWebViewService;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 class AzineWebViewServiceTest extends TestCase
 {
     public function testDefaultCollectionsAreArrays(): void

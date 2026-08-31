@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Azine\EmailBundle\Tests\Services;
 
 use Azine\EmailBundle\Services\SpamCheckService;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 class SpamCheckServiceTest extends TestCase
 {
     public function testReturnsStructuredSuccessfulReport(): void

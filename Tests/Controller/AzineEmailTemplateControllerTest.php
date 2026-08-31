@@ -14,6 +14,7 @@ use Azine\EmailBundle\Services\WebViewServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +30,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
+#[AllowMockObjectsWithoutExpectations]
 class AzineEmailTemplateControllerTest extends TestCase
 {
     public function testIndexActionRendersTemplatesAndAddresses(): void

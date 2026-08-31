@@ -14,11 +14,13 @@ use Azine\EmailBundle\Services\TemplateProviderInterface;
 use Azine\EmailBundle\Services\TemplateTwigMailerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
+#[AllowMockObjectsWithoutExpectations]
 class AzineNotifierServiceTest extends TestCase
 {
     public function testAddNotificationPersistsAllValues(): void

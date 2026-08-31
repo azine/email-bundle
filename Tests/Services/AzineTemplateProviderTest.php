@@ -7,11 +7,13 @@ namespace Azine\EmailBundle\Tests\Services;
 use Azine\EmailBundle\DependencyInjection\AzineEmailExtension;
 use Azine\EmailBundle\Services\AzineTemplateProvider;
 use Azine\EmailBundle\Services\SymfonyMailerTemplateProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 class AzineTemplateProviderTest extends TestCase
 {
     public function testAddTemplateVariablesFor(): void

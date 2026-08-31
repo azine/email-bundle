@@ -6,6 +6,7 @@ namespace Azine\EmailBundle\Tests\Command;
 
 use Azine\EmailBundle\Command\SendNewsLetterCommand;
 use Azine\EmailBundle\Services\NotifierServiceInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 class SendNewsLetterCommandTest extends TestCase
 {
     public function testHelpExplainsSymfonyMailerDelivery(): void

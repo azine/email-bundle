@@ -12,6 +12,7 @@ use Azine\EmailBundle\Services\SymfonyMailerTemplateProviderInterface;
 use Azine\EmailBundle\Services\TemplateProviderInterface;
 use Azine\EmailBundle\Tests\LocaleAwareTranslatorStub;
 use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\MailerInterface;
@@ -21,6 +22,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
+#[AllowMockObjectsWithoutExpectations]
 class AzineTwigSwiftMailerTest extends TestCase
 {
     public function testSendsMultipartEmailWithLegacyServiceApi(): void
