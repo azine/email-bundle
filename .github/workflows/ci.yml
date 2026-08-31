@@ -54,5 +54,16 @@ jobs:
         if: matrix.dependency-mode == 'lowest'
         run: composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction
 
-      - name: Run test suite
-        run: vendor/bin/phpunit -c phpunit.xml.dist
+      - name: Lint PHP sources and tests
+        run: |
+          php -l AzineEmailBundle.php
+          php -l compat.php
+          find Command Controller DependencyInjection Entity Form Services Tests -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Run test suite with diagnostics
+        run: >-
+          vendor/bin/phpunit -c phpunit.xml.dist
+          --display-deprecations
+          --display-phpunit-deprecations
+          --display-notices
+          --display-skipped
