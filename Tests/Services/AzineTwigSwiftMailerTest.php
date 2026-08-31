@@ -17,6 +17,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -113,7 +114,10 @@ class AzineTwigSwiftMailerTest extends TestCase
         bool $sendImmediately = false,
     ): AzineTwigMailer {
         $provider = $this->createTemplateProvider($sendImmediately);
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createMockForIntersectionOfInterfaces([
+            TranslatorInterface::class,
+            LocaleAwareInterface::class,
+        ]);
         $translator->method('getLocale')->willReturn('en');
 
         $router = $this->createMock(RouterInterface::class);
