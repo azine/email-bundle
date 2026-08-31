@@ -9,6 +9,7 @@ use Azine\EmailBundle\Entity\SentEmail;
 use Azine\EmailBundle\Services\AzineEmailTwigExtension;
 use Azine\EmailBundle\Services\AzineTwigMailer;
 use Azine\EmailBundle\Services\TemplateProviderInterface;
+use Azine\EmailBundle\Tests\LocaleAwareTranslatorStub;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
@@ -16,8 +17,6 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\LocaleAwareInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -58,11 +57,7 @@ class EmailImagesInEmailAndWebViewTest extends TestCase
             $router = $this->createMock(RouterInterface::class);
             $router->method('getContext')->willReturn(new RequestContext());
 
-            $translator = $this->createMockForIntersectionOfInterfaces([
-                TranslatorInterface::class,
-                LocaleAwareInterface::class,
-            ]);
-            $translator->method('getLocale')->willReturn('en');
+            $translator = new LocaleAwareTranslatorStub('en');
 
             $provider = new ImageWebViewTemplateProvider($imagePath);
             $twig = new Environment(new ArrayLoader([
