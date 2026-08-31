@@ -259,8 +259,11 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
     /**
      * Backwards-compatible entry point used by the email-update confirmation bundle.
      */
-    public function sendEmailUpdateConfirmationMessage(UserInterface $user, string $confirmationUrl): void
-    {
+    public function sendEmailUpdateConfirmationMessage(
+        UserInterface $user,
+        string $confirmationUrl,
+        ?string $toEmail = null,
+    ): void {
         $template = (string) ($this->parameters['template']['email_updating'] ?? '');
         if ('' === $template) {
             throw new \LogicException('No email update confirmation template is configured.');
@@ -273,7 +276,7 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
             $template,
             ['user' => $user, 'confirmationUrl' => $confirmationUrl],
             $from,
-            (string) $user->getEmail(),
+            $toEmail ?? (string) $user->getEmail(),
         );
     }
 

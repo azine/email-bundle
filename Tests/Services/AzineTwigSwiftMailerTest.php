@@ -55,6 +55,26 @@ class AzineTwigSwiftMailerTest extends TestCase
         self::assertInstanceOf(Email::class, $message);
     }
 
+    public function testEmailUpdateConfirmationCanTargetThePendingNewAddress(): void
+    {
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer
+            ->expects(self::once())
+            ->method('send')
+            ->with(self::callback(static function (Email $email): bool {
+                return 'new-address@example.com' === $email->getTo()[0]->getAddress();
+            }));
+
+        $user = $this->createMock(\FOS\UserBundle\Model\UserInterface::class);
+        $user->method('getEmail')->willReturn('old-address@example.com');
+
+        $this->createService($mailer)->sendEmailUpdateConfirmationMessage(
+            $user,
+            'https://example.test/confirm-email-update',
+            'new-address@example.com',
+        );
+    }
+
     public function testImmediateFlagUsesImmediateMailer(): void
     {
         $defaultMailer = $this->createMock(MailerInterface::class);
