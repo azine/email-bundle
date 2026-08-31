@@ -177,7 +177,6 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
                     $params,
                     $emailLocale,
                     $message,
-                    $failedRecipients,
                 );
             }
 
@@ -434,7 +433,6 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
     /**
      * @param array<string, mixed> $originalParams
      * @param array<string, mixed> $renderedParams
-     * @param string[]             $failedRecipients
      */
     private function storeWebView(
         string $templateBaseId,
@@ -442,7 +440,6 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
         array $renderedParams,
         string $emailLocale,
         Email $message,
-        array $failedRecipients,
     ): void {
         $webVariables = $this->templateProvider->makeImagePathsWebRelative($originalParams, $emailLocale);
         $sentEmail = new SentEmail();
@@ -453,7 +450,6 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
             static fn (Address $address): string => $address->getAddress(),
             $message->getTo(),
         ));
-        $sentEmail->setFailedRecipients($failedRecipients);
 
         $manager = $this->managerRegistry->getManager();
         $manager->persist($sentEmail);
