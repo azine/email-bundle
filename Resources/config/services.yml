@@ -66,8 +66,8 @@ services:
                     resetting: '%fos_user.resetting.email.template%'
                     email_updating: '%azine_email_update_confirmation.template%'
                 from_email:
-                    confirmation: '%fos_user.registration.confirmation.from_email%'
-                    resetting: '%fos_user.resetting.email.from_email%'
+                    confirmation: '%fos_user.registration.confirmation.from_address%'
+                    resetting: '%fos_user.resetting.email.from_address%'
                 no_reply: '%azine_email_no_reply%'
             $immediateMailer: '@azine_email_immediate_mailer_service'
 
@@ -115,11 +115,17 @@ services:
         tags:
             - { name: twig.extension }
 
+    Azine\EmailBundle\Services\AzineEmailTwigExtension:
+        alias: azine.email.bundle.twig.filters
+
     azine_email.spam_check_service:
         class: Azine\EmailBundle\Services\SpamCheckService
         arguments:
             $httpClient: '@http_client'
             $endpoint: '%azine_email_spam_check_endpoint%'
+
+    Azine\EmailBundle\Services\SpamCheckService:
+        alias: azine_email.spam_check_service
 
     Azine\EmailBundle\Controller\AzineEmailTemplateController:
         public: true
