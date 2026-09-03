@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.3
+
+- Replace the removed Doctrine ORM YAML mapping driver with XML mappings for `Notification` and `SentEmail`.
+- Use the current `json` field type for notification template variables while preserving the existing database column contract.
+- Add regression coverage that loads and discovers both mappings with Doctrine ORM 3.
+
 ## 5.0.1
 
 - Extend `AzineTwigMailer::sendEmailUpdateConfirmationMessage()` with an optional explicit recipient address.
