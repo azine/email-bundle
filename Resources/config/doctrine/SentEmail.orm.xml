@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping">
+  <entity name="Azine\EmailBundle\Entity\SentEmail" table="sent_email" repository-class="Azine\EmailBundle\Entity\Repositories\SentEmailRepository">
+    <id name="id" type="integer"><generator strategy="AUTO"/></id>
+    <field name="recipients" type="azine_email_legacy_array" nullable="true"/>
+    <field name="template" type="string" length="127"/>
+    <field name="variables" type="azine_email_legacy_array"/>
+    <field name="sent" type="datetime"/>
+    <field name="token" type="string" length="25"/>
+  </entity>
+</doctrine-mapping>
