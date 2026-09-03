@@ -9,16 +9,18 @@ use Azine\EmailBundle\Entity\Repositories\NotificationRepository;
 use Azine\EmailBundle\Entity\Repositories\SentEmailRepository;
 use Azine\EmailBundle\Entity\SentEmail;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\Mapping\Driver\XmlDriver;
+use Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver;
 use PHPUnit\Framework\TestCase;
 
 final class DoctrineMappingTest extends TestCase
 {
-    private XmlDriver $driver;
+    private SimplifiedXmlDriver $driver;
 
     protected function setUp(): void
     {
-        $this->driver = new XmlDriver(__DIR__.'/../Resources/config/doctrine', '.orm.xml');
+        $this->driver = new SimplifiedXmlDriver([
+            __DIR__.'/../Resources/config/doctrine' => 'Azine\\EmailBundle\\Entity',
+        ]);
     }
 
     public function testNotificationMappingLoadsWithDoctrineOrm3(): void
