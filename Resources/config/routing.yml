@@ -33,3 +33,13 @@ azine_email_serve_template_image:
     requirements:
         filename: .+
     methods: [GET]
+
+azine_admin_email_dashboard:
+    path: /admin/email/dashboard
+    controller: Azine\EmailBundle\Controller\AzineEmailController::emailsDashboardAction
+    methods: [GET]
+
+azine_admin_email_details_by_token:
+    path: /admin/email/details/{token}
+    controller: Azine\EmailBundle\Controller\AzineEmailController::emailDetailsByTokenAction
+    methods: [GET]
