@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping">
+  <entity name="Azine\EmailBundle\Entity\Notification" table="notification" repository-class="Azine\EmailBundle\Entity\Repositories\NotificationRepository">
+    <id name="id" type="integer"><generator strategy="AUTO"/></id>
+    <field name="recipient_id" type="integer"/>
+    <field name="title" type="string" length="255"/>
+    <field name="content" type="text"/>
+    <field name="variables" type="json" nullable="true"/>
+    <field name="template" type="string" length="255"/>
+    <field name="send_immediately" type="boolean"/>
+    <field name="importance" type="integer"/>
+    <field name="sent" type="datetime" nullable="true"/>
+    <field name="created" type="datetime"/>
+    <lifecycle-callbacks>
+      <lifecycle-callback type="prePersist" method="setCreatedValue"/>
+    </lifecycle-callbacks>
+  </entity>
+</doctrine-mapping>
