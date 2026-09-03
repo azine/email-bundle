@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.4
+
+- Restore the stored-email admin dashboard and detail routes for Symfony 7.4 applications.
+- Replace the legacy controller service locator with explicit Doctrine, paginator, form and Twig dependencies.
+- Use Twig namespace notation in the stored-email admin templates and add controller regression coverage.
+
 ## 5.0.3
 
 - Replace the removed Doctrine ORM YAML mapping driver with XML mappings for `Notification` and `SentEmail`.

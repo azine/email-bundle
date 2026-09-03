@@ -127,6 +127,17 @@ services:
     Azine\EmailBundle\Services\SpamCheckService:
         alias: azine_email.spam_check_service
 
+    Azine\EmailBundle\Controller\AzineEmailController:
+        public: true
+        arguments:
+            $managerRegistry: '@doctrine'
+            $paginator: '@knp_paginator'
+            $formFactory: '@form.factory'
+            $twig: '@twig'
+            $webViewRetentionDays: '%azine_email_web_view_retention%'
+        tags:
+            - { name: controller.service_arguments }
+
     Azine\EmailBundle\Controller\AzineEmailTemplateController:
         public: true
         arguments:
