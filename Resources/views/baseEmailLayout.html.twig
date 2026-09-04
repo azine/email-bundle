@@ -1,5 +1,4 @@
 {% autoescape false %}
-{% spaceless %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -81,9 +80,9 @@ the first loop get's all the arrays, the second loop get's the template from the
 						{% for contentItemArrays in contentItems  %}
 							{% for contentItemTemplate, contentItemParams in contentItemArrays %}
 								{{ cellSeparator }}{# You can split your content into sections with the cellSepartor-variable. #}
-								{% filter addCampaignParamsForTemplate(contentItemTemplate, contentItemParams) %}
+								{% apply addCampaignParamsForTemplate(contentItemTemplate, contentItemParams) %}
 									{% include contentItemTemplate ~ '.html.twig' with contentItemParams %}
-								{% endfilter %}
+								{% endapply %}
 			  				{% endfor %}
 			  			{% endfor %}{# end for contentItems #}
 			  		{% endif %}
@@ -127,5 +126,4 @@ the first loop get's all the arrays, the second loop get's the template from the
 		</table>
 	</body>
 </html>
-{% endspaceless %}
 {% endautoescape %}

@@ -1,4 +1,4 @@
-{% extends 'AzineEmailBundle::baseEmailLayout.txt.twig' %}
+{% extends '@AzineEmail/baseEmailLayout.txt.twig' %}
 {% autoescape false %}
 
 {% block content %}{# override this block for emails that don't contain "contentItems" => password-reset, account-confirmation, other custom emails of your application #}
@@ -35,5 +35,5 @@ Add "{{ sendMailAccountAddress }}" to your address book to ensure delivery of az
 
 {% block body_html %}
 {# update this reference to include the twig-template with the html-version of your email. #}
-{% include 'AzineEmailBundle::exampleEmailLayout.html.twig' %}
+{% include '@AzineEmail/exampleEmailLayout.html.twig' %}
 {% endblock %}

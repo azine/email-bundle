@@ -1,6 +1,5 @@
-{% extends 'AzineEmailBundle::baseEmailLayout.html.twig' %}
+{% extends '@AzineEmail/baseEmailLayout.html.twig' %}
 {% autoescape false %}
-{% spaceless %}
 
 {% block title %}Your html-title here{% endblock %}
 
@@ -51,5 +50,4 @@
     <a style="color:#acacac; text-decoration:none;" href="http://example.com#contact">Contact</a>
 {% endblock %}
 
-{% endspaceless %}
 {% endautoescape %}
