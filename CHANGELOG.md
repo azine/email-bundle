@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.5
+
+- Replace removed Twig filter blocks with Twig 3 apply blocks in multipart email layouts.
+- Remove deprecated spaceless blocks and migrate all bundled template references to Twig namespace notation.
+- Add parser-based Twig 3 compatibility coverage for every bundled template.
+
 ## 5.0.4
 
 - Restore the stored-email admin dashboard and detail routes for Symfony 7.4 applications.
