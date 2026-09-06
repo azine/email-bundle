@@ -51,7 +51,7 @@ class EmailImagesInEmailAndWebViewTest extends TestCase
                     return true;
                 }));
             $entityManager->expects(self::once())->method('flush');
-            $entityManager->expects(self::once())->method('clear');
+            $entityManager->expects(self::never())->method('clear');
 
             $registry = $this->createMock(ManagerRegistry::class);
             $registry->method('getManager')->willReturn($entityManager);
@@ -112,6 +112,8 @@ TWIG,
             self::assertCount(1, $sentMessage->getAttachments());
 
             self::assertInstanceOf(SentEmail::class, $storedWebView);
+            self::assertInstanceOf(\DateTimeInterface::class, $storedWebView->getSent());
+            self::assertLessThanOrEqual(5, abs(time() - $storedWebView->getSent()->getTimestamp()));
             self::assertSame(['recipient@example.com'], $storedWebView->getRecipients());
             self::assertSame('/email/web-images/logo.png', $storedWebView->getVariables()['image']);
             self::assertNotEmpty($storedWebView->getToken());

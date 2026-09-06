@@ -446,6 +446,7 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
     ): void {
         $webVariables = $this->templateProvider->makeImagePathsWebRelative($originalParams, $emailLocale);
         $sentEmail = new SentEmail();
+        $sentEmail->setSent(new \DateTime());
         $sentEmail->setTemplate($templateBaseId);
         $sentEmail->setVariables($webVariables);
         $sentEmail->setToken((string) ($renderedParams[$this->templateProvider->getWebViewTokenId()] ?? SentEmail::getNewToken()));
@@ -457,6 +458,5 @@ class AzineTwigMailer implements TemplateTwigMailerInterface, FosUserMailerInter
         $manager = $this->managerRegistry->getManager();
         $manager->persist($sentEmail);
         $manager->flush();
-        $manager->clear();
     }
 }
