@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   tests:
-    name: "PHPUnit (PHP 8.5, deps: ${{ matrix.dependency-mode }})"
+    name: "PHPUnit (PHP 8.5.12, deps: ${{ matrix.dependency-mode }})"
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -28,7 +28,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.5'
+          php-version: '8.5.12'
           coverage: none
           extensions: ctype, dom, fileinfo, filter, gd, iconv, intl, json, mailparse, mbstring, pdo, pdo_sqlite, simplexml, tokenizer, xml, xmlwriter
           tools: composer:v2

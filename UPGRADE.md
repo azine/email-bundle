@@ -1,13 +1,13 @@
 Azine Email Bundle Upgrade Instructions
 ========================================
 
-## Upgrade to PHP 8.5 / Symfony 7.4
+## Upgrade to PHP 8.5.12 / Symfony 7.4
 
 This release is a new major-version upgrade. It keeps the existing Azine email feature set—multipart Twig templates, newsletters, notifications, account emails, inline images, attachments, tracking, test sends, spam scoring and persisted web views—while replacing unsupported framework integrations.
 
 ### Runtime requirements
 
-- PHP `^8.5`;
+- PHP `^8.5.12`;
 - Symfony `^7.4`;
 - Doctrine ORM `^3.6`;
 - Twig `^3.14`;

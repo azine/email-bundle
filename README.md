@@ -4,7 +4,7 @@ Symfony bundle for multipart Twig emails, newsletters, notifications, account em
 
 ## Requirements
 
-- PHP 8.5
+- PHP 8.5.12+
 - Symfony 7.4
 - Doctrine ORM 3.6
 - Twig 3.14

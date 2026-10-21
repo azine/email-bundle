@@ -10,6 +10,9 @@ tools:
     php_cs_fixer: true
 
 build:
+    environment:
+        php:
+            version: '8.5.12'
     nodes:
         analysis:
             tests:
